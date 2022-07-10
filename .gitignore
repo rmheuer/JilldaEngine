@@ -22,3 +22,13 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Emacs temp files
+*~
+
+# IntelliJ IDEA project files
+.idea/
+*.iml
+
+# GUI layout
+gui-layout.bin
