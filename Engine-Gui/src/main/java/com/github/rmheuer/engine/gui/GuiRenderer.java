@@ -177,6 +177,8 @@ public final class GuiRenderer implements WorldLocalSingleton {
             WindowData win = windows.get(title);
             mainDraw.join(win.draw);
         }
+
+	input.endFrame();
     }
 
     public CompositeDrawList2D getDrawList() {
