@@ -37,4 +37,14 @@ public abstract class ResourceFile implements Resource {
         buf.flip();
         return buf;
     }
+
+    @Override
+    public boolean isFile() {
+	return true;
+    }
+
+    @Override
+    public boolean isGroup() {
+	return false;
+    }
 }

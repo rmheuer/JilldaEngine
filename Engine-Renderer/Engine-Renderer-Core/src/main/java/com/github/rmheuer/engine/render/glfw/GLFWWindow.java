@@ -23,7 +23,6 @@ import com.github.rmheuer.engine.render.event.WindowResizeEvent;
 
 import com.github.rmheuer.engine.render.framebuffer.Framebuffer;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.Platform;
 
 import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
@@ -143,22 +142,14 @@ public abstract class GLFWWindow implements Window {
     }
 
     private float convertScrollToPixels(double val) {
-        switch (Platform.get()) {
-            case LINUX:
-                return (float) val;
-            case MACOSX:
-                return (float) (val * 10);
-            case WINDOWS:
-                return (float) (val * 120);
-        }
-        return 0;
+	return (float) (val * 120);
     }
 
     private void scrollCallback(long window, double x, double y) {
         if (window != this.window)
             return;
 
-        Game.get().postEvent(new MouseScrollEvent(cursorX, cursorY, convertScrollToPixels(x), convertScrollToPixels(y)));
+        Game.get().postEvent(new MouseScrollEvent(cursorX, cursorY, (float) x, (float) y, convertScrollToPixels(x), convertScrollToPixels(y)));
     }
 
     private void keyCallback(long window, int key, int scancode, int action, int mods) {

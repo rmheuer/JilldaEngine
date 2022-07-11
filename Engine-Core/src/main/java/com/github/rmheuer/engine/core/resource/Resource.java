@@ -4,4 +4,7 @@ public interface Resource {
     String getName();
     String getPath();
     String getAbsolutePath();
+
+    boolean isFile();
+    boolean isGroup();
 }

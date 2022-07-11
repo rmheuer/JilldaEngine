@@ -120,7 +120,7 @@ public final class GuiInput {
     }
 
     private void onMouseScroll(MouseScrollEvent event) {
-        scroll.add(event.getScrollX(), event.getScrollY());
+        scroll.add(event.getScrollPixelsX(), event.getScrollPixelsY());
         System.out.println(event);
         onMouse(event);
     }

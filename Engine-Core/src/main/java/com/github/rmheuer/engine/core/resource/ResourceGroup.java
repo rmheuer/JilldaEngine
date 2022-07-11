@@ -42,4 +42,14 @@ public interface ResourceGroup extends Resource {
     default Set<ResourceGroup> getSubgroups() {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    default boolean isGroup() {
+	return true;
+    }
+
+    @Override
+    default boolean isFile() {
+	return false;
+    }
 }

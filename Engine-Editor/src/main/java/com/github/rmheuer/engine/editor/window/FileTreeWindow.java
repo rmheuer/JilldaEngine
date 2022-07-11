@@ -1,10 +1,12 @@
 package com.github.rmheuer.engine.editor.window;
 
 import com.github.rmheuer.engine.core.input.mouse.MouseButton;
+import com.github.rmheuer.engine.core.main.Game;
 import com.github.rmheuer.engine.core.resource.Resource;
 import com.github.rmheuer.engine.core.resource.ResourceFile;
 import com.github.rmheuer.engine.core.resource.ResourceGroup;
 import com.github.rmheuer.engine.core.resource.file.FileResourceGroup;
+import com.github.rmheuer.engine.editor.event.FileTreeSelectionChangeEvent;
 import com.github.rmheuer.engine.gui.GuiRenderable;
 import com.github.rmheuer.engine.gui.GuiRenderer;
 import com.github.rmheuer.engine.gui.GuiTreeFlags;
@@ -22,13 +24,18 @@ public final class FileTreeWindow implements GuiRenderable {
         selection = null;
     }
 
+    private void select(Resource res) {
+	selection = res;
+	Game.get().postImmediateEvent(new FileTreeSelectionChangeEvent(res));
+    }
+
     private void showFile(GuiRenderer g, ResourceFile res) {
         int flags = GuiTreeFlags.Leaf | GuiTreeFlags.BackgroundFillsAvailX | GuiTreeFlags.ToggleRequiresSelection;
         if (res.equals(selection))
             flags |= GuiTreeFlags.Selected;
         g.pushTree(res.getName(), res.getAbsolutePath(), flags);
         if (g.isWidgetClicked(MouseButton.LEFT))
-            selection = res;
+            select(res);
     }
 
     private void showGroup(GuiRenderer g, ResourceGroup group, boolean isRoot) {
@@ -47,7 +54,7 @@ public final class FileTreeWindow implements GuiRenderable {
 
         boolean open = g.pushTree(label.toString(), group.getAbsolutePath(), flags);
         if (g.isWidgetClicked(MouseButton.LEFT))
-            selection = group;
+            select(group);
 
         if (open) {
             List<ResourceGroup> groups = new ArrayList<>(group.getSubgroups());
