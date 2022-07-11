@@ -5,6 +5,7 @@ import com.github.rmheuer.engine.core.ecs.system.GameSystem;
 import com.github.rmheuer.engine.core.main.Game;
 import com.github.rmheuer.engine.core.math.Transform;
 import com.github.rmheuer.engine.render.RenderContext;
+import com.github.rmheuer.engine.render.RendererAPI;
 import com.github.rmheuer.engine.render.camera.Camera;
 import com.github.rmheuer.engine.render.event.RenderSceneEvent;
 import com.github.rmheuer.engine.render.framebuffer.Framebuffer;
@@ -25,7 +26,7 @@ public final class RenderFrameSystem implements GameSystem {
             }
 
             fb.bind();
-            ctx.getBackend().clear();
+            RendererAPI.getBackend().clear();
             Game.get().postImmediateEvent(new RenderSceneEvent(camera, tx));
             fb.unbind();
         });

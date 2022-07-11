@@ -31,17 +31,19 @@ public final class Renderer2D {
         mesh = backend.createMesh(PrimitiveType.TRIANGLES);
         try {
             shader = backend.createShaderProgram(
-                    backend.createShader(new JarResourceFile(VERTEX_SHADER_PATH), ShaderType.VERTEX),
-                    backend.createShader(new JarResourceFile(FRAGMENT_SHADER_PATH), ShaderType.FRAGMENT)
+                    backend.createShader(new JarResourceFile(VERTEX_SHADER_PATH)),
+                    backend.createShader(new JarResourceFile(FRAGMENT_SHADER_PATH))
             );
+            shader.claim();
         } catch (IOException e) {
-            throw new RuntimeException("Failed to load built-in shaders");
+            throw new RuntimeException("Failed to load built-in shaders", e);
         }
 
         byte[] whiteData = {
                 (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
         };
         whiteTex = backend.createTexture(TextureData.fromByteArray(whiteData, 1, 1));
+        whiteTex.claim();
 
         shader.bind();
         for (int i = 0; i < MAX_TEXTURE_SLOTS; i++) {
@@ -84,8 +86,8 @@ public final class Renderer2D {
     }
 
     public void delete() {
-        whiteTex.delete();
-        shader.delete();
+        whiteTex.release();
+        shader.release();
         mesh.delete();
     }
 }

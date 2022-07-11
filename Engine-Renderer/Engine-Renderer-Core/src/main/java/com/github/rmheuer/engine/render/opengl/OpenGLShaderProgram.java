@@ -8,7 +8,7 @@ import static org.lwjgl.opengl.GL33C.*;
 
 // TODO: Preprocess GLSL to find uniforms, attributes, and outputs
 // TODO: Add #include to GLSL
-public final class OpenGLShaderProgram implements ShaderProgram {
+public final class OpenGLShaderProgram extends ShaderProgram {
     private final int id;
     private final Shader[] shaders;
 
@@ -17,6 +17,7 @@ public final class OpenGLShaderProgram implements ShaderProgram {
 	this.shaders = shaders;
 
 	for (Shader shader : shaders) {
+		shader.claim();
 	    OpenGLShader glShader = (OpenGLShader) shader;
 	    glAttachShader(id, glShader.getId());
 	}
@@ -44,10 +45,15 @@ public final class OpenGLShaderProgram implements ShaderProgram {
 	return new OpenGLShaderUniform(name, location);
     }
 
-    @Override
-    public void delete() {
+	@Override
+	public Shader[] getShaders() {
+		return shaders;
+	}
+
+	@Override
+    public void freeAsset() {
 	for (Shader shader : shaders) {
-	    shader.delete();
+	    shader.release();
 	}
 	glDeleteProgram(id);
     }

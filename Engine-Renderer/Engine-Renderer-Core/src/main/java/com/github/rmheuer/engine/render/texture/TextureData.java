@@ -1,5 +1,6 @@
 package com.github.rmheuer.engine.render.texture;
 
+import com.github.rmheuer.engine.core.asset.Asset;
 import com.github.rmheuer.engine.core.resource.ResourceFile;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryStack;
@@ -11,7 +12,7 @@ import java.io.IOException;
 import static org.lwjgl.stb.STBImage.stbi_image_free;
 import static org.lwjgl.stb.STBImage.stbi_load_from_memory;
 
-public final class TextureData {
+public final class TextureData extends Asset {
     public static TextureData decode(ResourceFile res) throws IOException {
         ByteBuffer data = res.readAsDirectByteBuffer();
 
@@ -74,7 +75,8 @@ public final class TextureData {
         return height;
     }
 
-    public void free() {
+    @Override
+    public void freeAsset() {
         freeFn.run();
     }
 }

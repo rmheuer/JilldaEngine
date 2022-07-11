@@ -5,7 +5,7 @@ import com.github.rmheuer.engine.core.ecs.system.GameSystem;
 import com.github.rmheuer.engine.core.ecs.system.annotation.After;
 import com.github.rmheuer.engine.core.ecs.system.annotation.Before;
 import com.github.rmheuer.engine.core.ecs.system.schedule.Stage;
-import com.github.rmheuer.engine.render.RenderContext;
+import com.github.rmheuer.engine.render.RendererAPI;
 import com.github.rmheuer.engine.render.system.RenderContextSystem;
 import com.github.rmheuer.engine.render2d.RenderContext2D;
 import com.github.rmheuer.engine.render2d.Renderer2D;
@@ -18,8 +18,7 @@ public final class RenderContext2DSystem implements GameSystem {
         RenderContext2D ctx2d = new RenderContext2D();
         world.setLocalSingleton(ctx2d);
 
-        RenderContext ctx = world.getLocalSingleton(RenderContext.class);
-        ctx2d.setRenderer(new Renderer2D(ctx.getBackend()));
+        ctx2d.setRenderer(new Renderer2D(RendererAPI.getBackend()));
     }
 
     @Override

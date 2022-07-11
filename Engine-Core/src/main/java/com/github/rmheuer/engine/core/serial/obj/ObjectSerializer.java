@@ -50,6 +50,10 @@ public final class ObjectSerializer {
         return new SerializationContext(codecCache).serialize(obj);
     }
 
+    public <T> SerialNode serialize(T obj, Class<? super T> inferredType) {
+        return new SerializationContext(codecCache).serialize(obj, inferredType);
+    }
+
     public <T> T deserialize(SerialNode node, Class<T> type) {
         return new DeserializationContext(codecCache).deserialize(node, type);
     }

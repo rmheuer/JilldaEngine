@@ -90,6 +90,7 @@ public final class TrueTypeFont extends Font {
             TextureSettings atlasSettings = new TextureSettings()
                     .setFilters(TextureFilter.NEAREST);
             atlas = backend.createTexture(atlasData, atlasSettings);
+            atlas.claim();
 
             STBTTAlignedQuad q = STBTTAlignedQuad.malloc(stack);
             glyphs = new GlyphInfo[CHAR_COUNT];
@@ -132,7 +133,7 @@ public final class TrueTypeFont extends Font {
 
     @Override
     public void delete() {
-        atlas.delete();
+        atlas.release();
         fontInfo.free();
         cdata.free();
     }

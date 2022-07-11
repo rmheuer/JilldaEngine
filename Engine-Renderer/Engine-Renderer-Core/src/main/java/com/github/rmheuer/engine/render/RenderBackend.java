@@ -21,7 +21,7 @@ public interface RenderBackend {
     
     // Primitive creators
     Window createWindow(WindowSettings settings);
-    Shader createShader(ResourceFile res, ShaderType type) throws IOException;
+    Shader createShader(ResourceFile res) throws IOException;
     ShaderProgram createShaderProgram(Shader... shaders);
     <T extends Vertex> Mesh<T> createMesh(PrimitiveType primType);
     Texture createTexture(ResourceFile res, TextureSettings settings) throws IOException;

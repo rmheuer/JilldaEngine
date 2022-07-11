@@ -1,10 +1,13 @@
 package com.github.rmheuer.engine.render.texture;
 
-public interface Texture {
-    void bindToSlot(int slot);
+import com.github.rmheuer.engine.core.asset.Asset;
 
-    int getWidth();
-    int getHeight();
-    
-    void delete();
+public abstract class Texture extends Asset {
+    public abstract void bindToSlot(int slot);
+
+    public abstract int getWidth();
+    public abstract int getHeight();
+
+    public abstract TextureSettings getSettings();
+    public abstract TextureData getSourceData();
 }

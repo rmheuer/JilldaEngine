@@ -1,5 +1,6 @@
 package com.github.rmheuer.engine.core.main;
 
+import com.github.rmheuer.engine.core.asset.AssetManager;
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
 import com.github.rmheuer.engine.core.ecs.system.schedule.Stage;
@@ -30,6 +31,7 @@ public final class Game {
     private SystemScheduler schedule;
     private Queue<Event> eventQueue;
     private InputManager inputManager;
+    private AssetManager assetManager;
 
     public static Game get() {
         return INSTANCE;
@@ -61,6 +63,7 @@ public final class Game {
     private void init() {
         eventQueue = new ConcurrentLinkedQueue<>();
         inputManager = new InputManager();
+        assetManager = new AssetManager();
 
         Set<GameSystem> systems = loadSystems();
         world = new World(systems);
@@ -156,5 +159,9 @@ public final class Game {
 
     public InputManager getInputManager() {
         return inputManager;
+    }
+
+    public AssetManager getAssetManager() {
+        return assetManager;
     }
 }

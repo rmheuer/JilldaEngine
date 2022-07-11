@@ -187,6 +187,7 @@ public final class BinarySerialDecoder {
 
     public SerialNode decode() throws IOException {
 	SerialNode node = decodeNode();
+	in.close();
 	if (!unsatisfiedReferences.isEmpty()) {
 	    StringBuilder message = new StringBuilder("Unsatisfied reference ids: ");
 	    boolean comma = false;

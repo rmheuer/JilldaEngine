@@ -35,6 +35,7 @@ public final class BinarySerialCodec implements SerialCodec {
 	DataOutputStream out = new DataOutputStream(rawOut);
 	BinarySerialEncoder encoder = new BinarySerialEncoder(out);
 	encoder.encode(node);
+    encoder.close();
     }
 
     @Override

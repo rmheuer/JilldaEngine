@@ -10,18 +10,24 @@ import java.io.IOException;
 
 import static org.lwjgl.opengl.GL33C.*;
 
-public final class OpenGLTexture implements Texture {
+public final class OpenGLTexture extends Texture {
     private final int id;
     private final int width;
     private final int height;
+    private final TextureSettings settings;
+    private final TextureData data;
 
     public OpenGLTexture(ResourceFile res, TextureSettings settings) throws IOException {
         this(TextureData.decode(res), settings);
     }
 
     public OpenGLTexture(TextureData data, TextureSettings settings) {
+        this.data = data;
         width = data.getWidth();
         height = data.getHeight();
+        this.settings = settings;
+
+        data.claim();
 
         id = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, id);
@@ -38,8 +44,6 @@ public final class OpenGLTexture implements Texture {
                 GL_UNSIGNED_BYTE,
                 data.getPixels()
         );
-
-        data.free();
     }
 
     private int getGlFilter(TextureFilter filter) {
@@ -74,7 +78,18 @@ public final class OpenGLTexture implements Texture {
     }
 
     @Override
-    public void delete() {
+    public TextureSettings getSettings() {
+        return settings;
+    }
+
+    @Override
+    public TextureData getSourceData() {
+        return data;
+    }
+
+    @Override
+    public void freeAsset() {
         glDeleteTextures(id);
+        data.release();
     }
 }

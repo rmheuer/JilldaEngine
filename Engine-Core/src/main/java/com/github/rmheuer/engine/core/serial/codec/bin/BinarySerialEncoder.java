@@ -169,4 +169,8 @@ public final class BinarySerialEncoder {
 	preprocess(node, 1);
 	encodeNode(node);
     }
+
+    public void close() throws IOException {
+    	out.close();
+	}
 }

@@ -40,8 +40,8 @@ public final class OpenGLBackend implements RenderBackend {
     }
 
     @Override
-    public Shader createShader(ResourceFile res, ShaderType type) throws IOException {
-        return new OpenGLShader(res, type);
+    public Shader createShader(ResourceFile res) throws IOException {
+        return new OpenGLShader(res);
     }
 
     @Override

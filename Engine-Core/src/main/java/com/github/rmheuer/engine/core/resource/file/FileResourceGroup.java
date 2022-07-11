@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.Set;
 
 // TODO: Cache path and absolute path
-public final class FileResourceGroup implements ResourceGroup {
+public final class FileResourceGroup extends ResourceGroup {
     private final File file;
 
     public FileResourceGroup(String filesystemPath) {
