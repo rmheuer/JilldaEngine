@@ -9,7 +9,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Scanner;
 
-public abstract class ResourceFile implements Resource {
+public abstract class ResourceFile extends Resource {
     /**
      * The character used to separate entries within a path.
      */
@@ -36,15 +36,5 @@ public abstract class ResourceFile implements Resource {
         buf.put(data);
         buf.flip();
         return buf;
-    }
-
-    @Override
-    public boolean isFile() {
-	return true;
-    }
-
-    @Override
-    public boolean isGroup() {
-	return false;
     }
 }

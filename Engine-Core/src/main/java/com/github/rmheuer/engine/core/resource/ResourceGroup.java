@@ -2,16 +2,16 @@ package com.github.rmheuer.engine.core.resource;
 
 import java.util.Set;
 
-public interface ResourceGroup extends Resource {
-    ResourceFile getResource(String name);
-    ResourceGroup getSubgroup(String name);
+public abstract class ResourceGroup extends Resource {
+    public abstract ResourceFile getResource(String name);
+    public abstract ResourceGroup getSubgroup(String name);
 
     /**
      * Gets whether it is safe to use {@link #getResources} and {@link #getSubgroups()}.
      *
      * @return if children are iterable
      */
-    default boolean canIterateChildren() {
+    public boolean canIterateChildren() {
         return false;
     }
 
@@ -25,7 +25,7 @@ public interface ResourceGroup extends Resource {
      * @return contained resources
      * @throws UnsupportedOperationException if not implemented
      */
-    default Set<ResourceFile> getResources() {
+    public Set<ResourceFile> getResources() {
         throw new UnsupportedOperationException();
     }
 
@@ -39,17 +39,7 @@ public interface ResourceGroup extends Resource {
      * @return contained resources
      * @throws UnsupportedOperationException if not implemented
      */
-    default Set<ResourceGroup> getSubgroups() {
+    public Set<ResourceGroup> getSubgroups() {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default boolean isGroup() {
-	return true;
-    }
-
-    @Override
-    default boolean isFile() {
-	return false;
     }
 }

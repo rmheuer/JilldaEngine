@@ -6,7 +6,7 @@ import com.github.rmheuer.engine.core.resource.ResourceUtils;
 
 import java.util.Objects;
 
-public final class JarResourceGroup implements ResourceGroup {
+public final class JarResourceGroup extends ResourceGroup {
     private final String name;
     private final String path; // Local and absolute path are always the same for JAR resources
 
