@@ -25,6 +25,6 @@ public final class TrueTypeFontSerializer implements AssetSerializer<TrueTypeFon
         SerialObject obj = (SerialObject) BinarySerialCodec.get().decode(src.readAsStream());
         float heightPx = obj.getFloat("heightPx");
         ResourceFile ttf = ObjectSerializer.get().deserialize(obj.get("file"), ResourceFile.class);
-        return new TrueTypeFont(RendererAPI.getBackend(), ttf, heightPx);
+        return new TrueTypeFont(ttf, heightPx);
     }
 }

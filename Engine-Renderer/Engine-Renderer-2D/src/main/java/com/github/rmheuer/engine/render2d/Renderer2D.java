@@ -3,6 +3,7 @@ package com.github.rmheuer.engine.render2d;
 import com.github.rmheuer.engine.core.math.Transform;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
 import com.github.rmheuer.engine.render.RenderBackend;
+import com.github.rmheuer.engine.render.RendererAPI;
 import com.github.rmheuer.engine.render.camera.Camera;
 import com.github.rmheuer.engine.render.mesh.Mesh;
 import com.github.rmheuer.engine.render.mesh.MeshDataUsage;
@@ -21,13 +22,12 @@ public final class Renderer2D {
     private static final String VERTEX_SHADER_PATH = "com/github/rmheuer/engine/render2d/shaders/vertex.glsl";
     private static final String FRAGMENT_SHADER_PATH = "com/github/rmheuer/engine/render2d/shaders/fragment.glsl";
 
-    private final RenderBackend backend;
     private final Mesh<Vertex2D> mesh;
     private final ShaderProgram shader;
     private final Texture whiteTex;
 
-    public Renderer2D(RenderBackend backend) {
-        this.backend = backend;
+    public Renderer2D() {
+        RenderBackend backend = RendererAPI.getBackend();
         mesh = backend.createMesh(PrimitiveType.TRIANGLES);
         try {
             shader = backend.createShaderProgram(
@@ -50,10 +50,6 @@ public final class Renderer2D {
             shader.getUniform("u_Textures[" + i + "]").setInt(i);
         }
         shader.unbind();
-    }
-
-    public RenderBackend getBackend() {
-        return backend;
     }
 
     public void setView(Camera camera, Transform cameraTx) {

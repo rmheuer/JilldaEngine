@@ -57,10 +57,9 @@ public final class GuiStyle {
     public float textEditRounding;
     public float treeIconSize;
 
-    public GuiStyle(RenderBackend backend) {
+    public GuiStyle() {
         try {
             font = new TrueTypeFont(
-                    backend,
                     new JarResourceFile("com/github/rmheuer/engine/gui/default-font.ttf"),
                     16
             );

@@ -85,8 +85,8 @@ public final class GuiRenderer implements WorldLocalSingleton {
 	private Rectangle widgetSizeOverride;
 	private WindowData window;
 
-    public GuiRenderer(RenderBackend backend) {
-        style = new GuiStyle(backend);
+    public GuiRenderer() {
+        style = new GuiStyle();
         input = new GuiInput();
         windows = new HashMap<>();
         unusedWindows = new HashSet<>();

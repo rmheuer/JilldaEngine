@@ -3,6 +3,7 @@ package com.github.rmheuer.engine.render2d.font;
 import com.github.rmheuer.engine.core.math.Vector2f;
 import com.github.rmheuer.engine.core.resource.ResourceFile;
 import com.github.rmheuer.engine.render.RenderBackend;
+import com.github.rmheuer.engine.render.RendererAPI;
 import com.github.rmheuer.engine.render.texture.Texture;
 import com.github.rmheuer.engine.render.texture.TextureData;
 import com.github.rmheuer.engine.render.texture.TextureFilter;
@@ -41,7 +42,7 @@ public final class TrueTypeFont extends Font {
         return -x;
     }
 
-    public TrueTypeFont(RenderBackend backend, ResourceFile res, float heightPx) throws IOException {
+    public TrueTypeFont(ResourceFile res, float heightPx) throws IOException {
         ttf = res.readAsDirectByteBuffer();
         ttfFile = res;
         this.heightPx = heightPx;
@@ -93,7 +94,7 @@ public final class TrueTypeFont extends Font {
             );
             TextureSettings atlasSettings = new TextureSettings()
                     .setFilters(TextureFilter.NEAREST);
-            atlas = backend.createTexture(atlasData, atlasSettings);
+            atlas = RendererAPI.getBackend().createTexture(atlasData, atlasSettings);
             atlas.claim();
 
             STBTTAlignedQuad q = STBTTAlignedQuad.malloc(stack);

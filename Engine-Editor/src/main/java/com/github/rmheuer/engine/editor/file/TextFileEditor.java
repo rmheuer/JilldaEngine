@@ -23,7 +23,7 @@ public final class TextFileEditor implements FileEditor {
         lines = new ArrayList<>();
 
         try {
-            font = new TrueTypeFont(RendererAPI.getBackend(), new JarResourceFile(FONT_PATH), 14);
+            font = new TrueTypeFont(new JarResourceFile(FONT_PATH), 14);
             font.claim();
         } catch (IOException e) {
             throw new RuntimeException("Failed to load font");

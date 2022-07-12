@@ -4,14 +4,11 @@ import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.entity.Name;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
 import com.github.rmheuer.engine.core.ecs.system.annotation.After;
-import com.github.rmheuer.engine.core.ecs.system.annotation.Before;
 import com.github.rmheuer.engine.core.ecs.system.schedule.Stage;
 import com.github.rmheuer.engine.core.event.EventDispatcher;
 import com.github.rmheuer.engine.core.math.Vector2i;
 import com.github.rmheuer.engine.gui.GuiRenderer;
 import com.github.rmheuer.engine.gui.component.GuiWindow;
-import com.github.rmheuer.engine.render.RenderContext;
-import com.github.rmheuer.engine.render.RendererAPI;
 import com.github.rmheuer.engine.render.event.RenderSceneEvent;
 import com.github.rmheuer.engine.render.framebuffer.Framebuffer;
 import com.github.rmheuer.engine.render.system.RenderContextSystem;
@@ -23,7 +20,7 @@ import com.github.rmheuer.engine.render2d.system.RenderBeginFrame2DSystem;
 public final class GuiRenderSystem implements GameSystem {
     @Override
     public void init(World world) {
-        world.setLocalSingleton(new GuiRenderer(RendererAPI.getBackend()));
+        world.setLocalSingleton(new GuiRenderer());
     }
 
     @Override
