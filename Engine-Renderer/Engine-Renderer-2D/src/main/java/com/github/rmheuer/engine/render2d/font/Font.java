@@ -1,10 +1,11 @@
 package com.github.rmheuer.engine.render2d.font;
 
+import com.github.rmheuer.engine.core.asset.Asset;
 import com.github.rmheuer.engine.core.math.Vector4f;
 import com.github.rmheuer.engine.render2d.DrawList2D;
 import com.github.rmheuer.engine.render2d.Renderer2D;
 
-public abstract class Font {
+public abstract class Font extends Asset {
     protected FontMetrics metrics = null;
 
     protected abstract GlyphInfo getGlyph(char c);
@@ -44,9 +45,5 @@ public abstract class Font {
 
     public FontMetrics getMetrics() {
         return metrics;
-    }
-
-    public void delete() {
-        // To be optionally implemented by subclasses
     }
 }

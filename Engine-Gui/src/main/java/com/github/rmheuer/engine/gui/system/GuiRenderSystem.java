@@ -27,8 +27,8 @@ public final class GuiRenderSystem implements GameSystem {
     }
 
     @Override
-    public void update(World world, float delta) {
-
+    public void close(World world) {
+        world.getLocalSingleton(GuiRenderer.class).delete();
     }
 
     @Override

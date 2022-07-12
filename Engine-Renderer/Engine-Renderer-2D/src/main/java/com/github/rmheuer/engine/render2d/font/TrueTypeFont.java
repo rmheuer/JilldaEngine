@@ -33,6 +33,8 @@ public final class TrueTypeFont extends Font {
     private final STBTTPackedchar.Buffer cdata;
     private final Texture atlas;
     private final GlyphInfo[] glyphs;
+    private final ResourceFile ttfFile;
+    private final float heightPx;
 
     // Copied macro definition from stb_truetype.h
     private static float STBTT_POINT_SIZE_FLOAT(float x) {
@@ -41,6 +43,8 @@ public final class TrueTypeFont extends Font {
 
     public TrueTypeFont(RenderBackend backend, ResourceFile res, float heightPx) throws IOException {
         ttf = res.readAsDirectByteBuffer();
+        ttfFile = res;
+        this.heightPx = heightPx;
 
         int bitmapWidth = 512;
         int bitmapHeight = 512;
@@ -123,6 +127,14 @@ public final class TrueTypeFont extends Font {
         }
     }
 
+    public ResourceFile getTtfFile() {
+        return ttfFile;
+    }
+
+    public float getHeightPx() {
+        return heightPx;
+    }
+
     @Override
     protected GlyphInfo getGlyph(char c) {
         if (c < 32 || c >= 128)
@@ -132,7 +144,7 @@ public final class TrueTypeFont extends Font {
     }
 
     @Override
-    public void delete() {
+    public void freeAsset() {
         atlas.release();
         fontInfo.free();
         cdata.free();

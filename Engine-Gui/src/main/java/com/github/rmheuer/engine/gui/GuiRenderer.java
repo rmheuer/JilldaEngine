@@ -1082,4 +1082,8 @@ public final class GuiRenderer implements WorldLocalSingleton {
             windowOrder.add(title);
         }
     }
+
+    public void delete() {
+        style.delete();
+    }
 }
