@@ -37,8 +37,8 @@ public final class EditorSetupSceneSystem implements GameSystem {
         makeWindow(root, "Scene Tree", sceneTree);
         makeWindow(root, "Properties", new PropertiesWindow(sceneTree));
 
-	editor = new TextFileEditor();
-	makeWindow(root, "File Editor", new FileContentWindow(editor));
+        editor = new TextFileEditor();
+        makeWindow(root, "File Editor", new FileContentWindow(editor));
     }
 
     private void makeWindow(Entity root, String title, GuiRenderable r) {
@@ -48,14 +48,14 @@ public final class EditorSetupSceneSystem implements GameSystem {
 
     @Override
     public void onEvent(World world, EventDispatcher d) {
-	d.dispatch(FileTreeSelectionChangeEvent.class, (e) -> {
-	    if (e.getSelection().isFile()) {
-		try {
-		    editor.open((ResourceFile) e.getSelection());
-		} catch (IOException ex) {
-		    ex.printStackTrace();
-		}
-	    }
-	});
+        d.dispatch(FileTreeSelectionChangeEvent.class, (e) -> {
+            if (e.getSelection().isFile()) {
+                try {
+                    editor.open((ResourceFile) e.getSelection());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
     }
 }

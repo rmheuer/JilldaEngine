@@ -8,8 +8,12 @@ import com.github.rmheuer.engine.render2d.font.Font;
 import com.github.rmheuer.engine.render2d.font.TrueTypeFont;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public final class GuiStyle {
+    private final Font defaultFont;
+    private final Deque<Font> fontStack;
     public Font font;
 
     public Vector4f borderColor;
@@ -60,9 +64,12 @@ public final class GuiStyle {
                     new JarResourceFile("com/github/rmheuer/engine/gui/default-font.ttf"),
                     16
             );
+            defaultFont = font;
+            defaultFont.claim();
         } catch (IOException e) {
             throw new RuntimeException("Failed to load default font", e);
         }
+        fontStack = new ArrayDeque<>();
 
         windowRounding = 0;
         titleBarHeight = 6 + font.getMetrics().getHeight();
@@ -115,5 +122,20 @@ public final class GuiStyle {
         treeHoverColor = rgb(20, 60, 100);
         treePressColor = rgb(15, 50, 85);
         treeSelectionColor = rgb(28, 80, 140);
+    }
+
+    public void pushFont(Font font) {
+        fontStack.push(this.font);
+        this.font = font;
+        font.claim();
+    }
+
+    public void popFont() {
+        font.release();
+        font = fontStack.pollFirst();
+    }
+
+    public void delete() {
+        defaultFont.release();
     }
 }
