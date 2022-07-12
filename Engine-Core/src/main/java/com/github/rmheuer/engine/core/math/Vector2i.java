@@ -29,6 +29,18 @@ public final class Vector2i {
         return this;
     }
 
+    public Vector2i set(int x, int y) {
+        this.x = x;
+        this.y = y;
+        return this;
+    }
+
+    public Vector2i set(Vector2i vec) {
+        x = vec.x;
+        y = vec.y;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

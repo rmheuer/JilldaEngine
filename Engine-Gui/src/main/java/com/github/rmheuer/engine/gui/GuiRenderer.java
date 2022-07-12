@@ -5,6 +5,7 @@ import com.github.rmheuer.engine.core.input.keyboard.Key;
 import com.github.rmheuer.engine.core.input.mouse.MouseButton;
 import com.github.rmheuer.engine.core.math.MathUtils;
 import com.github.rmheuer.engine.core.math.Vector2f;
+import com.github.rmheuer.engine.core.math.Vector2i;
 import com.github.rmheuer.engine.core.math.Vector4f;
 import com.github.rmheuer.engine.core.serial.node.SerialObject;
 import com.github.rmheuer.engine.core.serial.obj.Transient;
@@ -219,7 +220,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
         pane.disableLineSpacing = !enabled;
     }
 
-    private float availContentWidth() {
+    public float availContentWidth() {
         return pane.contentBounds.getMax().x - pane.cursor.x;
     }
 
@@ -272,6 +273,18 @@ public final class GuiRenderer implements WorldLocalSingleton {
     private void beginWidget(Vector2f size) {
         advanceCursor();
         plotBounds(new Rectangle(new Vector2f(pane.cursor), new Vector2f(pane.cursor).add(size)));
+    }
+
+    public Vector2f getCursor() {
+        return pane.cursor;
+    }
+
+    public Rectangle getWidgetBounds() {
+        return new Rectangle(pane.widgetBounds);
+    }
+
+    public Rectangle getContentBounds() {
+        return new Rectangle(pane.contentBounds);
     }
 
     // --- Input ---
@@ -381,7 +394,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
             titleBarBounds = b;
             window.draw.fillRoundedQuad(b, style.windowRounding, style.windowRounding, 0, 0, focused ? style.titleBarActiveColor : style.titleBarColor);
 
-            drawText(window.title, b.getMin().x + style.padding, b.getMidpoint().y, 0, 0.5f);
+            window.draw.drawText(window.title, b.getMin().x + style.padding, b.getMidpoint().y, 0, 0.5f, style.font, style.textColor);
 
             setPaneBounds(new Rectangle(b.getMin().x, b.getMax().y, window.bounds.getMax().x, window.bounds.getMax().y));
         }
@@ -529,6 +542,21 @@ public final class GuiRenderer implements WorldLocalSingleton {
         }
     }
 
+    public CompositeDrawList2D getWindowDrawList() {
+        return window.draw;
+    }
+
+    public float getScrollY() {
+        return window.scroll.y;
+    }
+
+    public void setScrollY(float y) {
+        window.scroll.y = y;
+        clampScroll();
+    }
+
+    // --- ID stack ---
+
     public void pushId(Object id) {
         window.storage.push(id);
     }
@@ -581,15 +609,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
 
     public void text(String text) {
         beginWidget(new Vector2f(style.font.textWidth(text), style.font.getMetrics().getHeight()));
-        drawText(text, pane.cursor.x, pane.cursor.y, 0, 0);
-    }
-
-    private void drawText(String text, float x, float y, float alignX, float alignY) {
-        float width = style.font.textWidth(text);
-        float ascent = style.font.getMetrics().getAscent();
-        float height = style.font.getMetrics().getHeight();
-
-        window.draw.drawText(text, x - width * alignX, y + ascent - height * alignY, style.font, style.textColor);
+        window.draw.drawText(text, pane.cursor.x, pane.cursor.y, 0, 0, style.font, style.textColor);
     }
 
     public boolean button(String text) {
@@ -613,7 +633,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
         window.draw.fillRoundedQuad(cursor.x + b, cursor.y + b, width - b * 2, height - b * 2, rad, color);
         window.draw.drawRoundedQuad(cursor.x, cursor.y, width, height, rad, b, style.buttonBorderColor);
 
-        drawText(text, cursor.x + width / 2, cursor.y + height / 2, 0.5f, 0.5f);
+        window.draw.drawText(text, cursor.x + width / 2, cursor.y + height / 2, 0.5f, 0.5f, style.font, style.textColor);
 
         return isWidgetClicked(MouseButton.LEFT);
     }
@@ -822,7 +842,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
             float w = style.font.textWidth(string.substring(min, max));
             window.draw.fillQuad(minX, centerY - halfHeight, w, textHeight(), style.textEditSelectionColor);
         }
-        drawText(string.toString(), pane.cursor.x + style.textEditPadding.x - contentScroll, pane.widgetBounds.getMidpoint().y, 0, 0.5f);
+        window.draw.drawText(string.toString(), pane.cursor.x + style.textEditPadding.x - contentScroll, pane.widgetBounds.getMidpoint().y, 0, 0.5f, style.font, style.textColor);
         if (state.focused) {
             float cursorX = pane.cursor.x + style.textEditPadding.x + style.font.textWidth(string.substring(0, state.cursor)) - contentScroll;
             window.draw.drawLine(cursorX, centerY - halfHeight, cursorX, centerY + halfHeight, 1, style.textEditCursorColor);
@@ -924,7 +944,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
         float cursorToLabelSpacing = treeCursorToLabelSpacing();
 
         // Draw label
-        drawText(label, pane.cursor.x + cursorToLabelSpacing, pane.cursor.y + padding + centerAlign(textHeight(), style.treeIconSize), 0, 0);
+        window.draw.drawText(label, pane.cursor.x + cursorToLabelSpacing, pane.cursor.y + padding + centerAlign(textHeight(), style.treeIconSize), 0, 0, style.font, style.textColor);
 
         if (!leaf && open[0]) {
             indent(cursorToLabelSpacing);

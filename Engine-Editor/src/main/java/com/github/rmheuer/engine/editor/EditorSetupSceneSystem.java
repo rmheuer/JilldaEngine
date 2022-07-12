@@ -51,11 +51,22 @@ public final class EditorSetupSceneSystem implements GameSystem {
         d.dispatch(FileTreeSelectionChangeEvent.class, (e) -> {
             if (e.getSelection().isFile()) {
                 try {
+                    editor.save();
                     editor.open((ResourceFile) e.getSelection());
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
             }
         });
+    }
+
+    @Override
+    public void close(World world) {
+        try {
+            editor.save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        editor.close();
     }
 }

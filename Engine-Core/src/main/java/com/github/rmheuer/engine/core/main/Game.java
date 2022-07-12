@@ -1,5 +1,6 @@
 package com.github.rmheuer.engine.core.main;
 
+import com.github.rmheuer.engine.core.Time;
 import com.github.rmheuer.engine.core.asset.AssetManager;
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
@@ -95,6 +96,7 @@ public final class Game {
             float delta = passedTime / 1_000_000_000.0f;
             unprocessedTime += delta;
             previousTime = currentTime;
+            Time.setDelta(delta);
 
             Event event;
             while ((event = eventQueue.poll()) != null) {

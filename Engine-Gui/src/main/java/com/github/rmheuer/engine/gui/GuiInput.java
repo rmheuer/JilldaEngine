@@ -3,8 +3,10 @@ package com.github.rmheuer.engine.gui;
 import com.github.rmheuer.engine.core.event.EventDispatcher;
 import com.github.rmheuer.engine.core.input.keyboard.CharTypeEvent;
 import com.github.rmheuer.engine.core.input.keyboard.Key;
+import com.github.rmheuer.engine.core.input.keyboard.KeyEvent;
 import com.github.rmheuer.engine.core.input.keyboard.KeyPressEvent;
 import com.github.rmheuer.engine.core.input.keyboard.KeyReleaseEvent;
+import com.github.rmheuer.engine.core.input.keyboard.KeyRepeatEvent;
 import com.github.rmheuer.engine.core.input.mouse.MouseButton;
 import com.github.rmheuer.engine.core.input.mouse.MouseButtonPressEvent;
 import com.github.rmheuer.engine.core.input.mouse.MouseButtonReleaseEvent;
@@ -130,7 +132,7 @@ public final class GuiInput {
         System.out.println(cursorPos);
     }
 
-    private void onKeyPress(KeyPressEvent event) {
+    private void onKeyPressOrRepeat(KeyEvent event) {
         pressedKeys.add(event.getKey());
         heldKeys.add(event.getKey());
     }
@@ -162,7 +164,8 @@ public final class GuiInput {
         d.dispatch(MouseScrollEvent.class, this::onMouseScroll);
         d.dispatch(MouseMoveEvent.class, this::onMouse);
 
-        d.dispatch(KeyPressEvent.class, this::onKeyPress);
+        d.dispatch(KeyPressEvent.class, this::onKeyPressOrRepeat);
+        d.dispatch(KeyRepeatEvent.class, this::onKeyPressOrRepeat);
         d.dispatch(KeyReleaseEvent.class, this::onKeyRelease);
         d.dispatch(CharTypeEvent.class, this::onCharType);
     }

@@ -108,7 +108,7 @@ public final class SerialDataView {
     private static boolean showNode(GuiRenderer r, String name, SerialNode node, boolean root) {
         if (node == null) {
             primitiveName(r, name);
-            r.text(null);
+            r.text("null");
             return false;
         }
 

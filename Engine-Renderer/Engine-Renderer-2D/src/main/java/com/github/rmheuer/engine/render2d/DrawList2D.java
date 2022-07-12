@@ -71,6 +71,17 @@ public class DrawList2D {
         clipRect = clipStack.pollFirst();
     }
 
+    public void drawText(float depth, String text, Vector2f pos, Vector2f align, Font font, Vector4f color) { drawText(depth, text, pos.x, pos.y, align.x, align.y, font, color); }
+    public void drawText(float depth, String text, Vector2f pos, float alignX, float alignY, Font font, Vector4f color) { drawText(depth, text, pos.x, pos.y, alignX, alignY, font, color); }
+    public void drawText(float depth, String text, float x, float y, Vector2f align, Font font, Vector4f color) { drawText(depth, text, x, y, align.x, align.y, font, color); }
+    public void drawText(float depth, String text, float x, float y, float alignX, float alignY, Font font, Vector4f color) {
+        float width = font.textWidth(text);
+        float ascent = font.getMetrics().getAscent();
+        float height = font.getMetrics().getHeight();
+
+        drawText(depth, text, x - width * alignX, y + ascent - height * alignY, font, color);
+    }
+
     public void drawText(float depth, String text, Vector2f pos, Font font, Vector4f color) { drawText(depth, text, pos.x, pos.y, font, color); }
     public void drawText(float depth, String text, float x, float y, Font font, Vector4f color) {
         font.draw(this, depth, text, x, y, color);

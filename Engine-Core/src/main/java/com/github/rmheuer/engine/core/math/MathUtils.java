@@ -22,6 +22,12 @@ public final class MathUtils {
 	return m2 + (n2 - m2) * (v - m1) / (n1 - m1);
     }
 
+    public static int clamp(int v, int min, int max) {
+        if (v < min)
+            return min;
+        return Math.min(v, max);
+    }
+
     public static float clamp(float v, float min, float max) {
         if (v < min)
             return min;

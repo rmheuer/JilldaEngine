@@ -36,3 +36,5 @@ gui-layout.bin
 # Build output
 **/target/
 **/dependency-reduced-pom.xml
+
+sandbox.txt

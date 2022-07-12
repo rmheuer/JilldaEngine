@@ -38,6 +38,10 @@ public final class CompositeDrawList2D extends DrawList2D {
         depth += depthInterval;
     }
 
+    public void drawText(String text, Vector2f pos, Vector2f align, Font font, Vector4f color) { drawText(text, pos.x, pos.y, align.x, align.y, font, color); }
+    public void drawText(String text, Vector2f pos, float alignX, float alignY, Font font, Vector4f color) { drawText(text, pos.x, pos.y, alignX, alignY, font, color); }
+    public void drawText(String text, float x, float y, Vector2f align, Font font, Vector4f color) { drawText(text, x, y, align.x, align.y, font, color); }
+    public void drawText(String text, float x, float y, float alignX, float alignY, Font font, Vector4f color) { step(); drawText(depth, text, x, y, alignX, alignY, font, color); }
     public void drawText(String text, Vector2f pos, Font font, Vector4f color) { drawText(text, pos.x, pos.y, font, color); }
     public void drawText(String text, float x, float y, Font font, Vector4f color) { step(); drawText(depth, text, x, y, font, color); }
 
