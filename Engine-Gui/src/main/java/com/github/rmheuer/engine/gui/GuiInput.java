@@ -158,13 +158,11 @@ public final class GuiInput {
 
     private void onMouseScroll(MouseScrollEvent event) {
         scroll.add(event.getScrollPixelsX(), event.getScrollPixelsY());
-        System.out.println(event);
         onMouse(event);
     }
 
     private void onMouse(MouseEvent event) {
         cursorPos.set(event.getX(), event.getY()).add(cursorOffset);
-        System.out.println(cursorPos);
     }
 
     private void onKeyPressOrRepeat(KeyEvent event) {
