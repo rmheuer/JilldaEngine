@@ -121,7 +121,7 @@ public final class TextFileEditor implements FileEditor {
 
         GuiStyle style = g.getStyle();
         GuiInput input = g.getInput();
-        CompositeDrawList2D draw = g.getWindowDrawList();
+        CompositeDrawList2D draw = g.getActiveDrawList();
         Rectangle bounds = g.getContentBounds();
 
         int lineCount = lines.size();
@@ -137,6 +137,7 @@ public final class TextFileEditor implements FileEditor {
         // Click to plot selection start
         if (g.isWidgetClicked(MouseButton.LEFT)) {
             selectionStart.set(hoveredTextX, hoveredTextY);
+            cursorBlinkTimer = 0;
             // Don't need to set cursor or selection end here, they are set in held
         }
 

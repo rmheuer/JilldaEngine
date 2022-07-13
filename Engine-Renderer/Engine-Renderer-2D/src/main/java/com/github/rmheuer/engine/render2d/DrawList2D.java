@@ -91,11 +91,10 @@ public class DrawList2D {
     public void drawLineStrip(float depth, List<Vector2f> points, float width, Vector4f color) {
         Vector2f prevPoint = null;
         for (Vector2f point : points) {
-            if (prevPoint == null) {
-                prevPoint = point;
-            } else {
+            if (prevPoint != null)
                 drawLine(depth, prevPoint, point, width, color);
-            }
+
+            prevPoint = point;
         }
     }
 

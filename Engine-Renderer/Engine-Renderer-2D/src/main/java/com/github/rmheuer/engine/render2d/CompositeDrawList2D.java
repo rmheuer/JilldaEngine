@@ -56,7 +56,7 @@ public final class CompositeDrawList2D extends DrawList2D {
     public void drawLine(float x1, float y1, Vector2f p2, float width, Vector4f color) { drawLine(x1, y1, p2.x, p2.y, width, color); }
     public void drawLine(float x1, float y1, float x2, float y2, float width, Vector4f color) { step(); drawLine(depth, x1, y1, x2, y2, width, color); }
 
-    public void drawQuad(Rectangle r, Vector4f color, float width) { drawQuad(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), width, color); }
+    public void drawQuad(Rectangle r, float width, Vector4f color) { drawQuad(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), width, color); }
     public void drawQuad(Vector2f pos, Vector2f size, float width, Vector4f color) { drawQuad(pos.x, pos.y, size.x, size.y, width, color); }
     public void drawQuad(Vector2f pos, float w, float h, float width, Vector4f color) { drawQuad(pos.x, pos.y, w, h, width, color); }
     public void drawQuad(float x, float y, Vector2f size, float width, Vector4f color) { drawQuad(x, y, size.x, size.y, width, color); }

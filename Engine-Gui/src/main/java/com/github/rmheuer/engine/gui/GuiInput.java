@@ -53,6 +53,10 @@ public final class GuiInput {
         return pressedButtons.contains(button);
     }
 
+    public boolean isAnyMouseButtonPressed() {
+        return !pressedButtons.isEmpty();
+    }
+
     public boolean isMouseButtonHeld(MouseButton button) {
         return heldButtons.contains(button);
     }

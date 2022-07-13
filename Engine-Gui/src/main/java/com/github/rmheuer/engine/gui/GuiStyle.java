@@ -42,6 +42,10 @@ public final class GuiStyle {
     public Vector4f treeHoverColor;
     public Vector4f treePressColor;
     public Vector4f treeSelectionColor;
+    public Vector4f tooltipBackgroundColor;
+    public Vector4f tooltipBorderColor;
+    public Vector4f popupBackgroundColor;
+    public Vector4f popupBorderColor;
 
     public float windowRounding;
     public float titleBarHeight;
@@ -121,6 +125,11 @@ public final class GuiStyle {
         treeHoverColor = rgb(20, 60, 100);
         treePressColor = rgb(15, 50, 85);
         treeSelectionColor = rgb(28, 80, 140);
+
+        tooltipBackgroundColor = rgb(0, 0, 0);
+        tooltipBorderColor = rgb(255, 255, 255);
+        popupBackgroundColor = rgb(0, 0, 0);
+        popupBorderColor = rgb(255, 255, 255);
     }
 
     public void pushFont(Font font) {

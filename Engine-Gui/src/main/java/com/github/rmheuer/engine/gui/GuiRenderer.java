@@ -54,6 +54,8 @@ public final class GuiRenderer implements WorldLocalSingleton {
     }
 
     private static final class WindowData {
+        private WindowData parent;
+
         private final GuiStorage storage;
         private String title;
         private int flags;
@@ -80,7 +82,10 @@ public final class GuiRenderer implements WorldLocalSingleton {
     private final GuiInput input;
     private GuiStyle style;
 
+    private final Deque<CompositeDrawList2D> drawStack;
     private CompositeDrawList2D mainDraw;
+    private CompositeDrawList2D draw;
+    private CompositeDrawList2D foreground;
     private Rectangle displayBounds;
     private Pane pane;
 	private Rectangle widgetSizeOverride;
@@ -92,12 +97,14 @@ public final class GuiRenderer implements WorldLocalSingleton {
         windows = new HashMap<>();
         unusedWindows = new HashSet<>();
         windowOrder = new ArrayList<>();
+        drawStack = new ArrayDeque<>();
     }
 
     // --- Frame control ---
 
     public void beginFrame(int width, int height) {
         mainDraw = new CompositeDrawList2D();
+        foreground = new CompositeDrawList2D();
 
         float halfW = width / 2.0f;
         float halfH = height / 2.0f;
@@ -107,7 +114,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
 
         input.beginFrame(width, height);
 
-        if (input.isMouseButtonPressed(MouseButton.LEFT)) {
+        if (input.isAnyMouseButtonPressed()) {
             String hoveredWindow = getHoveredWindow();
             if (hoveredWindow != null) {
                 windowOrder.remove(hoveredWindow);
@@ -139,12 +146,12 @@ public final class GuiRenderer implements WorldLocalSingleton {
         pane = p;
 
         if (pushClip)
-            window.draw.pushClip(pane.contentBounds);
+            draw.pushClip(pane.contentBounds);
     }
 
     private void endPane() {
         if (pane.pushedClip)
-            window.draw.popClip();
+            draw.popClip();
         pane = pane.parent;
     }
 
@@ -178,12 +185,24 @@ public final class GuiRenderer implements WorldLocalSingleton {
             WindowData win = windows.get(title);
             mainDraw.join(win.draw);
         }
+        mainDraw.join(foreground);
 
-	input.endFrame();
+        input.endFrame();
     }
 
     public CompositeDrawList2D getDrawList() {
         return mainDraw;
+    }
+
+    public void pushDraw() { pushDraw(new CompositeDrawList2D()); }
+    public void pushDraw(CompositeDrawList2D d) {
+        if (draw != null)
+            drawStack.push(draw);
+        draw = d;
+    }
+
+    public void popDraw() {
+        draw = drawStack.pollFirst();
     }
 
     // --- Layout ---
@@ -310,6 +329,10 @@ public final class GuiRenderer implements WorldLocalSingleton {
         return isWidgetHovered() && input.isMouseButtonHeld(button);
     }
 
+    public boolean isClickedOutsideRect(Rectangle rect) {
+        return !input.isMouseInRect(rect) && input.isAnyMouseButtonPressed();
+    }
+
     // --- Windows ---
 
     public void beginWindow(String title) {
@@ -349,7 +372,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
             color = style.scrollBarColor;
         }
 
-        window.draw.fillRoundedQuad(rect, style.scrollBarRounding, color);
+        draw.fillRoundedQuad(rect, style.scrollBarRounding, color);
 
         Vector2f drag = input.getDragInRect(rect, MouseButton.LEFT);
         return drag.getComponent(axis) / (maxAxis - minAxis) * (contentSize - paneSize);
@@ -360,6 +383,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
     }
 
     public void beginWindowFlags(String title, int flags) {
+        WindowData prevWindow = window;
         unusedWindows.remove(title);
         if (!windows.containsKey(title)) {
             WindowData win = new WindowData(
@@ -371,62 +395,32 @@ public final class GuiRenderer implements WorldLocalSingleton {
             windows.put(title, win);
         }
         window = windows.get(title);
+        window.parent = prevWindow;
         window.draw = new CompositeDrawList2D();
+        pushDraw(window.draw);
         window.title = title;
         window.flags = flags;
-        beginPane(window.bounds, false, false, true, true, false);
 
-        boolean focused = isWindowFocused();
+        boolean autoX = hasFlag(flags, GuiWindowFlags.AutoSizeX);
+        boolean autoY = hasFlag(flags, GuiWindowFlags.AutoSizeY);
+        window.bounds.resize(
+                autoX ? 0 : window.bounds.getWidth(),
+                autoY ? 0 : window.bounds.getHeight()
+        );
+        beginPane(window.bounds, autoX, autoY, true, true, false);
 
-        boolean titleBar = !hasFlag(flags, GuiWindowFlags.NoTitleBar);
-        boolean border = !hasFlag(flags, GuiWindowFlags.NoBorder);
-        boolean background = !hasFlag(flags, GuiWindowFlags.NoBackground);
+        pane.cursor.sub(window.scroll);
 
-        boolean scrollX = !hasFlag(flags, GuiWindowFlags.NoScrollX);
-        boolean scrollY = !hasFlag(flags, GuiWindowFlags.NoScrollY);
-
-        Rectangle titleBarBounds = null;
-        if (titleBar) {
+        if (!hasFlag(flags, GuiWindowFlags.NoTitleBar)) {
             Rectangle b = new Rectangle(
                     new Vector2f(window.bounds.getMin()),
                     new Vector2f(window.bounds.getMax().x, window.bounds.getMin().y + style.titleBarHeight)
             );
-            titleBarBounds = b;
-            window.draw.fillRoundedQuad(b, style.windowRounding, style.windowRounding, 0, 0, focused ? style.titleBarActiveColor : style.titleBarColor);
-
-            window.draw.drawText(window.title, b.getMin().x + style.padding, b.getMidpoint().y, 0, 0.5f, style.font, style.textColor);
-
             setPaneBounds(new Rectangle(b.getMin().x, b.getMax().y, window.bounds.getMax().x, window.bounds.getMax().y));
         }
 
-        if (background) {
-            if (titleBar)
-                window.draw.fillRoundedQuad(pane.bounds, 0, 0, style.windowRounding, style.windowRounding, style.backgroundColor);
-            else
-                window.draw.fillRoundedQuad(pane.bounds, style.windowRounding, style.backgroundColor);
-        }
-
-        if (scrollX && window.prevSize.x > pane.bounds.getWidth()) {
-            window.scroll.x += scrollBar(0);
-        }
-
-        if (scrollY && window.prevSize.y > pane.bounds.getHeight()) {
-            window.scroll.y += scrollBar(1);
-        }
-
-        clampScroll();
-        pane.cursor.sub(window.scroll);
-
-        if (border) {
-            window.draw.drawRoundedQuad(window.bounds, style.windowRounding, style.borderWidth, style.borderColor);
-
-            if (titleBar) {
-                Rectangle b = titleBarBounds;
-                window.draw.drawLine(b.getMin().x, b.getMax().y, b.getMax().x - 1, b.getMax().y, style.borderWidth, style.borderColor);
-            }
-        }
-
-        window.draw.pushClip(pane.contentBounds);
+        pushDraw();
+        draw.pushClip(pane.contentBounds);
     }
 
     private void clampScroll() {
@@ -439,10 +433,76 @@ public final class GuiRenderer implements WorldLocalSingleton {
     }
 
     public void endWindow() {
-        window.draw.popClip();
+        draw.popClip();
         window.prevSize = pane.max.sub(pane.bounds.getMin()).add(window.scroll);
 
-        if (!hasFlag(window.flags, GuiWindowFlags.NoResize)) {
+        CompositeDrawList2D contentDraw = draw;
+        popDraw();
+
+        boolean focused = isWindowFocused();
+
+        int flags = window.flags;
+
+        boolean popup = hasFlag(flags, GuiWindowFlags._IsPopup);
+
+        boolean titleBar = !hasFlag(flags, GuiWindowFlags.NoTitleBar);
+        boolean border = !hasFlag(flags, GuiWindowFlags.NoBorder);
+        boolean background = !hasFlag(flags, GuiWindowFlags.NoBackground);
+
+        boolean resize = !hasFlag(flags, GuiWindowFlags.NoResize);
+        boolean move = !hasFlag(flags, GuiWindowFlags.NoMove);
+        boolean scrollX = !hasFlag(flags, GuiWindowFlags.NoScrollX);
+        boolean scrollY = !hasFlag(flags, GuiWindowFlags.NoScrollY);
+
+        boolean autoX = hasFlag(flags, GuiWindowFlags.AutoSizeX);
+        boolean autoY = hasFlag(flags, GuiWindowFlags.AutoSizeY);
+
+        if (autoX || autoY) {
+            window.bounds = new Rectangle(pane.bounds.getMin().x, pane.bounds.getMin().y - (titleBar ? style.titleBarHeight : 0), pane.bounds.getMax().x, pane.bounds.getMax().y);
+        }
+
+        Rectangle titleBarBounds = null;
+        if (titleBar) {
+            Rectangle b = new Rectangle(
+                    new Vector2f(window.bounds.getMin()),
+                    new Vector2f(window.bounds.getMax().x, window.bounds.getMin().y + style.titleBarHeight)
+            );
+            titleBarBounds = b;
+            draw.fillRoundedQuad(b, style.windowRounding, style.windowRounding, 0, 0, focused ? style.titleBarActiveColor : style.titleBarColor);
+            draw.drawText(window.title, b.getMin().x + style.padding, b.getMidpoint().y, 0, 0.5f, style.font, style.textColor);
+        }
+
+        if (background) {
+            Vector4f color = popup ? style.popupBackgroundColor : style.backgroundColor;
+            if (titleBar)
+                draw.fillRoundedQuad(pane.bounds, 0, 0, style.windowRounding, style.windowRounding, color);
+            else
+                draw.fillRoundedQuad(pane.bounds, style.windowRounding, color);
+        }
+
+        draw.join(contentDraw);
+
+        if (scrollX && window.prevSize.x > pane.bounds.getWidth()) {
+            window.scroll.x += scrollBar(0);
+        }
+
+        if (scrollY && window.prevSize.y > pane.bounds.getHeight()) {
+            window.scroll.y += scrollBar(1);
+        }
+
+        clampScroll();
+
+        if (border) {
+            Vector4f color = popup ? style.popupBorderColor : style.borderColor;
+            draw.drawRoundedQuad(window.bounds, style.windowRounding, style.borderWidth, color);
+
+            if (titleBar) {
+                Rectangle b = titleBarBounds;
+                draw.drawLine(b.getMin().x, b.getMax().y, b.getMax().x - 1, b.getMax().y, style.borderWidth, color);
+            }
+        }
+
+        if (resize) {
             Vector2f cursorPos = input.getPrevCursorPos();
 
             Vector2f max = new Vector2f(window.bounds.getMax()).sub(1, 1);
@@ -456,7 +516,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
                 color = style.resizeGrabColor;
             }
 
-            window.draw.fillTriangle(max.x, max.y - size, max.x - size, max.y, max, color);
+            draw.fillTriangle(max.x, max.y - size, max.x - size, max.y, max, color);
 
             if (hovered) {
                 Vector2f drag = input.getDrag(MouseButton.LEFT);
@@ -473,9 +533,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
             }
         }
 
-        // Move scroll bars here so they render on top of content and so resize grab can capture drag event
-
-        if (!hasFlag(window.flags, GuiWindowFlags.NoTitleBar) && !hasFlag(window.flags, GuiWindowFlags.NoMove)) {
+        if (titleBar && move) {
             Rectangle b = new Rectangle(
                     new Vector2f(window.bounds.getMin()),
                     new Vector2f(window.bounds.getMax().x, window.bounds.getMin().y + style.titleBarHeight)
@@ -487,11 +545,18 @@ public final class GuiRenderer implements WorldLocalSingleton {
         Vector2f scroll = input.getScrollInRect(pane.bounds);
         window.scroll.sub(scroll);
 
+        if (hasFlag(flags, GuiWindowFlags._IsPopup) && isClickedOutsideRect(window.bounds)) {
+            // Popups close if clicked outside
+            windowOrder.remove(window.title);
+            windows.remove(window.title);
+        }
+
         clampScroll();
         endPane();
         window.isFirstAppearing = false;
         window.storage.disposeUnused();
-        window = null;
+        window = window.parent;
+        popDraw();
     }
 
     public void setWindowSize(float width, float height) {
@@ -544,6 +609,10 @@ public final class GuiRenderer implements WorldLocalSingleton {
 
     public CompositeDrawList2D getWindowDrawList() {
         return window.draw;
+    }
+
+    public CompositeDrawList2D getActiveDrawList() {
+        return draw;
     }
 
     public float getScrollY() {
@@ -609,7 +678,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
 
     public void text(String text) {
         beginWidget(new Vector2f(style.font.textWidth(text), style.font.getMetrics().getHeight()));
-        window.draw.drawText(text, pane.cursor.x, pane.cursor.y, 0, 0, style.font, style.textColor);
+        draw.drawText(text, pane.cursor.x, pane.cursor.y, 0, 0, style.font, style.textColor);
     }
 
     public boolean button(String text) {
@@ -630,10 +699,10 @@ public final class GuiRenderer implements WorldLocalSingleton {
         float rad = style.buttonRounding;
         float b = style.borderWidth;
         Vector2f cursor = pane.cursor;
-        window.draw.fillRoundedQuad(cursor.x + b, cursor.y + b, width - b * 2, height - b * 2, rad, color);
-        window.draw.drawRoundedQuad(cursor.x, cursor.y, width, height, rad, b, style.buttonBorderColor);
+        draw.fillRoundedQuad(cursor.x + b, cursor.y + b, width - b * 2, height - b * 2, rad, color);
+        draw.drawRoundedQuad(cursor.x, cursor.y, width, height, rad, b, style.buttonBorderColor);
 
-        window.draw.drawText(text, cursor.x + width / 2, cursor.y + height / 2, 0.5f, 0.5f, style.font, style.textColor);
+        draw.drawText(text, cursor.x + width / 2, cursor.y + height / 2, 0.5f, 0.5f, style.font, style.textColor);
 
         return isWidgetClicked(MouseButton.LEFT);
     }
@@ -641,14 +710,14 @@ public final class GuiRenderer implements WorldLocalSingleton {
     public boolean imageButton(Texture img, float width, float height, Vector2f uv0, Vector2f uv1) {
         beginWidget(new Vector2f(width, height));
 
-        window.draw.drawImage(pane.cursor.x, pane.cursor.y, width, height, img, uv0.x, uv0.y, uv1.x, uv1.y);
+        draw.drawImage(pane.cursor.x, pane.cursor.y, width, height, img, uv0.x, uv0.y, uv1.x, uv1.y);
 
         return isWidgetClicked(MouseButton.LEFT);
     }
 
     public void image(Texture img, float width, float height, Vector2f uv0, Vector2f uv1) {
         beginWidget(new Vector2f(width, height));
-        window.draw.drawImage(pane.cursor.x, pane.cursor.y, width, height, img, uv0.x, uv0.y, uv1.x, uv1.y);
+        draw.drawImage(pane.cursor.x, pane.cursor.y, width, height, img, uv0.x, uv0.y, uv1.x, uv1.y);
     }
 
     // Important: Only use for sizes smaller than text height
@@ -656,7 +725,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
         float textHeight = textHeight();
         beginWidget(new Vector2f(width, textHeight()));
 
-        window.draw.drawImage(pane.cursor.x, pane.cursor.y + textHeight / 2 - height / 2, width, height, img, uv0.x, uv0.y, uv1.x, uv1.y);
+        draw.drawImage(pane.cursor.x, pane.cursor.y + textHeight / 2 - height / 2, width, height, img, uv0.x, uv0.y, uv1.x, uv1.y);
     }
 
     public boolean editString(StringBuilder str) {
@@ -763,7 +832,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
         boolean hovered = isWidgetHovered();
         boolean pressed = isWidgetHeld(MouseButton.LEFT);
         boolean clicked = isWidgetClicked(MouseButton.LEFT);
-        boolean clickedOutside = !input.isMouseInRect(pane.widgetBounds) && input.isMouseButtonPressed(MouseButton.LEFT);
+        boolean clickedOutside = isClickedOutsideRect(pane.widgetBounds);
 
         // Focus
         if (state.focused) {
@@ -832,22 +901,22 @@ public final class GuiRenderer implements WorldLocalSingleton {
         float b = style.borderWidth;
         float halfHeight = textHeight() / 2;
         float centerY = pane.widgetBounds.getMidpoint().y;
-        window.draw.fillRoundedQuad(pane.cursor.x + b, pane.cursor.y + b, width - 2*b, height - 2*b, style.textEditRounding, background);
-        window.draw.drawRoundedQuad(pane.cursor.x, pane.cursor.y, width, height, style.textEditRounding, style.borderWidth, style.textEditBorderColor);
-        window.draw.pushClip(new Rectangle(pane.cursor.x + style.textEditPadding.x, pane.cursor.y, pane.widgetBounds.getMax().x - style.textEditPadding.x, pane.widgetBounds.getMax().y));
+        draw.fillRoundedQuad(pane.cursor.x + b, pane.cursor.y + b, width - 2*b, height - 2*b, style.textEditRounding, background);
+        draw.drawRoundedQuad(pane.cursor.x, pane.cursor.y, width, height, style.textEditRounding, style.borderWidth, style.textEditBorderColor);
+        draw.pushClip(new Rectangle(pane.cursor.x + style.textEditPadding.x, pane.cursor.y, pane.widgetBounds.getMax().x - style.textEditPadding.x, pane.widgetBounds.getMax().y));
         if (state.focused && state.hasSelection()) {
             int min = Math.min(state.selectStart, state.selectEnd);
             int max = Math.max(state.selectStart, state.selectEnd);
             float minX = pane.cursor.x + style.textEditPadding.x + style.font.textWidth(string.substring(0, min));
             float w = style.font.textWidth(string.substring(min, max));
-            window.draw.fillQuad(minX, centerY - halfHeight, w, textHeight(), style.textEditSelectionColor);
+            draw.fillQuad(minX, centerY - halfHeight, w, textHeight(), style.textEditSelectionColor);
         }
-        window.draw.drawText(string.toString(), pane.cursor.x + style.textEditPadding.x - contentScroll, pane.widgetBounds.getMidpoint().y, 0, 0.5f, style.font, style.textColor);
+        draw.drawText(string.toString(), pane.cursor.x + style.textEditPadding.x - contentScroll, pane.widgetBounds.getMidpoint().y, 0, 0.5f, style.font, style.textColor);
         if (state.focused) {
             float cursorX = pane.cursor.x + style.textEditPadding.x + style.font.textWidth(string.substring(0, state.cursor)) - contentScroll;
-            window.draw.drawLine(cursorX, centerY - halfHeight, cursorX, centerY + halfHeight, 1, style.textEditCursorColor);
+            draw.drawLine(cursorX, centerY - halfHeight, cursorX, centerY + halfHeight, 1, style.textEditCursorColor);
         }
-        window.draw.popClip();
+        draw.popClip();
 
         return changed;
     }
@@ -906,7 +975,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
             bgColor = style.treeColor;
         }
 
-        window.draw.fillQuad(bgRect, bgColor);
+        draw.fillQuad(bgRect, bgColor);
 
         boolean defaultState = (flags & GuiTreeFlags.DefaultOpen) != 0;
         boolean[] open = window.storage.get(id, () -> new boolean[]{defaultState});
@@ -924,7 +993,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
             Vector2f midpoint = iconBounds.getMidpoint();
             if (open[0]) {
                 // Triangle pointing down
-                window.draw.fillTriangle(
+                draw.fillTriangle(
                         min,
                         max.x, min.y,
                         midpoint.x, max.y,
@@ -932,7 +1001,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
                 );
             } else {
                 // Triangle pointing right
-                window.draw.fillTriangle(
+                draw.fillTriangle(
                         min,
                         max.x, midpoint.y,
                         min.x, max.y,
@@ -944,7 +1013,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
         float cursorToLabelSpacing = treeCursorToLabelSpacing();
 
         // Draw label
-        window.draw.drawText(label, pane.cursor.x + cursorToLabelSpacing, pane.cursor.y + padding + centerAlign(textHeight(), style.treeIconSize), 0, 0, style.font, style.textColor);
+        draw.drawText(label, pane.cursor.x + cursorToLabelSpacing, pane.cursor.y + padding + centerAlign(textHeight(), style.treeIconSize), 0, 0, style.font, style.textColor);
 
         if (!leaf && open[0]) {
             indent(cursorToLabelSpacing);
@@ -1024,7 +1093,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
                 float x = pane.tableRowOrigin.x;
                 for (int i = 0; i < pane.tableColumnWidths.length; i++) {
                     float width = pane.tableColumnWidths[i];
-                    window.draw.drawQuad(x, pane.tableRowOrigin.y, width, pane.rowMaxY - pane.tableRowOrigin.y, 1, new Vector4f(1, 1, 1, 1));
+                    draw.drawQuad(x, pane.tableRowOrigin.y, width, pane.rowMaxY - pane.tableRowOrigin.y, 1, new Vector4f(1, 1, 1, 1));
                     x += width;
                 }
             }
@@ -1054,6 +1123,46 @@ public final class GuiRenderer implements WorldLocalSingleton {
 
     public int tableGetColumn() {
         return pane.tableColumnIndex;
+    }
+
+    public void beginTooltip() {
+        Vector2f origin = input.getCursorPos();
+        pushDraw();
+        beginPane(Rectangle.fromXYSizes(origin.x, origin.y, 0, 0), true, true, true, true, true);
+    }
+
+    public void endTooltip() {
+        Rectangle bgRect = pane.bounds;
+        endPane();
+
+        foreground.fillQuad(bgRect, style.tooltipBackgroundColor);
+        foreground.drawQuad(bgRect, style.borderWidth, style.tooltipBorderColor);
+        foreground.join(draw);
+        popDraw();
+    }
+
+    public boolean beginContextMenu(String title) {
+        WindowData popup = windows.get(title);
+        if (popup != null) {
+            beginWindowFlags(title, GuiWindowFlags._Popup);
+            return true;
+        }
+
+        boolean prevWidgetClicked = isWidgetClicked(MouseButton.RIGHT);
+        if (prevWidgetClicked) {
+            Vector2f cursorPos = input.getCursorPos();
+            WindowData win = new WindowData(cursorPos.x, cursorPos.y);
+            windows.put(title, win);
+            windowOrder.add(title);
+            beginWindowFlags(title, GuiWindowFlags._Popup);
+            return true;
+        }
+
+        return false;
+    }
+
+    public void endContextMenu() {
+        endWindow();
     }
 
     // Convenience method

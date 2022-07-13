@@ -28,11 +28,11 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-	<groupId>org.lwjgl</groupId>
-	<artifactId>lwjgl-bom</artifactId>
-	<version>${lwjgl.version}</version>
-	<scope>import</scope>
-	<type>pom</type>
+        <groupId>org.lwjgl</groupId>
+        <artifactId>lwjgl-bom</artifactId>
+        <version>${lwjgl.version}</version>
+        <scope>import</scope>
+        <type>pom</type>
       </dependency>
     </dependencies>
   </dependencyManagement>
