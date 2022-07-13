@@ -142,7 +142,7 @@ public final class TextFileEditor implements FileEditor {
         Vector2f pos = g.getCursor();
 
         Rectangle bounds = g.getContentBounds();
-        bounds = new Rectangle(bounds.getMin().x, bounds.getMin().y + pos.y - beginY, bounds.getMax().x, bounds.getMax().y);
+        bounds = new Rectangle(bounds.getMin().x, Math.max(bounds.getMin().y, beginY), bounds.getMax().x, bounds.getMax().y);
 
         Vector2f localMousePos = new Vector2f(input.getCursorPos()).sub(pos);
         int hoveredTextY = MathUtils.clamp((int) (localMousePos.y / fontHeight), 0, lineCount - 1);
@@ -274,7 +274,7 @@ public final class TextFileEditor implements FileEditor {
         }
 
         // Autoscroll to keep cursor on screen
-        int minRow = (int) Math.floor((bounds.getMin().y - pos.y) / fontHeight);
+        int minRow = Math.max(0, (int) Math.floor((bounds.getMin().y - pos.y) / fontHeight));
         int maxRow = (int) Math.ceil((bounds.getMax().y - pos.y) / fontHeight);
         if (scrollToCursor) {
             float scroll = g.getScrollY();
