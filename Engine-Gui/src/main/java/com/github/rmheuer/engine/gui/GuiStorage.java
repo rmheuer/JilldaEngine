@@ -31,6 +31,10 @@ public final class GuiStorage {
             return t;
         }
 
+        void set(Object id, Object value) {
+            values.put(id, value);
+        }
+
         void delete(Object id) {
             values.remove(id);
         }
@@ -68,8 +72,20 @@ public final class GuiStorage {
         return current.get(id, initializer);
     }
 
+    public <T> T get(Object id) {
+        return current.get(id, () -> null);
+    }
+
+    public void set(Object id, Object value) {
+        current.set(id, value);
+    }
+
     public void delete(Object id) {
         current.delete(id);
+    }
+
+    public Set<Object> getUnusedKeys() {
+        return current.unusedKeys;
     }
 
     public void disposeUnused() {

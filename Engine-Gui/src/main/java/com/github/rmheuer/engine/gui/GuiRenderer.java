@@ -14,6 +14,7 @@ import com.github.rmheuer.engine.render.texture.Texture;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,12 +49,15 @@ public final class GuiRenderer implements WorldLocalSingleton {
         private int tableRowIndex;
         private boolean insideTable;
         private int tableFlags;
+
+        private TabBar tabBar;
     }
 
     private static final class WindowData {
         private WindowData parent;
 
         private final GuiStorage storage;
+        private Object id;
         private String title;
         private int flags;
         private Rectangle bounds;
@@ -73,9 +77,8 @@ public final class GuiRenderer implements WorldLocalSingleton {
         }
     }
 
-    private final Map<String, WindowData> windows;
-    private final Set<String> unusedWindows;
-    private final List<String> windowOrder;
+    private final GuiStorage windows;
+    private final List<Object> windowOrder;
     private final GuiInput input;
     private GuiStyle style;
 
@@ -91,8 +94,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
     public GuiRenderer() {
         style = new GuiStyle();
         input = new GuiInput();
-        windows = new HashMap<>();
-        unusedWindows = new HashSet<>();
+        windows = new GuiStorage();
         windowOrder = new ArrayList<>();
         drawStack = new ArrayDeque<>();
     }
@@ -112,7 +114,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
         input.beginFrame(width, height);
 
         if (input.isAnyMouseButtonPressed()) {
-            String hoveredWindow = getHoveredWindow();
+            Object hoveredWindow = getHoveredWindow();
             if (hoveredWindow != null) {
                 windowOrder.remove(hoveredWindow);
                 windowOrder.add(hoveredWindow);
@@ -170,16 +172,12 @@ public final class GuiRenderer implements WorldLocalSingleton {
     }
 
     public void endFrame() {
-        for (String title : unusedWindows) {
-            windows.remove(title);
-            windowOrder.remove(title);
-        }
-        unusedWindows.clear();
-        unusedWindows.addAll(windows.keySet());
+        windowOrder.removeAll(windows.getUnusedKeys());
+        windows.disposeUnused();
 
         // Put all the windows into the main draw list
-        Set<String> invalid = new HashSet<>();
-        for (String title : windowOrder) {
+        Set<Object> invalid = new HashSet<>();
+        for (Object title : windowOrder) {
             WindowData win = windows.get(title);
             if (win == null)
                 invalid.add(title);
@@ -310,9 +308,9 @@ public final class GuiRenderer implements WorldLocalSingleton {
 
     // --- Input ---
 
-    private String getHoveredWindow() {
+    private Object getHoveredWindow() {
         for (int i = windowOrder.size() - 1; i >= 0; i--) {
-            if (input.isMouseInRectOverride(windows.get(windowOrder.get(i)).bounds)) {
+            if (input.isMouseInRectOverride(((WindowData) windows.get(windowOrder.get(i))).bounds)) {
                 return windowOrder.get(i);
             }
         }
@@ -324,7 +322,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
     }
 
     public boolean isWindowHovered() {
-        return window.title.equals(getHoveredWindow());
+        return window.id.equals(getHoveredWindow());
     }
 
     public boolean isWidgetClicked(MouseButton button) {
@@ -389,26 +387,25 @@ public final class GuiRenderer implements WorldLocalSingleton {
     }
 
     public boolean isWindowFocused() {
-        return windowOrder.get(windowOrder.size() - 1).equals(window.title);
+        return windowOrder.get(windowOrder.size() - 1).equals(window.id);
     }
 
     public void beginWindowFlags(String title, int flags) {
         WindowData prevWindow = window;
-        unusedWindows.remove(title);
-        if (!windows.containsKey(title)) {
+        window = windows.get(title, () -> {
             WindowData win = new WindowData(
                     displayBounds.getMin().x + displayBounds.getWidth() * (float) Math.random(),
                     displayBounds.getMin().y + displayBounds.getHeight() * (float) Math.random()
             );
 
             windowOrder.add(title);
-            windows.put(title, win);
-        }
-        window = windows.get(title);
+            return win;
+        });
         window.parent = prevWindow;
         window.draw = new CompositeDrawList2D();
         pushDraw(window.draw);
         window.title = title;
+        window.id = title;
         window.flags = flags;
 
         boolean autoX = hasFlag(flags, GuiWindowFlags.AutoSizeX);
@@ -558,8 +555,8 @@ public final class GuiRenderer implements WorldLocalSingleton {
         window.scroll.sub(scroll);
 
         if (popup && isClickedOutsideRectOverride(window.bounds)) {
-            windowOrder.remove(window.title);
-            windows.remove(window.title);
+            windowOrder.remove(window.id);
+            windows.delete(window.id);
         }
 
         clampScroll();
@@ -1183,13 +1180,16 @@ public final class GuiRenderer implements WorldLocalSingleton {
     // Returns whether the context menu was opened on the previous widget
     public boolean addContextMenu(String title) {
         title = contextMenuTitle(title);
+        return addContextMenu((Object) title);
+    }
 
+    private boolean addContextMenu(Object id) {
         boolean prevWidgetClicked = isWidgetClicked(MouseButton.RIGHT);
         if (prevWidgetClicked) {
             Vector2f cursorPos = input.getCursorPos();
             WindowData win = new WindowData(cursorPos.x - 2, cursorPos.y - 2);
-            windows.put(title, win);
-            windowOrder.add(title);
+            windows.set(id, win);
+            windowOrder.add(id);
         }
 
         return prevWidgetClicked;
@@ -1214,8 +1214,139 @@ public final class GuiRenderer implements WorldLocalSingleton {
     }
 
     public void closeContextMenu() {
-        windowOrder.remove(window.title);
-        windows.remove(window.title);
+        windowOrder.remove(window.id);
+        windows.delete(window.id);
+    }
+
+    private static final class TabItem {
+        private final Object id;
+        private String title;
+
+        public TabItem(Object id, String title) {
+            this.id = id;
+            this.title = title;
+        }
+    }
+
+    private static final class TabBar {
+        private final Map<Object, TabItem> prevTabs;
+        private final Map<Object, TabItem> currTabs;
+        private final List<Object> tabOrder;
+        private final Vector2f drawOrigin;
+        private TabItem currentTab;
+
+        public TabBar() {
+            prevTabs = new HashMap<>();
+            currTabs = new HashMap<>();
+            tabOrder = new ArrayList<>();
+            drawOrigin = new Vector2f();
+        }
+    }
+
+    public void beginTabBar(Object id) {
+        pane.tabBar = window.storage.get(id, TabBar::new);
+        for (Map.Entry<Object, TabItem> entry : pane.tabBar.currTabs.entrySet()) {
+            pane.tabBar.prevTabs.put(entry.getKey(), entry.getValue());
+        }
+
+        spacing(0, style.tabHeight);
+        pane.tabBar.drawOrigin.set(pane.contentBounds.getMin().x, pane.cursor.y);
+    }
+
+    public void endTabBar() {
+        for (Object key : pane.tabBar.prevTabs.keySet()) {
+            pane.tabBar.tabOrder.remove(key);
+        }
+
+        Vector2f pos = pane.tabBar.drawOrigin;
+        float h = style.tabHeight;
+        Rectangle bounds = Rectangle.fromXYSizes(pos.x, pos.y, availContentWidth(), h);
+
+        Vector2f pad = style.tabPadding;
+        float ddWidth = pad.x * 2 + style.tabDropdownSize;
+
+        float x = pos.x;
+        TabItem currHover = null, prevHover = null;
+        boolean allTabsFit = true;
+        int i;
+        for (i = 0; i < pane.tabBar.tabOrder.size(); i++) {
+            Object id = pane.tabBar.tabOrder.get(i);
+            boolean isLast = i == pane.tabBar.tabOrder.size() - 1;
+
+            TabItem item = pane.tabBar.currTabs.get(id);
+            float w = style.font.textWidth(item.title) + pad.x * 2;
+
+            if (x + w > (isLast ? bounds.getMax().x : bounds.getMax().x - ddWidth)) {
+                allTabsFit = false;
+                break;
+            }
+
+            boolean active = pane.tabBar.currentTab.id.equals(item.id);
+            Rectangle tabBounds = Rectangle.fromXYSizes(x, pos.y, w, h);
+            boolean hover = input.isMouseInRect(tabBounds);
+
+            if (hover)
+                currHover = item;
+            if (input.wasMouseInRect(tabBounds))
+                prevHover = item;
+
+            if (hover && input.isMouseButtonPressed(MouseButton.LEFT))
+                pane.tabBar.currentTab = item;
+
+            draw.fillRoundedQuad(x, pos.y, w, h, style.tabRounding, style.tabRounding, 0, 0, active ? style.tabActiveColor : style.tabColor);
+            draw.drawText(item.title, x + w / 2, pos.y + h / 2, 0.5f, 0.5f, style.font, style.textColor);
+            x += w;
+        }
+        draw.drawLine(pos.x, pos.y + h, pos.x + availContentWidth(), pos.y + h, style.borderWidth, style.tabActiveColor);
+
+        if (!allTabsFit) {
+            float w = bounds.getMax().x - x;
+            Rectangle ddBounds = Rectangle.fromXYSizes(bounds.getMax().x - w, pos.y, w, h);
+            draw.fillRoundedQuad(ddBounds, style.tabRounding, style.tabRounding, 0, 0, style.tabColor);
+
+            float size = style.tabDropdownSize;
+            Vector2f ddPos = new Vector2f(bounds.getMax().x - w / 2 - size / 2, pos.y + centerAlign(size, h));
+            draw.fillTriangle(
+                    ddPos,
+                    ddPos.x + size, ddPos.y,
+                    ddPos.x + size / 2, ddPos.y + size,
+                    style.tabDropdownColor
+            );
+
+            if (input.isMouseInRect(ddBounds) && input.isMouseButtonPressed(MouseButton.LEFT)) {
+                // TODO: Dropdown, and move clicked entry to front
+            }
+        }
+
+        if (input.isMouseButtonHeld(MouseButton.LEFT) && input.isMouseInRect(bounds) && prevHover != null && currHover != null && prevHover != currHover) {
+            int currIndex = pane.tabBar.tabOrder.indexOf(currHover.id);
+            int prevIndex = pane.tabBar.tabOrder.indexOf(prevHover.id);
+            Collections.swap(pane.tabBar.tabOrder, currIndex, prevIndex);
+        }
+
+        pane.tabBar = null;
+    }
+
+    public boolean beginTabBarItem(String title) { return beginTabBarItem(title, title); }
+    public boolean beginTabBarItem(String title, Object id) {
+        TabItem prevTab = pane.tabBar.prevTabs.get(id);
+        if (prevTab == null)
+            prevTab = new TabItem(id, title);
+        else
+            pane.tabBar.prevTabs.remove(id);
+        prevTab.title = title;
+        pane.tabBar.currTabs.put(id, prevTab);
+
+        if (pane.tabBar.currentTab == null)
+            pane.tabBar.currentTab = prevTab;
+        if (!pane.tabBar.tabOrder.contains(id))
+            pane.tabBar.tabOrder.add(id);
+
+        return pane.tabBar.currentTab.id.equals(id);
+    }
+
+    public void endTabBarItem() {
+
     }
 
     // Convenience method
@@ -1233,9 +1364,14 @@ public final class GuiRenderer implements WorldLocalSingleton {
         return input;
     }
 
+    // Important: Only windows with a String ID are saved.
     public SerialObject save() {
         SerialObject obj = new SerialObject();
-        for (String title : windowOrder) {
+        for (Object id : windowOrder) {
+            if (!(id instanceof String))
+                continue;
+
+            String title = (String) id;
             WindowData value = windows.get(title);
             SerialObject win = new SerialObject();
             win.putFloat("x", value.bounds.getMin().x);
@@ -1260,7 +1396,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
                     win.getFloat("h")
             );
 
-            windows.put(title, value);
+            windows.set(title, value);
             windowOrder.add(title);
         }
     }

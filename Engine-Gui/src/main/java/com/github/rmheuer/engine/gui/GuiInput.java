@@ -70,6 +70,10 @@ public final class GuiInput {
         return hoverEnabled && rect.containsPoint(cursorPos);
     }
 
+    public boolean wasMouseInRect(Rectangle rect) {
+        return hoverEnabled && rect.containsPoint(prevCursorPos);
+    }
+
     // Ignores whether hover detection is allowed
     public boolean isMouseInRectOverride(Rectangle rect) {
         return rect.containsPoint(cursorPos);

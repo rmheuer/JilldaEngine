@@ -47,6 +47,9 @@ public final class GuiStyle {
     public Vector4f tooltipBorderColor;
     public Vector4f popupBackgroundColor;
     public Vector4f popupBorderColor;
+    public Vector4f tabColor;
+    public Vector4f tabActiveColor;
+    public Vector4f tabDropdownColor;
 
     public float windowRounding;
     public float titleBarHeight;
@@ -62,6 +65,10 @@ public final class GuiStyle {
     public float textEditRounding;
     public float treeIconSize;
     public float separatorSize;
+    public Vector2f tabPadding;
+    public float tabHeight;
+    public float tabRounding;
+    public float tabDropdownSize;
 
     public GuiStyle() {
         try {
@@ -90,6 +97,10 @@ public final class GuiStyle {
         textEditRounding = 6;
         treeIconSize = 12;
         separatorSize = 10;
+        tabPadding = new Vector2f(6, 4);
+        tabHeight = 6 + font.getMetrics().getHeight();
+        tabRounding = 6;
+        tabDropdownSize = 12;
         setLight();
     }
 
@@ -108,7 +119,7 @@ public final class GuiStyle {
         backgroundColor        = rgba( 28,  38,  43, 255);
         scrollBarColor         = rgba( 51,  64,  74, 255);
         scrollBarHoverColor    = rgba( 46,  56,  64, 255);
-        resizeGrabColor        = rgba( 66, 150, 250, 64);
+        resizeGrabColor        = rgba( 66, 150, 250,  64);
         resizeGrabHoverColor   = rgba( 66, 150, 250, 171);
         textColor              = rgba(242, 245, 250, 255);
         separatorColor         = rgba(242, 245, 250, 255);
@@ -132,6 +143,9 @@ public final class GuiStyle {
         tooltipBorderColor     = rgba(242, 245, 250, 255);
         popupBackgroundColor   = rgba(  0,   0,   0, 255);
         popupBorderColor       = rgba(242, 245, 250, 255);
+        tabColor               = rgba( 20,  60, 100, 255);
+        tabActiveColor         = rgba( 28,  80, 140, 255);
+        tabDropdownColor       = rgba(242, 245, 250, 255);
     }
 
     public void setLight() {
@@ -165,6 +179,9 @@ public final class GuiStyle {
         tooltipBorderColor     = invrgba(242, 245, 250, 255);
         popupBackgroundColor   = invrgba(  0,   0,   0, 255);
         popupBorderColor       = invrgba(242, 245, 250, 255);
+        tabColor               = invrgba( 20,  60, 100, 255);
+        tabActiveColor         = invrgba( 28,  80, 140, 255);
+        tabDropdownColor       = invrgba(242, 245, 250, 255);
     }
 
     public void pushFont(Font font) {
