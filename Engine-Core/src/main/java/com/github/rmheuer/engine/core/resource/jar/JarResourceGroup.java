@@ -17,6 +17,12 @@ public final class JarResourceGroup extends ResourceGroup {
     }
 
     @Override
+    public boolean exists() {
+        // Can't check for folder in JAR, so assume it exists
+        return true;
+    }
+
+    @Override
     public String getName() {
         return name;
     }
@@ -29,6 +35,16 @@ public final class JarResourceGroup extends ResourceGroup {
     @Override
     public String getAbsolutePath() {
         return path;
+    }
+
+    @Override
+    public ResourceGroup getParent() {
+        String[] parts = ResourceUtils.splitPath(path);
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < parts.length - 1; i++) {
+            out.append(parts[i]).append(ResourceFile.SEPARATOR);
+        }
+        return new JarResourceGroup(out.toString());
     }
 
     private String childPath(String name) {

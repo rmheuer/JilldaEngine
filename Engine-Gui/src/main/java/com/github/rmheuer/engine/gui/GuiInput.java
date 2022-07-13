@@ -14,25 +14,32 @@ import com.github.rmheuer.engine.core.input.mouse.MouseEvent;
 import com.github.rmheuer.engine.core.input.mouse.MouseMoveEvent;
 import com.github.rmheuer.engine.core.input.mouse.MouseScrollEvent;
 import com.github.rmheuer.engine.core.math.Vector2f;
+import com.github.rmheuer.engine.core.util.Pair;
 import com.github.rmheuer.engine.render2d.Rectangle;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.EnumSet;
 import java.util.Set;
 
 // TODO: Properly take camera transform and projection into account when finding cursor pos
 public final class GuiInput {
+    private final Deque<Pair<Boolean, Boolean>> enableStack;
     private final Set<MouseButton> pressedButtons;
     private final Set<MouseButton> heldButtons;
     private final Set<MouseButton> consumedDrag;
     private final Set<Key> pressedKeys;
     private final Set<Key> heldKeys;
-    private Vector2f cursorOffset;
-    private Vector2f prevCursorPos;
-    private Vector2f cursorPos;
-    private Vector2f scroll;
+    private final Vector2f cursorOffset;
+    private final Vector2f prevCursorPos;
+    private final Vector2f cursorPos;
+    private final Vector2f scroll;
     private String textInput;
+    private boolean hoverEnabled;
+    private boolean buttonsEnabled;
 
     public GuiInput() {
+        enableStack = new ArrayDeque<>();
         pressedButtons = EnumSet.noneOf(MouseButton.class);
         heldButtons = EnumSet.noneOf(MouseButton.class);
         consumedDrag = EnumSet.noneOf(MouseButton.class);
@@ -43,52 +50,75 @@ public final class GuiInput {
         scroll = new Vector2f(0, 0);
         prevCursorPos = new Vector2f(-Float.MAX_VALUE, -Float.MAX_VALUE);
         textInput = "";
+        hoverEnabled = true;
+        buttonsEnabled = true;
+    }
+
+    public void pushEnableState(boolean hover, boolean buttons) {
+        enableStack.push(new Pair<>(hoverEnabled, buttonsEnabled));
+        hoverEnabled = hover;
+        buttonsEnabled = buttons;
+    }
+
+    public void popEnableState() {
+        Pair<Boolean, Boolean> pair = enableStack.pop();
+        hoverEnabled = pair.getA();
+        buttonsEnabled = pair.getB();
     }
 
     public boolean isMouseInRect(Rectangle rect) {
+        return hoverEnabled && rect.containsPoint(cursorPos);
+    }
+
+    // Ignores whether hover detection is allowed
+    public boolean isMouseInRectOverride(Rectangle rect) {
         return rect.containsPoint(cursorPos);
     }
 
     public boolean isMouseButtonPressed(MouseButton button) {
-        return pressedButtons.contains(button);
+        return buttonsEnabled && pressedButtons.contains(button);
     }
 
     public boolean isAnyMouseButtonPressed() {
+        return buttonsEnabled && !pressedButtons.isEmpty();
+    }
+
+    public boolean isAnyMouseButtonPressedOverride() {
         return !pressedButtons.isEmpty();
     }
 
     public boolean isMouseButtonHeld(MouseButton button) {
-        return heldButtons.contains(button);
+        return buttonsEnabled && heldButtons.contains(button);
     }
 
     public boolean isKeyPressed(Key key) {
-        return pressedKeys.contains(key);
+        return buttonsEnabled && pressedKeys.contains(key);
     }
 
     public boolean isShiftHeld() {
-        return heldKeys.contains(Key.LEFT_SHIFT) || heldKeys.contains(Key.RIGHT_SHIFT);
+        return buttonsEnabled && heldKeys.contains(Key.LEFT_SHIFT) || heldKeys.contains(Key.RIGHT_SHIFT);
     }
 
     public String getTextInput() {
+        if (!buttonsEnabled)
+            return "";
         return textInput;
     }
 
     public void consumeTextInput() {
-        textInput = "";
+        if (buttonsEnabled)
+            textInput = "";
     }
 
     public Vector2f getDrag(MouseButton button) {
-        if (consumedDrag.contains(button))
-            return new Vector2f(0, 0);
-
-        if (!heldButtons.contains(button))
+        if (!buttonsEnabled || consumedDrag.contains(button) || !heldButtons.contains(button))
             return new Vector2f(0, 0);
 
         return new Vector2f(cursorPos).sub(prevCursorPos);
     }
 
     public Vector2f getDragInRect(Rectangle rect, MouseButton button) {
-        if (rect.containsPoint(prevCursorPos)) {
+        if (buttonsEnabled && rect.containsPoint(prevCursorPos)) {
             return getDrag(button);
         }
 
@@ -96,14 +126,15 @@ public final class GuiInput {
     }
 
     public Vector2f getScrollInRect(Rectangle rect) {
-        if (!rect.containsPoint(cursorPos))
+        if (!hoverEnabled || !rect.containsPoint(cursorPos))
             return new Vector2f(0, 0);
 
         return scroll;
     }
 
     public void consumeDrag(MouseButton button) {
-        consumedDrag.add(button);
+        if (hoverEnabled)
+            consumedDrag.add(button);
     }
 
     public Vector2f getCursorPos() {

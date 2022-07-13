@@ -1,7 +1,9 @@
 package com.github.rmheuer.engine.core.resource.file;
 
 import com.github.rmheuer.engine.core.resource.ResourceFile;
+import com.github.rmheuer.engine.core.resource.ResourceGroup;
 import com.github.rmheuer.engine.core.resource.ResourceUtils;
+import com.github.rmheuer.engine.core.util.StreamUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,6 +11,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 
 // TODO: Cache path and absolute path
@@ -41,8 +45,36 @@ public final class FileResourceFile extends ResourceFile {
     }
 
     @Override
+    public ResourceGroup getParent() {
+        return new FileResourceGroup(file.getParentFile());
+    }
+
+    @Override
     public boolean exists() {
         return file.exists();
+    }
+
+    @Override
+    public void rename(String name) throws IOException {
+        // Don't try to rename to current name
+        if (name.equals(file.getName()))
+            return;
+
+        File dest = new File(file.getParentFile(), name);
+        StreamUtils.copyStreams(readAsStream(), new FileOutputStream(dest));
+        file.delete();
+    }
+
+    @Override
+    public void create() throws IOException {
+        if (!file.createNewFile()) {
+            throw new IOException("Failed to create new file");
+        }
+    }
+
+    @Override
+    public void delete() {
+        file.delete();
     }
 
     @Override

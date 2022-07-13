@@ -25,6 +25,7 @@ public final class GuiStyle {
     public Vector4f resizeGrabColor;
     public Vector4f resizeGrabHoverColor;
     public Vector4f textColor;
+    public Vector4f separatorColor;
 
     public Vector4f buttonBorderColor;
     public Vector4f buttonColor;
@@ -60,6 +61,7 @@ public final class GuiStyle {
     public Vector2f textEditPadding;
     public float textEditRounding;
     public float treeIconSize;
+    public float separatorSize;
 
     public GuiStyle() {
         try {
@@ -87,49 +89,82 @@ public final class GuiStyle {
         textEditPadding = new Vector2f(6, 4);
         textEditRounding = 6;
         treeIconSize = 12;
-        setDark();
-    }
-
-    private Vector4f rgb(int r, int g, int b) {
-        return new Vector4f(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
+        separatorSize = 10;
+        setLight();
     }
 
     private Vector4f rgba(int r, int g, int b, int a) {
         return new Vector4f(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
     }
 
+    private Vector4f invrgba(int r, int g, int b, int a) {
+        return new Vector4f(1 - r / 255.0f, 1 - g / 255.0f, 1 - b / 255.0f, a / 255.0f);
+    }
+
     public void setDark() {
-        borderColor     = new Vector4f(0.08f, 0.10f, 0.12f, 1.0f);
-        titleBarColor = rgb(20, 60, 100);
-        titleBarActiveColor = rgb(28, 80, 140);
-        backgroundColor = new Vector4f(0.11f, 0.15f, 0.17f, 1.0f);
-        scrollBarColor = new Vector4f(0.20f, 0.25f, 0.29f, 1.00f);
-        scrollBarHoverColor = new Vector4f(0.18f, 0.22f, 0.25f, 1.00f);
-        resizeGrabColor = new Vector4f(0.26f, 0.59f, 0.98f, 0.25f);
-        resizeGrabHoverColor = new Vector4f(0.26f, 0.59f, 0.98f, 0.67f);
-        textColor       = new Vector4f(0.95f, 0.96f, 0.98f, 1.0f);
+        borderColor            = rgba( 20,  26,  31, 255);
+        titleBarColor          = rgba( 20,  60, 100, 255);
+        titleBarActiveColor    = rgba( 28,  80, 140, 255);
+        backgroundColor        = rgba( 28,  38,  43, 255);
+        scrollBarColor         = rgba( 51,  64,  74, 255);
+        scrollBarHoverColor    = rgba( 46,  56,  64, 255);
+        resizeGrabColor        = rgba( 66, 150, 250, 64);
+        resizeGrabHoverColor   = rgba( 66, 150, 250, 171);
+        textColor              = rgba(242, 245, 250, 255);
+        separatorColor         = rgba(242, 245, 250, 255);
+        buttonBorderColor      = rgba( 37,  37,  37, 255);
+        buttonColor            = rgba( 51,  64,  74, 255);
+        buttonHoverColor       = rgba( 28,  80, 140, 255);
+        buttonPressColor       = rgba( 20,  60, 100, 255);
+        textEditBorderColor    = rgba( 37,  37,  37, 255);
+        textEditColor          = rgba( 51,  64,  74, 255);
+        textEditHoverColor     = rgba( 28,  80, 140, 255);
+        textEditInvalidColor   = rgba(140,  80,  28, 255);
+        textEditFocusColor     = rgba( 20,  60, 100, 255);
+        textEditSelectionColor = rgba( 28,  80, 140, 255);
+        textEditCursorColor    = rgba(242, 245, 250, 255);
+        treeIconColor          = rgba(242, 245, 250, 255);
+        treeColor              = rgba(  0,   0,   0,   0);
+        treeHoverColor         = rgba( 20,  60, 100, 255);
+        treePressColor         = rgba( 15,  50,  85, 255);
+        treeSelectionColor     = rgba( 28,  80, 140, 255);
+        tooltipBackgroundColor = rgba(  0,   0,   0, 255);
+        tooltipBorderColor     = rgba(242, 245, 250, 255);
+        popupBackgroundColor   = rgba(  0,   0,   0, 255);
+        popupBorderColor       = rgba(242, 245, 250, 255);
+    }
 
-        buttonBorderColor = rgb(37, 37, 37);
-        buttonColor = new Vector4f(0.20f, 0.25f, 0.29f, 1.0f);
-        buttonHoverColor = rgb(28, 80, 140);
-        buttonPressColor = rgb(20, 60, 100);
-        textEditBorderColor = rgb(37, 37, 37);
-        textEditColor = new Vector4f(0.20f, 0.25f, 0.29f, 1.0f);
-        textEditHoverColor = rgb(28, 80, 140);
-        textEditInvalidColor = rgb(140, 80, 28);
-        textEditFocusColor = rgb(20, 60, 100);
-        textEditSelectionColor = rgb(28, 80, 140);
-        textEditCursorColor = new Vector4f(0.95f, 0.96f, 0.98f, 1.0f);
-        treeIconColor = new Vector4f(0.95f, 0.96f, 0.98f, 1.0f);
-        treeColor       = new Vector4f(0, 0, 0, 0);
-        treeHoverColor = rgb(20, 60, 100);
-        treePressColor = rgb(15, 50, 85);
-        treeSelectionColor = rgb(28, 80, 140);
-
-        tooltipBackgroundColor = rgb(0, 0, 0);
-        tooltipBorderColor = rgb(255, 255, 255);
-        popupBackgroundColor = rgb(0, 0, 0);
-        popupBorderColor = rgb(255, 255, 255);
+    public void setLight() {
+        borderColor            = invrgba( 20,  26,  31, 255);
+        titleBarColor          = invrgba( 20,  60, 100, 255);
+        titleBarActiveColor    = invrgba( 28,  80, 140, 255);
+        backgroundColor        = invrgba( 28,  38,  43, 255);
+        scrollBarColor         = invrgba( 51,  64,  74, 255);
+        scrollBarHoverColor    = invrgba( 46,  56,  64, 255);
+        resizeGrabColor        = invrgba( 66, 150, 250,  64);
+        resizeGrabHoverColor   = invrgba( 66, 150, 250, 171);
+        textColor              = invrgba(242, 245, 250, 255);
+        separatorColor         = invrgba(242, 245, 250, 255);
+        buttonBorderColor      = invrgba( 37,  37,  37, 255);
+        buttonColor            = invrgba( 51,  64,  74, 255);
+        buttonHoverColor       = invrgba( 28,  80, 140, 255);
+        buttonPressColor       = invrgba( 20,  60, 100, 255);
+        textEditBorderColor    = invrgba( 37,  37,  37, 255);
+        textEditColor          = invrgba( 51,  64,  74, 255);
+        textEditHoverColor     = invrgba( 28,  80, 140, 255);
+        textEditInvalidColor   = invrgba(140,  80,  28, 255);
+        textEditFocusColor     = invrgba( 20,  60, 100, 255);
+        textEditSelectionColor = invrgba( 28,  80, 140, 255);
+        textEditCursorColor    = invrgba(242, 245, 250, 255);
+        treeIconColor          = invrgba(242, 245, 250, 255);
+        treeColor              = invrgba(  0,   0,   0,   0);
+        treeHoverColor         = invrgba( 20,  60, 100, 255);
+        treePressColor         = invrgba( 15,  50,  85, 255);
+        treeSelectionColor     = invrgba( 28,  80, 140, 255);
+        tooltipBackgroundColor = invrgba(  0,   0,   0, 255);
+        tooltipBorderColor     = invrgba(242, 245, 250, 255);
+        popupBackgroundColor   = invrgba(  0,   0,   0, 255);
+        popupBorderColor       = invrgba(242, 245, 250, 255);
     }
 
     public void pushFont(Font font) {

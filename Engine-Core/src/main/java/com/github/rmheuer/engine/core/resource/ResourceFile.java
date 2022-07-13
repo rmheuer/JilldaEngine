@@ -17,8 +17,6 @@ public abstract class ResourceFile extends Resource {
      */
     public static final char SEPARATOR = '/';
 
-    public abstract boolean exists();
-
     public abstract InputStream readAsStream() throws IOException;
     public abstract OutputStream writeAsStream() throws IOException;
 

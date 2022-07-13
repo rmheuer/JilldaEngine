@@ -56,6 +56,8 @@ public final class TextFileEditor implements FileEditor {
     @Override
     public void open(ResourceFile res) throws IOException {
         this.res = res;
+        if (res == null)
+            return;
 
         String content = res.readAsString();
         String[] split = content
@@ -69,6 +71,11 @@ public final class TextFileEditor implements FileEditor {
         }
 
         reset();
+    }
+
+    @Override
+    public ResourceFile getCurrentFile() {
+        return res;
     }
 
     @Override
@@ -114,7 +121,7 @@ public final class TextFileEditor implements FileEditor {
         cursorPos.set(selectionStart);
     }
 
-    private void showEditor(GuiRenderer g) {
+    private void showEditor(GuiRenderer g, float beginY) {
         cursorBlinkTimer += Time.getDelta();
         if (cursorBlinkTimer > 1)
             cursorBlinkTimer -= 1;
@@ -122,13 +129,20 @@ public final class TextFileEditor implements FileEditor {
         GuiStyle style = g.getStyle();
         GuiInput input = g.getInput();
         CompositeDrawList2D draw = g.getActiveDrawList();
-        Rectangle bounds = g.getContentBounds();
 
         int lineCount = lines.size();
+        if (lineCount == 0) {
+            lines.add(new StringBuilder(""));
+            lineCount = 1;
+        }
+
         float fontWidth = font.textWidth("A"); // This assumes font is monospaced
         float fontHeight = font.getMetrics().getHeight();
         g.spacing(g.availContentWidth(), fontHeight * lineCount);
         Vector2f pos = g.getCursor();
+
+        Rectangle bounds = g.getContentBounds();
+        bounds = new Rectangle(bounds.getMin().x, bounds.getMin().y + pos.y - beginY, bounds.getMax().x, bounds.getMax().y);
 
         Vector2f localMousePos = new Vector2f(input.getCursorPos()).sub(pos);
         int hoveredTextY = MathUtils.clamp((int) (localMousePos.y / fontHeight), 0, lineCount - 1);
@@ -187,6 +201,7 @@ public final class TextFileEditor implements FileEditor {
             cursorPos.x = Math.min(preferredX, lines.get(cursorPos.y).length());
             cursorMoved = true;
         }
+        boolean scrollToCursor = false;
         if (cursorMoved) {
             cursorBlinkTimer = 0;
 
@@ -195,6 +210,7 @@ public final class TextFileEditor implements FileEditor {
                 selectionStart.set(cursorPos);
 
             selectionEnd.set(cursorPos);
+            scrollToCursor = true;
         }
 
         if (input.isKeyPressed(Key.BACKSPACE)) {
@@ -212,6 +228,7 @@ public final class TextFileEditor implements FileEditor {
                 }
             }
             cursorBlinkTimer = 0;
+            scrollToCursor = true;
         }
 
         String textInput = input.getTextInput();
@@ -225,6 +242,7 @@ public final class TextFileEditor implements FileEditor {
             cursorPos.x += textInput.length();
 
             cursorBlinkTimer = 0;
+            scrollToCursor = true;
         }
 
         if (input.isKeyPressed(Key.ENTER)) {
@@ -252,21 +270,24 @@ public final class TextFileEditor implements FileEditor {
             selectionEnd.set(cursorPos);
 
             cursorBlinkTimer = 0;
+            scrollToCursor = true;
         }
 
         // Autoscroll to keep cursor on screen
         int minRow = (int) Math.floor((bounds.getMin().y - pos.y) / fontHeight);
         int maxRow = (int) Math.ceil((bounds.getMax().y - pos.y) / fontHeight);
-        float scroll = g.getScrollY();
-        if (cursorPos.y < minRow + AUTOSCROLL_THRESHOLD) {
-            int diff = cursorPos.y - (minRow + AUTOSCROLL_THRESHOLD);
-            scroll += diff * fontHeight;
+        if (scrollToCursor) {
+            float scroll = g.getScrollY();
+            if (cursorPos.y < minRow + AUTOSCROLL_THRESHOLD) {
+                int diff = cursorPos.y - (minRow + AUTOSCROLL_THRESHOLD);
+                scroll += diff * fontHeight;
+            }
+            if (cursorPos.y > maxRow - AUTOSCROLL_THRESHOLD) {
+                int diff = cursorPos.y - (maxRow - AUTOSCROLL_THRESHOLD);
+                scroll += diff * fontHeight;
+            }
+            g.setScrollY(scroll);
         }
-        if (cursorPos.y > maxRow - AUTOSCROLL_THRESHOLD) {
-            int diff = cursorPos.y - (maxRow - AUTOSCROLL_THRESHOLD);
-            scroll += diff * fontHeight;
-        }
-        g.setScrollY(scroll);
 
         // Draw selection
         boolean flipSel = selectionStart.y > selectionEnd.y || (selectionStart.y == selectionEnd.y && selectionStart.x > selectionEnd.x);
@@ -300,7 +321,10 @@ public final class TextFileEditor implements FileEditor {
     @Override
     public void showGui(GuiRenderer g) {
         if (res != null) {
-            showEditor(g);
+            float beginY = g.getCursor().y;
+            g.text("Editing " + res.getName());
+            g.separator();
+            showEditor(g, beginY);
         } else {
             g.text("No file open");
         }

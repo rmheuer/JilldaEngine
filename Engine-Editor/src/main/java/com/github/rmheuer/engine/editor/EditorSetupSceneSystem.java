@@ -6,6 +6,7 @@ import com.github.rmheuer.engine.core.ecs.system.GameSystem;
 import com.github.rmheuer.engine.core.event.EventDispatcher;
 import com.github.rmheuer.engine.core.math.Transform;
 import com.github.rmheuer.engine.core.resource.ResourceFile;
+import com.github.rmheuer.engine.editor.event.FileDeleteEvent;
 import com.github.rmheuer.engine.editor.event.FileTreeSelectionChangeEvent;
 import com.github.rmheuer.engine.editor.file.TextFileEditor;
 import com.github.rmheuer.engine.editor.window.FileContentWindow;
@@ -49,13 +50,20 @@ public final class EditorSetupSceneSystem implements GameSystem {
     @Override
     public void onEvent(World world, EventDispatcher d) {
         d.dispatch(FileTreeSelectionChangeEvent.class, (e) -> {
-            if (e.getSelection().isFile()) {
+            if (e.getSelection() == null || e.getSelection().isFile()) {
                 try {
-                    editor.save();
+                    if (e.isShouldSavePrevious()) editor.save();
                     editor.open((ResourceFile) e.getSelection());
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
+            }
+        });
+        d.dispatch(FileDeleteEvent.class, (e) -> {
+            if (e.getFile().equals(editor.getCurrentFile())) {
+                try {
+                    editor.open(null);
+                } catch (IOException ex) {}
             }
         });
     }

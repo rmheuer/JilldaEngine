@@ -5,14 +5,11 @@ import com.github.rmheuer.engine.core.input.keyboard.Key;
 import com.github.rmheuer.engine.core.input.mouse.MouseButton;
 import com.github.rmheuer.engine.core.math.MathUtils;
 import com.github.rmheuer.engine.core.math.Vector2f;
-import com.github.rmheuer.engine.core.math.Vector2i;
 import com.github.rmheuer.engine.core.math.Vector4f;
 import com.github.rmheuer.engine.core.serial.node.SerialObject;
 import com.github.rmheuer.engine.core.serial.obj.Transient;
-import com.github.rmheuer.engine.render.RenderBackend;
 import com.github.rmheuer.engine.render2d.CompositeDrawList2D;
 import com.github.rmheuer.engine.render2d.Rectangle;
-import com.github.rmheuer.engine.render2d.Renderer2D;
 import com.github.rmheuer.engine.render.texture.Texture;
 
 import java.util.ArrayDeque;
@@ -181,10 +178,15 @@ public final class GuiRenderer implements WorldLocalSingleton {
         unusedWindows.addAll(windows.keySet());
 
         // Put all the windows into the main draw list
+        Set<String> invalid = new HashSet<>();
         for (String title : windowOrder) {
             WindowData win = windows.get(title);
-            mainDraw.join(win.draw);
+            if (win == null)
+                invalid.add(title);
+            else
+                mainDraw.join(win.draw);
         }
+        windowOrder.removeAll(invalid);
         mainDraw.join(foreground);
 
         input.endFrame();
@@ -310,7 +312,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
 
     private String getHoveredWindow() {
         for (int i = windowOrder.size() - 1; i >= 0; i--) {
-            if (input.isMouseInRect(windows.get(windowOrder.get(i)).bounds)) {
+            if (input.isMouseInRectOverride(windows.get(windowOrder.get(i)).bounds)) {
                 return windowOrder.get(i);
             }
         }
@@ -319,6 +321,10 @@ public final class GuiRenderer implements WorldLocalSingleton {
 
     public boolean isWidgetHovered() {
         return input.isMouseInRect(widgetSizeOverride != null ? widgetSizeOverride : pane.widgetBounds);
+    }
+
+    public boolean isWindowHovered() {
+        return window.title.equals(getHoveredWindow());
     }
 
     public boolean isWidgetClicked(MouseButton button) {
@@ -331,6 +337,10 @@ public final class GuiRenderer implements WorldLocalSingleton {
 
     public boolean isClickedOutsideRect(Rectangle rect) {
         return !input.isMouseInRect(rect) && input.isAnyMouseButtonPressed();
+    }
+
+    private boolean isClickedOutsideRectOverride(Rectangle rect) {
+        return !input.isMouseInRectOverride(rect) && input.isAnyMouseButtonPressedOverride();
     }
 
     // --- Windows ---
@@ -403,6 +413,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
 
         boolean autoX = hasFlag(flags, GuiWindowFlags.AutoSizeX);
         boolean autoY = hasFlag(flags, GuiWindowFlags.AutoSizeY);
+        boolean prevHover = isWindowHovered();
         window.bounds.resize(
                 autoX ? 0 : window.bounds.getWidth(),
                 autoY ? 0 : window.bounds.getHeight()
@@ -421,6 +432,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
 
         pushDraw();
         draw.pushClip(pane.contentBounds);
+        input.pushEnableState((autoX || autoY) ? prevHover : isWindowHovered(), isWindowFocused());
     }
 
     private void clampScroll() {
@@ -545,8 +557,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
         Vector2f scroll = input.getScrollInRect(pane.bounds);
         window.scroll.sub(scroll);
 
-        if (hasFlag(flags, GuiWindowFlags._IsPopup) && isClickedOutsideRect(window.bounds)) {
-            // Popups close if clicked outside
+        if (popup && isClickedOutsideRectOverride(window.bounds)) {
             windowOrder.remove(window.title);
             windows.remove(window.title);
         }
@@ -557,6 +568,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
         window.storage.disposeUnused();
         window = window.parent;
         popDraw();
+        input.popEnableState();
     }
 
     public void setWindowSize(float width, float height) {
@@ -634,6 +646,10 @@ public final class GuiRenderer implements WorldLocalSingleton {
         window.storage.pop();
     }
 
+    public void deleteStorage(Object id) {
+        window.storage.delete(id);
+    }
+
     // --- Widgets ---
 
     public void spacing() {
@@ -647,6 +663,13 @@ public final class GuiRenderer implements WorldLocalSingleton {
 
     public void spacing(Vector2f size) {
         beginWidget(size);
+    }
+
+    public void separator() {
+        beginWidget(new Vector2f(availContentWidth(), style.separatorSize));
+
+        float y = pane.widgetBounds.getMidpoint().y;
+        draw.drawLine(pane.widgetBounds.getMin().x, y, pane.widgetBounds.getMax().x, y, style.borderWidth, style.separatorColor);
     }
 
     public void beginChild() {
@@ -728,17 +751,12 @@ public final class GuiRenderer implements WorldLocalSingleton {
         draw.drawImage(pane.cursor.x, pane.cursor.y + textHeight / 2 - height / 2, width, height, img, uv0.x, uv0.y, uv1.x, uv1.y);
     }
 
-    public boolean editString(StringBuilder str) {
-        return editString(str, str);
-    }
-
-    public boolean editString(StringBuilder str, TextFilter filter) {
-        return editString(str, str, filter);
-    }
-
-    public boolean editString(StringBuilder str, Object id) {
-        return editString(str, id, (s) -> true);
-    }
+    public boolean editString(StringBuilder str) { return editString(str, str); }
+    public boolean editString(StringBuilder str, int flags) { return editString(str, str, flags); }
+    public boolean editString(StringBuilder str, TextFilter filter) { return editString(str, str, filter, GuiTextEditFlags.None); }
+    public boolean editString(StringBuilder str, TextFilter filter, int flags) { return editString(str, str, filter, flags); }
+    public boolean editString(StringBuilder str, Object id) { return editString(str, id, GuiTextEditFlags.None); }
+    public boolean editString(StringBuilder str, Object id, int flags) { return editString(str, id, (s) -> true, flags); }
 
     private static final class TextEditState {
         boolean focused;
@@ -763,14 +781,28 @@ public final class GuiRenderer implements WorldLocalSingleton {
         }
     }
 
-    public boolean editString(StringBuilder str, Object id, TextFilter filter) {
+    public boolean editString(StringBuilder str, Object id, TextFilter filter, int flags) {
         TextEditState state = window.storage.get(id, TextEditState::new);
 
+        boolean returnFocused = hasFlag(flags, GuiTextEditFlags.ReturnFocused);
+        boolean alignToTreeSize = hasFlag(flags, GuiTextEditFlags.AlignToTreeSize);
+        boolean forceFocus = hasFlag(flags, GuiTextEditFlags.Focus);
+        if (forceFocus) {
+            state.focused = true;
+            state.buffer = new StringBuilder(str);
+        }
+        boolean selectAll = hasFlag(flags, GuiTextEditFlags.SelectAll);
+        if (state.focused && selectAll) {
+            state.selectStart = 0;
+            state.selectEnd = state.buffer.length();
+        }
+
+        Vector2f padding = alignToTreeSize ? new Vector2f(style.textEditPadding.x, style.linePadding / 2) : style.textEditPadding;
         float width = availContentWidth();
-        float height = textHeight() + 2 * style.textEditPadding.y;
+        float height = textHeight() + 2 * padding.y;
         beginWidget(new Vector2f(width, height));
 
-        boolean changed = false;
+        boolean ret = false;
         StringBuilder string = state.focused ? state.buffer : str;
 
         float contentScroll = 0;
@@ -832,7 +864,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
         boolean hovered = isWidgetHovered();
         boolean pressed = isWidgetHeld(MouseButton.LEFT);
         boolean clicked = isWidgetClicked(MouseButton.LEFT);
-        boolean clickedOutside = isClickedOutsideRect(pane.widgetBounds);
+        boolean clickedOutside = isClickedOutsideRectOverride(pane.widgetBounds);
 
         // Focus
         if (state.focused) {
@@ -841,7 +873,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
             } else if (clickedOutside || input.isKeyPressed(Key.ENTER)) {
                 state.focused = false;
                 if (textAllowed) {
-                    changed = true;
+                    ret = true;
                     str.replace(0, str.length(), state.buffer.toString());
                 }
             }
@@ -880,10 +912,12 @@ public final class GuiRenderer implements WorldLocalSingleton {
                 }
             }
 
-            if (clicked) {
-                state.selectStart = state.cursor;
+            if (!selectAll) {
+                if (clicked) {
+                    state.selectStart = state.cursor;
+                }
+                state.selectEnd = state.cursor;
             }
-            state.selectEnd = state.cursor;
         }
 
         // Background
@@ -903,22 +937,22 @@ public final class GuiRenderer implements WorldLocalSingleton {
         float centerY = pane.widgetBounds.getMidpoint().y;
         draw.fillRoundedQuad(pane.cursor.x + b, pane.cursor.y + b, width - 2*b, height - 2*b, style.textEditRounding, background);
         draw.drawRoundedQuad(pane.cursor.x, pane.cursor.y, width, height, style.textEditRounding, style.borderWidth, style.textEditBorderColor);
-        draw.pushClip(new Rectangle(pane.cursor.x + style.textEditPadding.x, pane.cursor.y, pane.widgetBounds.getMax().x - style.textEditPadding.x, pane.widgetBounds.getMax().y));
+        draw.pushClip(new Rectangle(pane.cursor.x + padding.x, pane.cursor.y, pane.widgetBounds.getMax().x - padding.x, pane.widgetBounds.getMax().y));
         if (state.focused && state.hasSelection()) {
             int min = Math.min(state.selectStart, state.selectEnd);
             int max = Math.max(state.selectStart, state.selectEnd);
-            float minX = pane.cursor.x + style.textEditPadding.x + style.font.textWidth(string.substring(0, min));
+            float minX = pane.cursor.x + padding.x + style.font.textWidth(string.substring(0, min));
             float w = style.font.textWidth(string.substring(min, max));
             draw.fillQuad(minX, centerY - halfHeight, w, textHeight(), style.textEditSelectionColor);
         }
-        draw.drawText(string.toString(), pane.cursor.x + style.textEditPadding.x - contentScroll, pane.widgetBounds.getMidpoint().y, 0, 0.5f, style.font, style.textColor);
+        draw.drawText(string.toString(), pane.cursor.x + padding.x - contentScroll, pane.widgetBounds.getMidpoint().y, 0, 0.5f, style.font, style.textColor);
         if (state.focused) {
-            float cursorX = pane.cursor.x + style.textEditPadding.x + style.font.textWidth(string.substring(0, state.cursor)) - contentScroll;
+            float cursorX = pane.cursor.x + padding.x + style.font.textWidth(string.substring(0, state.cursor)) - contentScroll;
             draw.drawLine(cursorX, centerY - halfHeight, cursorX, centerY + halfHeight, 1, style.textEditCursorColor);
         }
         draw.popClip();
 
-        return changed;
+        return returnFocused ? state.focused : ret;
     }
 
     // Returns offset on X to align object of height1 with object of height2
@@ -1141,19 +1175,33 @@ public final class GuiRenderer implements WorldLocalSingleton {
         popDraw();
     }
 
-    public boolean beginContextMenu(String title) {
-        WindowData popup = windows.get(title);
-        if (popup != null) {
-            beginWindowFlags(title, GuiWindowFlags._Popup);
-            return true;
-        }
+    private String contextMenuTitle(String title) {
+        return "__ctx:" + title;
+    }
+
+    // Use this to attach a context menu to the previous widget
+    // Returns whether the context menu was opened on the previous widget
+    public boolean addContextMenu(String title) {
+        title = contextMenuTitle(title);
 
         boolean prevWidgetClicked = isWidgetClicked(MouseButton.RIGHT);
         if (prevWidgetClicked) {
             Vector2f cursorPos = input.getCursorPos();
-            WindowData win = new WindowData(cursorPos.x, cursorPos.y);
+            WindowData win = new WindowData(cursorPos.x - 2, cursorPos.y - 2);
             windows.put(title, win);
             windowOrder.add(title);
+        }
+
+        return prevWidgetClicked;
+    }
+
+    // Use this to begin context menu content.
+    // Only call endContextMenu if this returns true!
+    public boolean beginContextMenu(String title) {
+        title = contextMenuTitle(title);
+
+        WindowData popup = windows.get(title);
+        if (popup != null) {
             beginWindowFlags(title, GuiWindowFlags._Popup);
             return true;
         }
@@ -1163,6 +1211,11 @@ public final class GuiRenderer implements WorldLocalSingleton {
 
     public void endContextMenu() {
         endWindow();
+    }
+
+    public void closeContextMenu() {
+        windowOrder.remove(window.title);
+        windows.remove(window.title);
     }
 
     // Convenience method

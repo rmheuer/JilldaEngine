@@ -31,6 +31,10 @@ public final class GuiStorage {
             return t;
         }
 
+        void delete(Object id) {
+            values.remove(id);
+        }
+
         void disposeUnused() {
             for (StorageNode node : children.values()) {
                 node.disposeUnused();
@@ -62,6 +66,10 @@ public final class GuiStorage {
 
     public <T> T get(Object id, Supplier<T> initializer) {
         return current.get(id, initializer);
+    }
+
+    public void delete(Object id) {
+        current.delete(id);
     }
 
     public void disposeUnused() {

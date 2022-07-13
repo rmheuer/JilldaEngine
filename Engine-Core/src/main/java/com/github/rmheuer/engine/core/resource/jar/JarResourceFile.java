@@ -1,6 +1,7 @@
 package com.github.rmheuer.engine.core.resource.jar;
 
 import com.github.rmheuer.engine.core.resource.ResourceFile;
+import com.github.rmheuer.engine.core.resource.ResourceGroup;
 import com.github.rmheuer.engine.core.resource.ResourceUtils;
 
 import java.io.IOException;
@@ -31,6 +32,16 @@ public final class JarResourceFile extends ResourceFile {
     @Override
     public String getAbsolutePath() {
         return path;
+    }
+
+    @Override
+    public ResourceGroup getParent() {
+        String[] parts = ResourceUtils.splitPath(path);
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < parts.length - 1; i++) {
+            out.append(parts[i]).append(ResourceFile.SEPARATOR);
+        }
+        return new JarResourceGroup(out.toString());
     }
 
     private InputStream getStream() {

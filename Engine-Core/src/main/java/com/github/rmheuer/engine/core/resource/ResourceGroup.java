@@ -15,6 +15,10 @@ public abstract class ResourceGroup extends Resource {
         return false;
     }
 
+    public Resource getChild(String name) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Gets a set of all {@code Resource}s that are a direct descendant of this
      * resource group. This is an optional operation, and will throw

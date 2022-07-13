@@ -37,4 +37,4 @@ gui-layout.bin
 **/target/
 **/dependency-reduced-pom.xml
 
-sandbox.txt
+Engine-Editor/Edit sandbox/*

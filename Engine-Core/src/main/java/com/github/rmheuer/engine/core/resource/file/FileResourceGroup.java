@@ -1,10 +1,13 @@
 package com.github.rmheuer.engine.core.resource.file;
 
+import com.github.rmheuer.engine.core.resource.Resource;
 import com.github.rmheuer.engine.core.resource.ResourceFile;
 import com.github.rmheuer.engine.core.resource.ResourceGroup;
 import com.github.rmheuer.engine.core.resource.ResourceUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -18,7 +21,7 @@ public final class FileResourceGroup extends ResourceGroup {
     }
 
     public FileResourceGroup(File file) {
-        if (!file.isDirectory())
+        if (file.exists() && !file.isDirectory())
             throw new IllegalArgumentException("Not a directory: " + file);
         this.file = file;
     }
@@ -36,6 +39,61 @@ public final class FileResourceGroup extends ResourceGroup {
     @Override
     public String getAbsolutePath() {
         return ResourceUtils.convertNativePathToResourcePath(file.getAbsolutePath());
+    }
+
+    @Override
+    public boolean exists() {
+        return file.exists();
+    }
+
+    @Override
+    public void create() throws IOException {
+        if (!file.mkdirs()) {
+            throw new IOException("Failed to create directory");
+        }
+    }
+
+    @Override
+    public void rename(String name) throws IOException {
+        if (!file.renameTo(new File(file.getParentFile(), name))) {
+            throw new IOException("Rename failed");
+        }
+    }
+
+    @Override
+    public void delete() {
+        deleteFile(file);
+    }
+
+    private void deleteFile(File file) {
+        File[] contents = file.listFiles();
+        if (contents != null) {
+            for (File f : contents) {
+                if (!Files.isSymbolicLink(f.toPath())) {
+                    deleteFile(f);
+                }
+            }
+        }
+        file.delete();
+    }
+
+    @Override
+    public ResourceGroup getParent() {
+        return new FileResourceGroup(file.getParentFile());
+    }
+
+    @Override
+    public Resource getChild(String name) {
+        File child = new File(file, name);
+        if (!child.exists())
+            return null;
+
+        if (child.isFile())
+            return new FileResourceFile(child);
+        else if (child.isDirectory())
+            return new FileResourceGroup(child);
+        else
+            return null;
     }
 
     @Override
