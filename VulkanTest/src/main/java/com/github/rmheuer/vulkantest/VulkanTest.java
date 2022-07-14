@@ -27,6 +27,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFWVulkan.*;
 import static org.lwjgl.system.MemoryUtil.*;
 import static org.lwjgl.vulkan.EXTDebugUtils.VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
+import static org.lwjgl.vulkan.KHRSurface.*;
 import static org.lwjgl.vulkan.VK10.*;
 
 public final class VulkanTest {
@@ -41,6 +42,7 @@ public final class VulkanTest {
 
     private long window;
     private VkInstance instance;
+    private long surface;
     private VkPhysicalDevice physicalDevice;
     private VkDevice device;
     private VkQueue graphicsQueue;
@@ -151,6 +153,13 @@ public final class VulkanTest {
         memFree(engineName);
         memFree(appName);
         appInfo.free();
+    }
+
+    private void createSurface() {
+        long[] pSurface = new long[1];
+        int result = glfwCreateWindowSurface(instance, window, null, pSurface);
+        checkError(result);
+        surface = pSurface[0];
     }
 
     private Map<QueueFamily, Integer> findQueueFamilies(VkPhysicalDevice device) {
@@ -270,6 +279,7 @@ public final class VulkanTest {
 
     private void initVulkan() {
         createInstance();
+        createSurface();
         pickPhysicalDevice();
         createLogicalDevice();
     }
@@ -282,6 +292,7 @@ public final class VulkanTest {
 
     private void cleanUp() {
         vkDestroyDevice(device, null);
+        vkDestroySurfaceKHR(instance, surface, null);
         vkDestroyInstance(instance, null);
 
         glfwDestroyWindow(window);
