@@ -8,11 +8,14 @@ import org.lwjgl.vulkan.VkInstanceCreateInfo;
 import org.lwjgl.vulkan.VkLayerProperties;
 import org.lwjgl.vulkan.VkPhysicalDevice;
 import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
+import org.lwjgl.vulkan.VkQueueFamilyProperties;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFWVulkan.*;
@@ -142,6 +145,40 @@ public final class VulkanTest {
         appInfo.free();
     }
 
+    private Map<QueueFamily, Integer> findQueueFamilies(VkPhysicalDevice device, int index) {
+        Map<QueueFamily, Integer> indices = new HashMap<>();
+
+        int[] queueFamilyCount = new int[1];
+        vkGetPhysicalDeviceQueueFamilyProperties(device, queueFamilyCount, null);
+        VkQueueFamilyProperties.Buffer queueFamilies = VkQueueFamilyProperties.malloc(queueFamilyCount[0]);
+        vkGetPhysicalDeviceQueueFamilyProperties(device, queueFamilyCount, queueFamilies);
+
+        int i = 0;
+        System.out.println("Queue families for device " + index);
+        for (VkQueueFamilyProperties queueFamily : queueFamilies) {
+            QueueFamily family = null;
+
+            int flags = queueFamily.queueFlags();
+            if ((flags & VK_QUEUE_GRAPHICS_BIT) != 0)
+                family = QueueFamily.GRAPHICS;
+
+            System.out.println("  - [" + i + "] " + (family != null ? family : "UNKNOWN"));
+
+            if (family != null)
+                indices.put(family, i);
+
+            i++;
+        }
+
+        queueFamilies.free();
+        return indices;
+    }
+
+    private boolean isDeviceSuitable(VkPhysicalDevice device, int index) {
+        Map<QueueFamily, Integer> indices = findQueueFamilies(device, index);
+        return indices.containsKey(QueueFamily.GRAPHICS);
+    }
+
     private void describeDevice(VkPhysicalDevice device, int index) {
         VkPhysicalDeviceProperties deviceProperties = VkPhysicalDeviceProperties.malloc();
         vkGetPhysicalDeviceProperties(device, deviceProperties);
@@ -173,10 +210,18 @@ public final class VulkanTest {
         for (int i = 0; i < devices.length; i++) {
             describeDevice(devices[i], i);
         }
-        System.out.println("Using device 0");
-        System.out.println();
 
-        physicalDevice = devices[0];
+        int chosenIndex = -1;
+        for (int i = 0; i < devices.length; i++) {
+            if (isDeviceSuitable(devices[i], i)) {
+                chosenIndex = i;
+                physicalDevice = devices[i];
+                break;
+            }
+        }
+
+        System.out.println("Using device " + chosenIndex);
+        System.out.println();
     }
 
     private void initVulkan() {
