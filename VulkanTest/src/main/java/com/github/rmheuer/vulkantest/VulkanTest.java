@@ -2,15 +2,20 @@ package com.github.rmheuer.vulkantest;
 
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.vulkan.VkApplicationInfo;
+import org.lwjgl.vulkan.VkDevice;
+import org.lwjgl.vulkan.VkDeviceCreateInfo;
+import org.lwjgl.vulkan.VkDeviceQueueCreateInfo;
 import org.lwjgl.vulkan.VkExtensionProperties;
 import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkInstanceCreateInfo;
 import org.lwjgl.vulkan.VkLayerProperties;
 import org.lwjgl.vulkan.VkPhysicalDevice;
+import org.lwjgl.vulkan.VkPhysicalDeviceFeatures;
 import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
 
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +41,7 @@ public final class VulkanTest {
     private long window;
     private VkInstance instance;
     private VkPhysicalDevice physicalDevice;
+    private VkDevice device;
 
     private void initWindow() {
         glfwInit();
@@ -114,7 +120,7 @@ public final class VulkanTest {
                 ByteBuffer str = stringToByteBuffer(VALIDATION_NAMES[i]);
                 validationNames.put(i, str);
             }
-            createInfo.ppEnabledExtensionNames(validationNames);
+            createInfo.ppEnabledLayerNames(validationNames);
         }
 
         PointerBuffer requiredExtensions = getRequiredExtensions();
@@ -145,7 +151,7 @@ public final class VulkanTest {
         appInfo.free();
     }
 
-    private Map<QueueFamily, Integer> findQueueFamilies(VkPhysicalDevice device, int index) {
+    private Map<QueueFamily, Integer> findQueueFamilies(VkPhysicalDevice device) {
         Map<QueueFamily, Integer> indices = new HashMap<>();
 
         int[] queueFamilyCount = new int[1];
@@ -154,15 +160,12 @@ public final class VulkanTest {
         vkGetPhysicalDeviceQueueFamilyProperties(device, queueFamilyCount, queueFamilies);
 
         int i = 0;
-        System.out.println("Queue families for device " + index);
         for (VkQueueFamilyProperties queueFamily : queueFamilies) {
             QueueFamily family = null;
 
             int flags = queueFamily.queueFlags();
             if ((flags & VK_QUEUE_GRAPHICS_BIT) != 0)
                 family = QueueFamily.GRAPHICS;
-
-            System.out.println("  - [" + i + "] " + (family != null ? family : "UNKNOWN"));
 
             if (family != null)
                 indices.put(family, i);
@@ -174,8 +177,8 @@ public final class VulkanTest {
         return indices;
     }
 
-    private boolean isDeviceSuitable(VkPhysicalDevice device, int index) {
-        Map<QueueFamily, Integer> indices = findQueueFamilies(device, index);
+    private boolean isDeviceSuitable(VkPhysicalDevice device) {
+        Map<QueueFamily, Integer> indices = findQueueFamilies(device);
         return indices.containsKey(QueueFamily.GRAPHICS);
     }
 
@@ -213,7 +216,7 @@ public final class VulkanTest {
 
         int chosenIndex = -1;
         for (int i = 0; i < devices.length; i++) {
-            if (isDeviceSuitable(devices[i], i)) {
+            if (isDeviceSuitable(devices[i])) {
                 chosenIndex = i;
                 physicalDevice = devices[i];
                 break;
@@ -224,9 +227,45 @@ public final class VulkanTest {
         System.out.println();
     }
 
+    private void createLogicalDevice() {
+        Map<QueueFamily, Integer> indices = findQueueFamilies(physicalDevice);
+
+        VkDeviceQueueCreateInfo.Buffer pQueueCreateInfo = VkDeviceQueueCreateInfo.calloc(1);
+        VkDeviceQueueCreateInfo queueCreateInfo = pQueueCreateInfo.get(0);
+        queueCreateInfo.sType(VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO);
+        queueCreateInfo.queueFamilyIndex(indices.get(QueueFamily.GRAPHICS));
+        FloatBuffer queuePriority = memAllocFloat(1);
+        queuePriority.put(0, 1.0f);
+        queueCreateInfo.pQueuePriorities(queuePriority);
+
+        VkPhysicalDeviceFeatures deviceFeatures = VkPhysicalDeviceFeatures.calloc();
+
+        VkDeviceCreateInfo createInfo = VkDeviceCreateInfo.calloc();
+        createInfo.sType(VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO);
+        createInfo.pQueueCreateInfos(pQueueCreateInfo);
+        createInfo.pEnabledFeatures(deviceFeatures);
+        if (ENABLE_VALIDATION) {
+            PointerBuffer validationNames = memAllocPointer(VALIDATION_NAMES.length);
+            for (int i = 0; i < VALIDATION_NAMES.length; i++) {
+                ByteBuffer str = stringToByteBuffer(VALIDATION_NAMES[i]);
+                validationNames.put(i, str);
+            }
+            createInfo.ppEnabledLayerNames(validationNames);
+        }
+
+        PointerBuffer pDevice = memAllocPointer(1);
+        int result = vkCreateDevice(physicalDevice, createInfo, null, pDevice);
+        checkError(result);
+        device = new VkDevice(pDevice.get(0), physicalDevice, createInfo);
+
+        memFree(pDevice);
+        memFree(queuePriority);
+    }
+
     private void initVulkan() {
         createInstance();
         pickPhysicalDevice();
+        createLogicalDevice();
     }
 
     private void loop() {
@@ -236,6 +275,7 @@ public final class VulkanTest {
     }
 
     private void cleanUp() {
+        vkDestroyDevice(device, null);
         vkDestroyInstance(instance, null);
 
         glfwDestroyWindow(window);
