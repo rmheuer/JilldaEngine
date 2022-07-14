@@ -20,8 +20,10 @@ import java.nio.FloatBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFWVulkan.*;
@@ -46,6 +48,7 @@ public final class VulkanTest {
     private VkPhysicalDevice physicalDevice;
     private VkDevice device;
     private VkQueue graphicsQueue;
+    private VkQueue presentQueue;
 
     private void initWindow() {
         glfwInit();
@@ -172,14 +175,15 @@ public final class VulkanTest {
 
         int i = 0;
         for (VkQueueFamilyProperties queueFamily : queueFamilies) {
-            QueueFamily family = null;
-
             int flags = queueFamily.queueFlags();
             if ((flags & VK_QUEUE_GRAPHICS_BIT) != 0)
-                family = QueueFamily.GRAPHICS;
+                indices.put(QueueFamily.GRAPHICS, i);
 
-            if (family != null)
-                indices.put(family, i);
+            int[] pSupported = new int[1];
+            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, pSupported);
+            if (pSupported[0] != 0) {
+                indices.put(QueueFamily.PRESENT, i);
+            }
 
             i++;
         }
@@ -238,16 +242,29 @@ public final class VulkanTest {
         System.out.println();
     }
 
+    private VkQueue getQueue(int idx, PointerBuffer p) {
+        vkGetDeviceQueue(device, idx, 0, p);
+        return new VkQueue(p.get(0), device);
+    }
+
     private void createLogicalDevice() {
         Map<QueueFamily, Integer> indices = findQueueFamilies(physicalDevice);
 
-        VkDeviceQueueCreateInfo.Buffer pQueueCreateInfo = VkDeviceQueueCreateInfo.calloc(1);
-        VkDeviceQueueCreateInfo queueCreateInfo = pQueueCreateInfo.get(0);
-        queueCreateInfo.sType(VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO);
-        queueCreateInfo.queueFamilyIndex(indices.get(QueueFamily.GRAPHICS));
+        Set<Integer> uniqueQueueFamilies = new HashSet<>(indices.values());
+
         FloatBuffer queuePriority = memAllocFloat(1);
         queuePriority.put(0, 1.0f);
-        queueCreateInfo.pQueuePriorities(queuePriority);
+
+        VkDeviceQueueCreateInfo.Buffer pQueueCreateInfo = VkDeviceQueueCreateInfo.calloc(uniqueQueueFamilies.size());
+        int queueIdx = 0;
+        for (int family : uniqueQueueFamilies) {
+            VkDeviceQueueCreateInfo queueCreateInfo = pQueueCreateInfo.get(queueIdx);
+            queueCreateInfo.sType(VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO);
+            queueCreateInfo.queueFamilyIndex(family);
+            queueCreateInfo.pQueuePriorities(queuePriority);
+
+            queueIdx++;
+        }
 
         VkPhysicalDeviceFeatures deviceFeatures = VkPhysicalDeviceFeatures.calloc();
 
@@ -269,10 +286,11 @@ public final class VulkanTest {
         checkError(result);
         device = new VkDevice(pDevice.get(0), physicalDevice, createInfo);
 
-        PointerBuffer pGraphicsQueue = memAllocPointer(1);
-        vkGetDeviceQueue(device, indices.get(QueueFamily.GRAPHICS), 0, pGraphicsQueue);
-        graphicsQueue = new VkQueue(pGraphicsQueue.get(0), device);
+        PointerBuffer pQueue = memAllocPointer(1);
+        graphicsQueue = getQueue(indices.get(QueueFamily.GRAPHICS), pQueue);
+        presentQueue = getQueue(indices.get(QueueFamily.PRESENT), pQueue);
 
+        memFree(pQueue);
         memFree(pDevice);
         memFree(queuePriority);
     }
