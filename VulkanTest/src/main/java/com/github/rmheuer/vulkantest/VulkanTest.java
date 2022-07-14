@@ -61,6 +61,9 @@ public final class VulkanTest {
     private VkQueue graphicsQueue;
     private VkQueue presentQueue;
     private long swapChain;
+    private long[] swapChainImages;
+    private int swapChainImageFormat;
+    private VkExtent2D swapChainExtent;
 
     private void initWindow() {
         glfwInit();
@@ -456,6 +459,14 @@ public final class VulkanTest {
         int result = vkCreateSwapchainKHR(device, createInfo, null, pSwapChain);
         checkError(result);
         swapChain = pSwapChain[0];
+
+        int[] pImageCount = new int[1];
+        vkGetSwapchainImagesKHR(device, swapChain, pImageCount, null);
+        swapChainImages = new long[pImageCount[0]];
+        vkGetSwapchainImagesKHR(device, swapChain, pImageCount, swapChainImages);
+
+        swapChainImageFormat = surfaceFormat.format();
+        swapChainExtent = extent;
     }
 
     private void initVulkan() {
