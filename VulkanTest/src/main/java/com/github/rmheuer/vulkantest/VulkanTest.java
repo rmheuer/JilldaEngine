@@ -30,6 +30,7 @@ import static org.lwjgl.glfw.GLFWVulkan.*;
 import static org.lwjgl.system.MemoryUtil.*;
 import static org.lwjgl.vulkan.EXTDebugUtils.VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
 import static org.lwjgl.vulkan.KHRSurface.*;
+import static org.lwjgl.vulkan.KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME;
 import static org.lwjgl.vulkan.VK10.*;
 
 public final class VulkanTest {
@@ -40,6 +41,10 @@ public final class VulkanTest {
     private static final boolean ENABLE_VALIDATION = true;
     private static final String[] VALIDATION_NAMES = {
             "VK_LAYER_KHRONOS_validation"
+    };
+
+    private static final String[] EXTENSION_NAMES = {
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
     private long window;
@@ -192,9 +197,34 @@ public final class VulkanTest {
         return indices;
     }
 
+    private boolean checkDeviceExtensionSupport(VkPhysicalDevice device) {
+        int[] extensionCount = new int[1];
+        vkEnumerateDeviceExtensionProperties(device, (ByteBuffer) null, extensionCount, null);
+        VkExtensionProperties.Buffer availableExtensions = VkExtensionProperties.malloc(extensionCount[0]);
+        vkEnumerateDeviceExtensionProperties(device, (ByteBuffer) null, extensionCount, availableExtensions);
+
+        List<String> extensions = new ArrayList<>();
+        System.out.println("Device extensions:");
+        for (VkExtensionProperties extension : availableExtensions) {
+            extensions.add(extension.extensionNameString());
+            System.out.println("  - " + extension.extensionNameString());
+        }
+
+        for (String extension : EXTENSION_NAMES) {
+            if (!extensions.contains(extension)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private boolean isDeviceSuitable(VkPhysicalDevice device) {
         Map<QueueFamily, Integer> indices = findQueueFamilies(device);
-        return indices.containsKey(QueueFamily.GRAPHICS);
+
+        boolean extensionsSupported = checkDeviceExtensionSupport(device);
+
+        return indices.containsKey(QueueFamily.GRAPHICS) && extensionsSupported;
     }
 
     private void describeDevice(VkPhysicalDevice device, int index) {
@@ -272,6 +302,12 @@ public final class VulkanTest {
         createInfo.sType(VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO);
         createInfo.pQueueCreateInfos(pQueueCreateInfo);
         createInfo.pEnabledFeatures(deviceFeatures);
+        PointerBuffer extensionNames = memAllocPointer(EXTENSION_NAMES.length);
+        for (int i = 0; i < EXTENSION_NAMES.length; i++) {
+            ByteBuffer str = stringToByteBuffer(EXTENSION_NAMES[i]);
+            extensionNames.put(i, str);
+        }
+        createInfo.ppEnabledExtensionNames(extensionNames);
         if (ENABLE_VALIDATION) {
             PointerBuffer validationNames = memAllocPointer(VALIDATION_NAMES.length);
             for (int i = 0; i < VALIDATION_NAMES.length; i++) {
