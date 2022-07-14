@@ -6,6 +6,8 @@ import org.lwjgl.vulkan.VkExtensionProperties;
 import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkInstanceCreateInfo;
 import org.lwjgl.vulkan.VkLayerProperties;
+import org.lwjgl.vulkan.VkPhysicalDevice;
+import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -30,6 +32,7 @@ public final class VulkanTest {
 
     private long window;
     private VkInstance instance;
+    private VkPhysicalDevice physicalDevice;
 
     private void initWindow() {
         glfwInit();
@@ -139,8 +142,46 @@ public final class VulkanTest {
         appInfo.free();
     }
 
+    private void describeDevice(VkPhysicalDevice device, int index) {
+        VkPhysicalDeviceProperties deviceProperties = VkPhysicalDeviceProperties.malloc();
+        vkGetPhysicalDeviceProperties(device, deviceProperties);
+
+        System.out.println(
+                "  - [" + index + "] " +
+                deviceProperties.deviceNameString() +
+                " (API " + deviceProperties.apiVersion() + ")"
+        );
+    }
+
+    private void pickPhysicalDevice() {
+        int[] deviceCount = new int[1];
+        vkEnumeratePhysicalDevices(instance, deviceCount, null);
+        if (deviceCount[0] == 0) {
+            throw new RuntimeException("Failed to find a GPU with Vulkan support");
+        }
+        System.out.println("Available physical devices: " + deviceCount[0]);
+
+        PointerBuffer pDevices = memAllocPointer(deviceCount[0]);
+        vkEnumeratePhysicalDevices(instance, deviceCount, pDevices);
+        VkPhysicalDevice[] devices = new VkPhysicalDevice[deviceCount[0]];
+        for (int i = 0; i < devices.length; i++) {
+            long ptr = pDevices.get(i);
+            devices[i] = new VkPhysicalDevice(ptr, instance);
+        }
+        pDevices.free();
+
+        for (int i = 0; i < devices.length; i++) {
+            describeDevice(devices[i], i);
+        }
+        System.out.println("Using device 0");
+        System.out.println();
+
+        physicalDevice = devices[0];
+    }
+
     private void initVulkan() {
         createInstance();
+        pickPhysicalDevice();
     }
 
     private void loop() {
