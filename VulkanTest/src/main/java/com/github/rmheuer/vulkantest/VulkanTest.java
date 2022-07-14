@@ -1,11 +1,13 @@
 package com.github.rmheuer.vulkantest;
 
+import com.github.rmheuer.engine.core.math.MathUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.vulkan.VkApplicationInfo;
 import org.lwjgl.vulkan.VkDevice;
 import org.lwjgl.vulkan.VkDeviceCreateInfo;
 import org.lwjgl.vulkan.VkDeviceQueueCreateInfo;
 import org.lwjgl.vulkan.VkExtensionProperties;
+import org.lwjgl.vulkan.VkExtent2D;
 import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkInstanceCreateInfo;
 import org.lwjgl.vulkan.VkLayerProperties;
@@ -16,9 +18,11 @@ import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
 import org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR;
 import org.lwjgl.vulkan.VkSurfaceFormatKHR;
+import org.lwjgl.vulkan.VkSwapchainCreateInfoKHR;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +36,7 @@ import static org.lwjgl.glfw.GLFWVulkan.*;
 import static org.lwjgl.system.MemoryUtil.*;
 import static org.lwjgl.vulkan.EXTDebugUtils.VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
 import static org.lwjgl.vulkan.KHRSurface.*;
-import static org.lwjgl.vulkan.KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME;
+import static org.lwjgl.vulkan.KHRSwapchain.*;
 import static org.lwjgl.vulkan.VK10.*;
 
 public final class VulkanTest {
@@ -56,6 +60,7 @@ public final class VulkanTest {
     private VkDevice device;
     private VkQueue graphicsQueue;
     private VkQueue presentQueue;
+    private long swapChain;
 
     private void initWindow() {
         glfwInit();
@@ -253,6 +258,7 @@ public final class VulkanTest {
         if (extensionsSupported) {
             SwapChainSupportInfo info = querySwapChainSupport(device);
             swapChainAdequate = info.formats.capacity() != 0 && info.presentModes.length != 0;
+            info.free();
         }
 
         return indices.containsKey(QueueFamily.GRAPHICS) && extensionsSupported && swapChainAdequate;
@@ -362,11 +368,102 @@ public final class VulkanTest {
         memFree(queuePriority);
     }
 
+    private VkSurfaceFormatKHR chooseSwapSurfaceFormat(VkSurfaceFormatKHR.Buffer formats) {
+        for (VkSurfaceFormatKHR format : formats) {
+            if (format.format() == VK_FORMAT_R8G8B8A8_SRGB && format.colorSpace() == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+                return format;
+            }
+        }
+
+        // Fallback to first available format
+        return formats.get(0);
+    }
+
+    private int chooseSwapPresentMode(int[] modes) {
+        for (int mode : modes) {
+            if (mode == VK_PRESENT_MODE_MAILBOX_KHR) {
+                return mode;
+            }
+        }
+
+        // Fallback to FIFO, as it is always supported
+        return VK_PRESENT_MODE_FIFO_KHR;
+    }
+
+    private VkExtent2D chooseSwapExtent(VkSurfaceCapabilitiesKHR capabilities) {
+        if (capabilities.currentExtent().width() != 0xFFFFFFFF) {
+            return capabilities.currentExtent();
+        } else {
+            int[] pWidth = new int[1];
+            int[] pHeight = new int[1];
+            glfwGetFramebufferSize(window, pWidth, pHeight);
+
+            VkExtent2D min = capabilities.minImageExtent();
+            VkExtent2D max = capabilities.maxImageExtent();
+            int width = MathUtils.clamp(pWidth[0], min.width(), max.width());
+            int height = MathUtils.clamp(pHeight[0], min.height(), max.height());
+
+            VkExtent2D extent = VkExtent2D.create();
+            extent.width(width);
+            extent.height(height);
+
+            return extent;
+        }
+    }
+
+    private void createSwapChain() {
+        SwapChainSupportInfo info = querySwapChainSupport(physicalDevice);
+
+        VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(info.formats);
+        int presentMode = chooseSwapPresentMode(info.presentModes);
+        VkExtent2D extent = chooseSwapExtent(info.capabilities);
+
+        int imageCount = info.capabilities.minImageCount() + 1;
+        int maxImageCount = info.capabilities.maxImageCount();
+        if (maxImageCount > 0 && imageCount > maxImageCount)
+            imageCount = maxImageCount;
+
+        VkSwapchainCreateInfoKHR createInfo = VkSwapchainCreateInfoKHR.calloc();
+        createInfo.sType(VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR);
+        createInfo.surface(surface);
+        createInfo.minImageCount(imageCount);
+        createInfo.imageFormat(surfaceFormat.format());
+        createInfo.imageColorSpace(surfaceFormat.colorSpace());
+        createInfo.imageExtent(extent);
+        createInfo.imageArrayLayers(1);
+        createInfo.imageUsage(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
+
+        Map<QueueFamily, Integer> indices = findQueueFamilies(physicalDevice);
+        int graphics = indices.get(QueueFamily.GRAPHICS);
+        int present = indices.get(QueueFamily.PRESENT);
+        IntBuffer queueFamilyIndices = memAllocInt(2);
+        queueFamilyIndices.put(0, graphics);
+        queueFamilyIndices.put(1, present);
+        if (graphics != present) {
+            createInfo.imageSharingMode(VK_SHARING_MODE_CONCURRENT);
+            createInfo.queueFamilyIndexCount(2);
+            createInfo.pQueueFamilyIndices(queueFamilyIndices);
+        } else {
+            createInfo.imageSharingMode(VK_SHARING_MODE_EXCLUSIVE);
+        }
+        createInfo.preTransform(info.capabilities.currentTransform());
+        createInfo.compositeAlpha(VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR);
+        createInfo.presentMode(presentMode);
+        createInfo.clipped(true);
+        createInfo.oldSwapchain(NULL);
+
+        long[] pSwapChain = new long[1];
+        int result = vkCreateSwapchainKHR(device, createInfo, null, pSwapChain);
+        checkError(result);
+        swapChain = pSwapChain[0];
+    }
+
     private void initVulkan() {
         createInstance();
         createSurface();
         pickPhysicalDevice();
         createLogicalDevice();
+        createSwapChain();
     }
 
     private void loop() {
@@ -376,6 +473,7 @@ public final class VulkanTest {
     }
 
     private void cleanUp() {
+        vkDestroySwapchainKHR(device, swapChain, null);
         vkDestroyDevice(device, null);
         vkDestroySurfaceKHR(instance, surface, null);
         vkDestroyInstance(instance, null);

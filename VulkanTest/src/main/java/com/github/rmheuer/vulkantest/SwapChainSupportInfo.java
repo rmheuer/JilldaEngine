@@ -8,4 +8,9 @@ public final class SwapChainSupportInfo {
     public VkSurfaceCapabilitiesKHR capabilities;
     public VkSurfaceFormatKHR.Buffer formats;
     public int[] presentModes;
+
+    public void free() {
+        capabilities.free();
+        formats.free();
+    }
 }
