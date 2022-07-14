@@ -101,7 +101,7 @@ public final class GuiStyle {
         tabHeight = 6 + font.getMetrics().getHeight();
         tabRounding = 6;
         tabDropdownSize = 12;
-        setLight();
+        setDark();
     }
 
     private Vector4f rgba(int r, int g, int b, int a) {

@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 @Transient
 public final class GuiRenderer implements WorldLocalSingleton {
@@ -343,10 +344,6 @@ public final class GuiRenderer implements WorldLocalSingleton {
 
     // --- Windows ---
 
-    public void beginWindow(String title) {
-        beginWindowFlags(title, GuiWindowFlags.None);
-    }
-
     // axis: 0 is x, 1 is y
     // TODO: Redo this
     private float scrollBar(int axis) {
@@ -390,9 +387,17 @@ public final class GuiRenderer implements WorldLocalSingleton {
         return windowOrder.get(windowOrder.size() - 1).equals(window.id);
     }
 
-    public void beginWindowFlags(String title, int flags) {
+    public void beginWindow(String title) {
+        beginWindowFlags(title, title, GuiWindowFlags.None);
+    }
+
+    private void beginWindow(String title, Object id) { beginWindowFlags(title, id, GuiWindowFlags.None); }
+
+    public void beginWindowFlags(String title, int flags) { beginWindowFlags(title, title, flags); }
+
+    private void beginWindowFlags(String title, Object id, int flags) {
         WindowData prevWindow = window;
-        window = windows.get(title, () -> {
+        window = windows.get(id, () -> {
             WindowData win = new WindowData(
                     displayBounds.getMin().x + displayBounds.getWidth() * (float) Math.random(),
                     displayBounds.getMin().y + displayBounds.getHeight() * (float) Math.random()
@@ -405,7 +410,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
         window.draw = new CompositeDrawList2D();
         pushDraw(window.draw);
         window.title = title;
-        window.id = title;
+        window.id = id;
         window.flags = flags;
 
         boolean autoX = hasFlag(flags, GuiWindowFlags.AutoSizeX);
@@ -1186,13 +1191,17 @@ public final class GuiRenderer implements WorldLocalSingleton {
     private boolean addContextMenu(Object id) {
         boolean prevWidgetClicked = isWidgetClicked(MouseButton.RIGHT);
         if (prevWidgetClicked) {
-            Vector2f cursorPos = input.getCursorPos();
-            WindowData win = new WindowData(cursorPos.x - 2, cursorPos.y - 2);
-            windows.set(id, win);
-            windowOrder.add(id);
+            openContextMenu(id);
         }
 
         return prevWidgetClicked;
+    }
+
+    private void openContextMenu(Object id) {
+        Vector2f cursorPos = input.getCursorPos();
+        WindowData win = new WindowData(cursorPos.x - 2, cursorPos.y - 2);
+        windows.set(id, win);
+        windowOrder.add(id);
     }
 
     // Use this to begin context menu content.
@@ -1200,9 +1209,13 @@ public final class GuiRenderer implements WorldLocalSingleton {
     public boolean beginContextMenu(String title) {
         title = contextMenuTitle(title);
 
-        WindowData popup = windows.get(title);
+        return beginContextMenuId(title);
+    }
+
+    private boolean beginContextMenuId(Object id) {
+        WindowData popup = windows.get(id);
         if (popup != null) {
-            beginWindowFlags(title, GuiWindowFlags._Popup);
+            beginWindowFlags("context-menu", id, GuiWindowFlags._Popup);
             return true;
         }
 
@@ -1268,6 +1281,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
         float x = pos.x;
         TabItem currHover = null, prevHover = null;
         boolean allTabsFit = true;
+        boolean drewCurrent = false;
         int i;
         for (i = 0; i < pane.tabBar.tabOrder.size(); i++) {
             Object id = pane.tabBar.tabOrder.get(i);
@@ -1296,11 +1310,14 @@ public final class GuiRenderer implements WorldLocalSingleton {
             draw.fillRoundedQuad(x, pos.y, w, h, style.tabRounding, style.tabRounding, 0, 0, active ? style.tabActiveColor : style.tabColor);
             draw.drawText(item.title, x + w / 2, pos.y + h / 2, 0.5f, 0.5f, style.font, style.textColor);
             x += w;
+
+            if (id.equals(pane.tabBar.currentTab.id))
+                drewCurrent = true;
         }
         draw.drawLine(pos.x, pos.y + h, pos.x + availContentWidth(), pos.y + h, style.borderWidth, style.tabActiveColor);
 
         if (!allTabsFit) {
-            float w = bounds.getMax().x - x;
+            float w = style.tabDropdownSize + pad.x * 2;
             Rectangle ddBounds = Rectangle.fromXYSizes(bounds.getMax().x - w, pos.y, w, h);
             draw.fillRoundedQuad(ddBounds, style.tabRounding, style.tabRounding, 0, 0, style.tabColor);
 
@@ -1314,7 +1331,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
             );
 
             if (input.isMouseInRect(ddBounds) && input.isMouseButtonPressed(MouseButton.LEFT)) {
-                // TODO: Dropdown, and move clicked entry to front
+                openContextMenu(pane.tabBar);
             }
         }
 
@@ -1322,6 +1339,25 @@ public final class GuiRenderer implements WorldLocalSingleton {
             int currIndex = pane.tabBar.tabOrder.indexOf(currHover.id);
             int prevIndex = pane.tabBar.tabOrder.indexOf(prevHover.id);
             Collections.swap(pane.tabBar.tabOrder, currIndex, prevIndex);
+        }
+
+        if (!drewCurrent) {
+            Object id = pane.tabBar.currentTab.id;
+            pane.tabBar.tabOrder.remove(id);
+            pane.tabBar.tabOrder.add(0, id);
+        }
+
+        TabBar bar = pane.tabBar;
+        if (beginContextMenuId(bar)) {
+            for (; i < bar.tabOrder.size(); i++) {
+                Object tabId = bar.tabOrder.get(i);
+                TabItem tab = bar.currTabs.get(tabId);
+                if (button(tab.title)) {
+                    bar.currentTab = tab;
+                    closeContextMenu();
+                }
+            }
+            endContextMenu();
         }
 
         pane.tabBar = null;
