@@ -328,17 +328,6 @@ public final class TextFileEditor implements FileEditor {
         } else {
             g.text("No file open");
         }
-
-        g.beginTabBar("my tabs");
-        for (int i = 0; i < 5; i++) {
-            if (g.beginTabBarItem("Tab " + i)) {
-                for (int j = 0; j < 10; j++) {
-                    g.text("Tab " + i + " content line " + j);
-                }
-                g.endTabBarItem();
-            }
-        }
-        g.endTabBar();
     }
 
     public void close() {
