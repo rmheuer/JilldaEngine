@@ -12,6 +12,7 @@ import org.lwjgl.vulkan.VkLayerProperties;
 import org.lwjgl.vulkan.VkPhysicalDevice;
 import org.lwjgl.vulkan.VkPhysicalDeviceFeatures;
 import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
+import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
 
 import java.nio.ByteBuffer;
@@ -42,6 +43,7 @@ public final class VulkanTest {
     private VkInstance instance;
     private VkPhysicalDevice physicalDevice;
     private VkDevice device;
+    private VkQueue graphicsQueue;
 
     private void initWindow() {
         glfwInit();
@@ -257,6 +259,10 @@ public final class VulkanTest {
         int result = vkCreateDevice(physicalDevice, createInfo, null, pDevice);
         checkError(result);
         device = new VkDevice(pDevice.get(0), physicalDevice, createInfo);
+
+        PointerBuffer pGraphicsQueue = memAllocPointer(1);
+        vkGetDeviceQueue(device, indices.get(QueueFamily.GRAPHICS), 0, pGraphicsQueue);
+        graphicsQueue = new VkQueue(pGraphicsQueue.get(0), device);
 
         memFree(pDevice);
         memFree(queuePriority);
