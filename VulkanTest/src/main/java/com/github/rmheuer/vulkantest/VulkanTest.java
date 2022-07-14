@@ -14,6 +14,8 @@ import org.lwjgl.vulkan.VkPhysicalDeviceFeatures;
 import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
 import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
+import org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR;
+import org.lwjgl.vulkan.VkSurfaceFormatKHR;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -219,12 +221,41 @@ public final class VulkanTest {
         return true;
     }
 
+    private SwapChainSupportInfo querySwapChainSupport(VkPhysicalDevice device) {
+        SwapChainSupportInfo info = new SwapChainSupportInfo();
+
+        info.capabilities = VkSurfaceCapabilitiesKHR.malloc();
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, info.capabilities);
+
+        int[] formatCount = new int[1];
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, formatCount, null);
+        if (formatCount[0] != 0) {
+            info.formats = VkSurfaceFormatKHR.malloc(formatCount[0]);
+            vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, formatCount, info.formats);
+        }
+
+        int[] presentModeCount = new int[1];
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, presentModeCount, null);
+        if (presentModeCount[0] != 0) {
+            info.presentModes = new int[presentModeCount[0]];
+            vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, presentModeCount, info.presentModes);
+        }
+
+        return info;
+    }
+
     private boolean isDeviceSuitable(VkPhysicalDevice device) {
         Map<QueueFamily, Integer> indices = findQueueFamilies(device);
 
         boolean extensionsSupported = checkDeviceExtensionSupport(device);
 
-        return indices.containsKey(QueueFamily.GRAPHICS) && extensionsSupported;
+        boolean swapChainAdequate = false;
+        if (extensionsSupported) {
+            SwapChainSupportInfo info = querySwapChainSupport(device);
+            swapChainAdequate = info.formats.capacity() != 0 && info.presentModes.length != 0;
+        }
+
+        return indices.containsKey(QueueFamily.GRAPHICS) && extensionsSupported && swapChainAdequate;
     }
 
     private void describeDevice(VkPhysicalDevice device, int index) {
