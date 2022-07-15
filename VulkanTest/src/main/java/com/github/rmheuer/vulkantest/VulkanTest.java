@@ -1,16 +1,25 @@
 package com.github.rmheuer.vulkantest;
 
 import com.github.rmheuer.engine.core.math.MathUtils;
-import com.github.rmheuer.engine.core.resource.file.FileResourceFile;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.vulkan.VkApplicationInfo;
+import org.lwjgl.vulkan.VkAttachmentDescription;
+import org.lwjgl.vulkan.VkAttachmentReference;
+import org.lwjgl.vulkan.VkClearValue;
+import org.lwjgl.vulkan.VkCommandBuffer;
+import org.lwjgl.vulkan.VkCommandBufferAllocateInfo;
+import org.lwjgl.vulkan.VkCommandBufferBeginInfo;
+import org.lwjgl.vulkan.VkCommandPoolCreateInfo;
 import org.lwjgl.vulkan.VkComponentMapping;
 import org.lwjgl.vulkan.VkDevice;
 import org.lwjgl.vulkan.VkDeviceCreateInfo;
 import org.lwjgl.vulkan.VkDeviceQueueCreateInfo;
 import org.lwjgl.vulkan.VkExtensionProperties;
 import org.lwjgl.vulkan.VkExtent2D;
+import org.lwjgl.vulkan.VkFenceCreateInfo;
+import org.lwjgl.vulkan.VkFramebufferCreateInfo;
+import org.lwjgl.vulkan.VkGraphicsPipelineCreateInfo;
 import org.lwjgl.vulkan.VkImageSubresourceRange;
 import org.lwjgl.vulkan.VkImageViewCreateInfo;
 import org.lwjgl.vulkan.VkInstance;
@@ -22,16 +31,25 @@ import org.lwjgl.vulkan.VkPhysicalDeviceFeatures;
 import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
 import org.lwjgl.vulkan.VkPipelineColorBlendAttachmentState;
 import org.lwjgl.vulkan.VkPipelineColorBlendStateCreateInfo;
+import org.lwjgl.vulkan.VkPipelineDynamicStateCreateInfo;
 import org.lwjgl.vulkan.VkPipelineInputAssemblyStateCreateInfo;
 import org.lwjgl.vulkan.VkPipelineLayoutCreateInfo;
+import org.lwjgl.vulkan.VkPipelineMultisampleStateCreateInfo;
 import org.lwjgl.vulkan.VkPipelineRasterizationStateCreateInfo;
 import org.lwjgl.vulkan.VkPipelineShaderStageCreateInfo;
 import org.lwjgl.vulkan.VkPipelineVertexInputStateCreateInfo;
 import org.lwjgl.vulkan.VkPipelineViewportStateCreateInfo;
+import org.lwjgl.vulkan.VkPresentInfoKHR;
 import org.lwjgl.vulkan.VkQueue;
 import org.lwjgl.vulkan.VkQueueFamilyProperties;
 import org.lwjgl.vulkan.VkRect2D;
+import org.lwjgl.vulkan.VkRenderPassBeginInfo;
+import org.lwjgl.vulkan.VkRenderPassCreateInfo;
+import org.lwjgl.vulkan.VkSemaphoreCreateInfo;
 import org.lwjgl.vulkan.VkShaderModuleCreateInfo;
+import org.lwjgl.vulkan.VkSubmitInfo;
+import org.lwjgl.vulkan.VkSubpassDependency;
+import org.lwjgl.vulkan.VkSubpassDescription;
 import org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR;
 import org.lwjgl.vulkan.VkSurfaceFormatKHR;
 import org.lwjgl.vulkan.VkSwapchainCreateInfoKHR;
@@ -40,6 +58,7 @@ import org.lwjgl.vulkan.VkViewport;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.LongBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -82,7 +101,15 @@ public final class VulkanTest {
     private int swapChainImageFormat;
     private VkExtent2D swapChainExtent;
     private long[] swapChainImageViews;
+    private long renderPass;
     private long pipelineLayout;
+    private long graphicsPipeline;
+    private long[] swapChainFramebuffers;
+    private long commandPool;
+    private VkCommandBuffer commandBuffer;
+    private long imageAvailableSemaphore;
+    private long renderFinishedSemaphore;
+    private long inFlightFence;
 
     private void initWindow() {
         glfwInit();
@@ -527,6 +554,51 @@ public final class VulkanTest {
         return pShaderModule[0];
     }
 
+    private void createRenderPass() {
+        VkAttachmentDescription.Buffer pColorAttachment = VkAttachmentDescription.calloc(1);
+        VkAttachmentDescription colorAttachment = pColorAttachment.get(0);
+        colorAttachment.format(swapChainImageFormat);
+        colorAttachment.samples(VK_SAMPLE_COUNT_1_BIT);
+        colorAttachment.loadOp(VK_ATTACHMENT_LOAD_OP_CLEAR);
+        colorAttachment.storeOp(VK_ATTACHMENT_STORE_OP_STORE);
+        colorAttachment.stencilLoadOp(VK_ATTACHMENT_LOAD_OP_DONT_CARE);
+        colorAttachment.stencilStoreOp(VK_ATTACHMENT_STORE_OP_DONT_CARE);
+        colorAttachment.initialLayout(VK_IMAGE_LAYOUT_UNDEFINED);
+        colorAttachment.finalLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+
+        VkAttachmentReference.Buffer pColorAttachmentRef = VkAttachmentReference.calloc(1);
+        VkAttachmentReference colorAttachmentRef = pColorAttachmentRef.get(0);
+        colorAttachmentRef.attachment(0);
+        colorAttachmentRef.layout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
+        VkSubpassDescription.Buffer pSubpass = VkSubpassDescription.calloc(1);
+        VkSubpassDescription subpass = pSubpass.get(0);
+        subpass.pipelineBindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS);
+        subpass.colorAttachmentCount(1);
+        subpass.pColorAttachments(pColorAttachmentRef);
+
+        VkRenderPassCreateInfo renderPassInfo = VkRenderPassCreateInfo.calloc();
+        renderPassInfo.sType(VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO);
+        renderPassInfo.pAttachments(pColorAttachment);
+        renderPassInfo.pSubpasses(pSubpass);
+
+        VkSubpassDependency.Buffer pDependency = VkSubpassDependency.calloc(1);
+        VkSubpassDependency dependency = pDependency.get(0);
+        dependency.srcSubpass(VK_SUBPASS_EXTERNAL);
+        dependency.dstSubpass(0);
+        dependency.srcStageMask(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+        dependency.srcAccessMask(0);
+        dependency.dstStageMask(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+        dependency.dstAccessMask(VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT);
+
+        renderPassInfo.pDependencies(pDependency);
+
+        long[] pRenderPass = new long[1];
+        int result = vkCreateRenderPass(device, renderPassInfo, null, pRenderPass);
+        checkError(result);
+        renderPass = pRenderPass[0];
+    }
+
     private void createGraphicsPipeline() {
         ByteBuffer vertShaderCode = ShaderCompiler.compile(new JarResourceFile("vertex.glsl"), ShaderCompiler.Type.Vertex);
         ByteBuffer fragShaderCode = ShaderCompiler.compile(new JarResourceFile("fragment.glsl"), ShaderCompiler.Type.Fragment);
@@ -589,13 +661,20 @@ public final class VulkanTest {
         rasterizer.frontFace(VK_FRONT_FACE_CLOCKWISE);
         rasterizer.depthBiasEnable(false);
 
-        VkPipelineColorBlendAttachmentState colorBlendAttachment = VkPipelineColorBlendAttachmentState.calloc();
+        VkPipelineMultisampleStateCreateInfo multisampling = VkPipelineMultisampleStateCreateInfo.calloc();
+        multisampling.sType(VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO);
+        multisampling.sampleShadingEnable(false);
+        multisampling.rasterizationSamples(VK_SAMPLE_COUNT_1_BIT);
+
+        VkPipelineColorBlendAttachmentState.Buffer pColorBlendAttachment = VkPipelineColorBlendAttachmentState.calloc(1);
+        VkPipelineColorBlendAttachmentState colorBlendAttachment = pColorBlendAttachment.get(0);
         colorBlendAttachment.colorWriteMask(VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT);
         colorBlendAttachment.blendEnable(false);
 
         VkPipelineColorBlendStateCreateInfo colorBlending = VkPipelineColorBlendStateCreateInfo.calloc();
         colorBlending.sType(VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO);
         colorBlending.logicOpEnable(false);
+        colorBlending.pAttachments(pColorBlendAttachment);
 
         VkPipelineLayoutCreateInfo pipelineLayoutInfo = VkPipelineLayoutCreateInfo.calloc();
         pipelineLayoutInfo.sType(VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO);
@@ -605,8 +684,110 @@ public final class VulkanTest {
         checkError(result);
         pipelineLayout = pPipelineLayout[0];
 
+        IntBuffer dynamicStates = memAllocInt(2);
+        dynamicStates.put(0, VK_DYNAMIC_STATE_VIEWPORT);
+        dynamicStates.put(1, VK_DYNAMIC_STATE_SCISSOR);
+        VkPipelineDynamicStateCreateInfo dynamicState = VkPipelineDynamicStateCreateInfo.calloc();
+        dynamicState.sType(VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO);
+        dynamicState.pDynamicStates(dynamicStates);
+
+        VkGraphicsPipelineCreateInfo.Buffer pPipelineInfo = VkGraphicsPipelineCreateInfo.calloc(1);
+        VkGraphicsPipelineCreateInfo pipelineInfo = pPipelineInfo.get(0);
+        pipelineInfo.sType(VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO);
+        pipelineInfo.pStages(shaderStages);
+        pipelineInfo.pVertexInputState(vertexInputInfo);
+        pipelineInfo.pInputAssemblyState(inputAssembly);
+        pipelineInfo.pViewportState(viewportState);
+        pipelineInfo.pRasterizationState(rasterizer);
+        pipelineInfo.pMultisampleState(multisampling);
+        pipelineInfo.pDepthStencilState(null);
+        pipelineInfo.pColorBlendState(colorBlending);
+        pipelineInfo.pDynamicState(dynamicState);
+        pipelineInfo.layout(pipelineLayout);
+        pipelineInfo.renderPass(renderPass);
+        pipelineInfo.subpass(0);
+
+        long[] pGraphicsPipeline = new long[1];
+        result = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, pPipelineInfo, null, pGraphicsPipeline);
+        checkError(result);
+        graphicsPipeline = pGraphicsPipeline[0];
+
         vkDestroyShaderModule(device, vertShaderModule, null);
         vkDestroyShaderModule(device, fragShaderModule, null);
+    }
+
+    private void createFramebuffers() {
+        swapChainFramebuffers = new long[swapChainImageViews.length];
+
+        for (int i = 0; i < swapChainImageViews.length; i++) {
+            LongBuffer attachments = memAllocLong(1);
+            attachments.put(0, swapChainImageViews[i]);
+
+            VkFramebufferCreateInfo framebufferInfo = VkFramebufferCreateInfo.calloc();
+            framebufferInfo.sType(VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO);
+            framebufferInfo.renderPass(renderPass);
+            framebufferInfo.attachmentCount(1);
+            framebufferInfo.pAttachments(attachments);
+            framebufferInfo.width(swapChainExtent.width());
+            framebufferInfo.height(swapChainExtent.height());
+            framebufferInfo.layers(1);
+
+            long[] pFramebuffer = new long[1];
+            int result = vkCreateFramebuffer(device, framebufferInfo, null, pFramebuffer);
+            checkError(result);
+            swapChainFramebuffers[i] = pFramebuffer[0];
+        }
+    }
+
+    private void createCommandPool() {
+        Map<QueueFamily, Integer> queueFamilyIndices = findQueueFamilies(physicalDevice);
+
+        VkCommandPoolCreateInfo poolInfo = VkCommandPoolCreateInfo.calloc();
+        poolInfo.sType(VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO);
+        poolInfo.flags(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+        poolInfo.queueFamilyIndex(queueFamilyIndices.get(QueueFamily.GRAPHICS));
+
+        long[] pCommandPool = new long[1];
+        int result = vkCreateCommandPool(device, poolInfo, null, pCommandPool);
+        checkError(result);
+        commandPool = pCommandPool[0];
+    }
+
+    private void createCommandBuffer() {
+        VkCommandBufferAllocateInfo allocInfo = VkCommandBufferAllocateInfo.calloc();
+        allocInfo.sType(VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO);
+        allocInfo.commandPool(commandPool);
+        allocInfo.level(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+        allocInfo.commandBufferCount(1);
+
+        PointerBuffer pCommandBuffer = memAllocPointer(1);
+        int result = vkAllocateCommandBuffers(device, allocInfo, pCommandBuffer);
+        checkError(result);
+
+        commandBuffer = new VkCommandBuffer(pCommandBuffer.get(0), device);
+    }
+
+    private void createSyncObjects() {
+        VkSemaphoreCreateInfo semaphoreInfo = VkSemaphoreCreateInfo.calloc();
+        semaphoreInfo.sType(VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO);
+
+        VkFenceCreateInfo fenceInfo = VkFenceCreateInfo.calloc();
+        fenceInfo.sType(VK_STRUCTURE_TYPE_FENCE_CREATE_INFO);
+        fenceInfo.flags(VK_FENCE_CREATE_SIGNALED_BIT);
+
+        long[] p = new long[1];
+
+        int result = vkCreateSemaphore(device, semaphoreInfo, null, p);
+        checkError(result);
+        imageAvailableSemaphore = p[0];
+
+        result = vkCreateSemaphore(device, semaphoreInfo, null, p);
+        checkError(result);
+        renderFinishedSemaphore = p[0];
+
+        result = vkCreateFence(device, fenceInfo, null, p);
+        checkError(result);
+        inFlightFence = p[0];
     }
 
     private void initVulkan() {
@@ -616,17 +797,156 @@ public final class VulkanTest {
         createLogicalDevice();
         createSwapChain();
         createImageViews();
+        createRenderPass();
         createGraphicsPipeline();
+        createFramebuffers();
+        createCommandPool();
+        createCommandBuffer();
+        createSyncObjects();
+    }
+
+    private void recordCommandBuffer(VkCommandBuffer commandBuffer, int imageIndex) {
+        VkCommandBufferBeginInfo beginInfo = VkCommandBufferBeginInfo.calloc();
+        beginInfo.sType(VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO);
+        beginInfo.flags(0);
+        beginInfo.pInheritanceInfo(null);
+        int result = vkBeginCommandBuffer(commandBuffer, beginInfo);
+        checkError(result);
+        beginInfo.free();
+
+        VkRenderPassBeginInfo renderPassInfo = VkRenderPassBeginInfo.calloc();
+        renderPassInfo.sType(VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO);
+        renderPassInfo.renderPass(renderPass);
+        renderPassInfo.framebuffer(swapChainFramebuffers[imageIndex]);
+        renderPassInfo.renderArea().offset().set(0, 0);
+        renderPassInfo.renderArea().extent(swapChainExtent);
+
+        VkClearValue.Buffer pClearColor = VkClearValue.calloc(1);
+        VkClearValue clearColor = pClearColor.get(0);
+        FloatBuffer colorData = memAllocFloat(4);
+        colorData.put(0, 0.1f);
+        colorData.put(1, 0.2f);
+        colorData.put(2, 0.3f);
+        colorData.put(3, 1.0f);
+        clearColor.color().float32(colorData);
+        renderPassInfo.clearValueCount(1);
+        renderPassInfo.pClearValues(pClearColor);
+
+        vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+        memFree(colorData);
+        pClearColor.free();
+        renderPassInfo.free();
+
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
+        VkViewport.Buffer pViewport = VkViewport.calloc(1);
+        VkViewport viewport = pViewport.get(0);
+        viewport.x(0);
+        viewport.y(0);
+        viewport.width(swapChainExtent.width());
+        viewport.height(swapChainExtent.height());
+        viewport.minDepth(0.0f);
+        viewport.maxDepth(1.0f);
+        vkCmdSetViewport(commandBuffer, 0, pViewport);
+
+        VkRect2D.Buffer pScissor = VkRect2D.calloc(1);
+        VkRect2D scissor = pScissor.get(0);
+        scissor.offset().set(0, 0);
+        scissor.extent(swapChainExtent);
+        vkCmdSetScissor(commandBuffer, 0, pScissor);
+
+        // DRAW IT!!!!!
+        vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+
+        vkCmdEndRenderPass(commandBuffer);
+        result = vkEndCommandBuffer(commandBuffer);
+        checkError(result);
+    }
+
+    private void drawFrame() {
+        long[] pFence = {inFlightFence};
+        vkWaitForFences(device, pFence, true, Long.MAX_VALUE);
+        vkResetFences(device, pFence);
+
+        int[] pImageIndex = new int[1];
+        vkAcquireNextImageKHR(device, swapChain, Long.MAX_VALUE, imageAvailableSemaphore, VK_NULL_HANDLE, pImageIndex);
+
+        vkResetCommandBuffer(commandBuffer, 0);
+        recordCommandBuffer(commandBuffer, pImageIndex[0]);
+
+        VkSubmitInfo submitInfo = VkSubmitInfo.calloc();
+        submitInfo.sType(VK_STRUCTURE_TYPE_SUBMIT_INFO);
+
+        LongBuffer waitSemaphores = memAllocLong(1);
+        IntBuffer waitStages = memAllocInt(1);
+        waitSemaphores.put(0, imageAvailableSemaphore);
+        waitStages.put(0, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+
+        submitInfo.waitSemaphoreCount(1);
+        submitInfo.pWaitSemaphores(waitSemaphores);
+        submitInfo.pWaitDstStageMask(waitStages);
+
+        PointerBuffer pCommandBuffer = memAllocPointer(1);
+        pCommandBuffer.put(0, commandBuffer);
+        submitInfo.pCommandBuffers(pCommandBuffer);
+
+        LongBuffer signalSemaphores = memAllocLong(1);
+        signalSemaphores.put(0, renderFinishedSemaphore);
+        submitInfo.pSignalSemaphores(signalSemaphores);
+
+        int result = vkQueueSubmit(graphicsQueue, submitInfo, inFlightFence);
+        checkError(result);
+
+        VkPresentInfoKHR presentInfo = VkPresentInfoKHR.calloc();
+        presentInfo.sType(VK_STRUCTURE_TYPE_PRESENT_INFO_KHR);
+        presentInfo.pWaitSemaphores(signalSemaphores);
+
+        LongBuffer swapChains = memAllocLong(1);
+        swapChains.put(0, swapChain);
+        presentInfo.swapchainCount(1);
+        presentInfo.pSwapchains(swapChains);
+
+        IntBuffer pImageIndices = memAllocInt(1);
+        pImageIndices.put(0, pImageIndex[0]);
+        presentInfo.pImageIndices(pImageIndices);
+        presentInfo.pResults(null);
+
+        vkQueuePresentKHR(presentQueue, presentInfo);
+
+        memFree(signalSemaphores);
+        memFree(pCommandBuffer);
+        memFree(waitStages);
+        memFree(waitSemaphores);
+        submitInfo.free();
+        memFree(pImageIndices);
+        memFree(swapChains);
+        presentInfo.free();
     }
 
     private void loop() {
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
+            drawFrame();
         }
+
+        vkDeviceWaitIdle(device);
     }
 
     private void cleanUp() {
+        vkDestroySemaphore(device, imageAvailableSemaphore, null);
+        vkDestroySemaphore(device, renderFinishedSemaphore, null);
+        vkDestroyFence(device, inFlightFence, null);
+
+        vkDestroyCommandPool(device, commandPool, null);
+
+        for (long framebuffer : swapChainFramebuffers) {
+            vkDestroyFramebuffer(device, framebuffer, null);
+        }
+
+        vkDestroyPipeline(device, graphicsPipeline, null);
         vkDestroyPipelineLayout(device, pipelineLayout, null);
+        vkDestroyRenderPass(device, renderPass, null);
 
         for (long imageView : swapChainImageViews) {
             vkDestroyImageView(device, imageView, null);
