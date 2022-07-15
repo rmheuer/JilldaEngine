@@ -3,11 +3,14 @@ package com.github.rmheuer.vulkantest;
 import com.github.rmheuer.engine.core.math.MathUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.vulkan.VkApplicationInfo;
+import org.lwjgl.vulkan.VkComponentMapping;
 import org.lwjgl.vulkan.VkDevice;
 import org.lwjgl.vulkan.VkDeviceCreateInfo;
 import org.lwjgl.vulkan.VkDeviceQueueCreateInfo;
 import org.lwjgl.vulkan.VkExtensionProperties;
 import org.lwjgl.vulkan.VkExtent2D;
+import org.lwjgl.vulkan.VkImageSubresourceRange;
+import org.lwjgl.vulkan.VkImageViewCreateInfo;
 import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkInstanceCreateInfo;
 import org.lwjgl.vulkan.VkLayerProperties;
@@ -64,6 +67,7 @@ public final class VulkanTest {
     private long[] swapChainImages;
     private int swapChainImageFormat;
     private VkExtent2D swapChainExtent;
+    private long[] swapChainImageViews;
 
     private void initWindow() {
         glfwInit();
@@ -469,12 +473,40 @@ public final class VulkanTest {
         swapChainExtent = extent;
     }
 
+    private void createImageViews() {
+        swapChainImageViews = new long[swapChainImages.length];
+        for (int i = 0; i < swapChainImages.length; i++) {
+            VkImageViewCreateInfo createInfo = VkImageViewCreateInfo.calloc();
+            createInfo.sType(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO);
+            createInfo.image(swapChainImages[i]);
+            createInfo.viewType(VK_IMAGE_VIEW_TYPE_2D);
+            createInfo.format(swapChainImageFormat);
+            VkComponentMapping components = createInfo.components();
+            components.r(VK_COMPONENT_SWIZZLE_IDENTITY);
+            components.g(VK_COMPONENT_SWIZZLE_IDENTITY);
+            components.b(VK_COMPONENT_SWIZZLE_IDENTITY);
+            components.a(VK_COMPONENT_SWIZZLE_IDENTITY);
+            VkImageSubresourceRange subresourceRange = createInfo.subresourceRange();
+            subresourceRange.aspectMask(VK_IMAGE_ASPECT_COLOR_BIT);
+            subresourceRange.baseMipLevel(0);
+            subresourceRange.levelCount(1);
+            subresourceRange.baseArrayLayer(0);
+            subresourceRange.layerCount(1);
+
+            long[] pView = new long[1];
+            int result = vkCreateImageView(device, createInfo, null, pView);
+            checkError(result);
+            swapChainImageViews[i] = pView[0];
+        }
+    }
+
     private void initVulkan() {
         createInstance();
         createSurface();
         pickPhysicalDevice();
         createLogicalDevice();
         createSwapChain();
+        createImageViews();
     }
 
     private void loop() {
@@ -484,6 +516,10 @@ public final class VulkanTest {
     }
 
     private void cleanUp() {
+        for (long imageView : swapChainImageViews) {
+            vkDestroyImageView(device, imageView, null);
+        }
+
         vkDestroySwapchainKHR(device, swapChain, null);
         vkDestroyDevice(device, null);
         vkDestroySurfaceKHR(instance, surface, null);
