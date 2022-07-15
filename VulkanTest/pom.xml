@@ -123,5 +123,50 @@
             <artifactId>lwjgl-vulkan</artifactId>
             <classifier>natives-macos-arm64</classifier>
         </dependency>
+
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-shaderc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-shaderc</artifactId>
+            <classifier>natives-linux</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-shaderc</artifactId>
+            <classifier>natives-linux-arm64</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-shaderc</artifactId>
+            <classifier>natives-linux-arm32</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-shaderc</artifactId>
+            <classifier>natives-macos</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-shaderc</artifactId>
+            <classifier>natives-macos-arm64</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-shaderc</artifactId>
+            <classifier>natives-windows</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-shaderc</artifactId>
+            <classifier>natives-windows-x86</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.lwjgl</groupId>
+            <artifactId>lwjgl-shaderc</artifactId>
+            <classifier>natives-windows-arm64</classifier>
+        </dependency>
     </dependencies>
 </project>
