@@ -6,6 +6,7 @@ import com.github.rmheuer.engine.render.mesh.PrimitiveType;
 import com.github.rmheuer.engine.render.mesh.Vertex;
 import com.github.rmheuer.engine.render.shader.Shader;
 import com.github.rmheuer.engine.render.shader.ShaderProgram;
+import com.github.rmheuer.engine.render.texture.CubeMap;
 import com.github.rmheuer.engine.render.texture.Texture2D;
 import com.github.rmheuer.engine.render.texture.TextureData;
 import com.github.rmheuer.engine.render.texture.TextureSettings;
@@ -26,4 +27,5 @@ public interface RenderBackend {
     default Texture2D createTexture(ResourceFile res) throws IOException { return createTexture(res, new TextureSettings()); }
     Texture2D createTexture(TextureData data, TextureSettings settings);
     default Texture2D createTexture(TextureData data) { return createTexture(data, new TextureSettings()); }
+    CubeMap createCubeMap(TextureSettings settings, TextureData posX, TextureData negX, TextureData posY, TextureData negY, TextureData posZ, TextureData negZ);
 }

@@ -13,7 +13,7 @@ import com.github.rmheuer.engine.render.texture.TextureSettings;
 
 import java.io.IOException;
 
-public final class TextureSerializer implements AssetSerializer<Texture2D> {
+public final class Texture2DSerializer implements AssetSerializer<Texture2D> {
     @Override
     public void serialize(Texture2D asset, ResourceFile dst) throws IOException {
         SerialObject obj = new SerialObject();

@@ -46,7 +46,7 @@ public final class OpenGLTexture2D extends Texture2D {
         );
     }
 
-    private int getGlFilter(TextureFilter filter) {
+    static int getGlFilter(TextureFilter filter) {
         switch (filter) {
             case LINEAR:
                 return GL_LINEAR;
