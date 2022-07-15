@@ -1,7 +1,7 @@
 package com.github.rmheuer.engine.render.opengl;
 
 import com.github.rmheuer.engine.core.resource.ResourceFile;
-import com.github.rmheuer.engine.render.texture.Texture;
+import com.github.rmheuer.engine.render.texture.Texture2D;
 import com.github.rmheuer.engine.render.texture.TextureData;
 import com.github.rmheuer.engine.render.texture.TextureFilter;
 import com.github.rmheuer.engine.render.texture.TextureSettings;
@@ -10,18 +10,18 @@ import java.io.IOException;
 
 import static org.lwjgl.opengl.GL33C.*;
 
-public final class OpenGLTexture extends Texture {
+public final class OpenGLTexture2D extends Texture2D {
     private final int id;
     private final int width;
     private final int height;
     private final TextureSettings settings;
     private final TextureData data;
 
-    public OpenGLTexture(ResourceFile res, TextureSettings settings) throws IOException {
+    public OpenGLTexture2D(ResourceFile res, TextureSettings settings) throws IOException {
         this(TextureData.decode(res), settings);
     }
 
-    public OpenGLTexture(TextureData data, TextureSettings settings) {
+    public OpenGLTexture2D(TextureData data, TextureSettings settings) {
         this.data = data;
         width = data.getWidth();
         height = data.getHeight();

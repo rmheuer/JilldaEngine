@@ -9,8 +9,7 @@ import com.github.rmheuer.engine.render.mesh.Mesh;
 import com.github.rmheuer.engine.render.mesh.MeshDataUsage;
 import com.github.rmheuer.engine.render.mesh.PrimitiveType;
 import com.github.rmheuer.engine.render.shader.ShaderProgram;
-import com.github.rmheuer.engine.render.shader.ShaderType;
-import com.github.rmheuer.engine.render.texture.Texture;
+import com.github.rmheuer.engine.render.texture.Texture2D;
 import com.github.rmheuer.engine.render.texture.TextureData;
 
 import java.io.IOException;
@@ -24,7 +23,7 @@ public final class Renderer2D {
 
     private final Mesh<Vertex2D> mesh;
     private final ShaderProgram shader;
-    private final Texture whiteTex;
+    private final Texture2D whiteTex;
 
     public Renderer2D() {
         RenderBackend backend = RendererAPI.getBackend();
@@ -64,7 +63,7 @@ public final class Renderer2D {
 
         shader.bind();
         for (int i = 0; i < MAX_TEXTURE_SLOTS; i++) {
-            Texture tex = batch.getTextures()[i];
+            Texture2D tex = batch.getTextures()[i];
             if (tex != null) {
                 tex.bindToSlot(i);
             }

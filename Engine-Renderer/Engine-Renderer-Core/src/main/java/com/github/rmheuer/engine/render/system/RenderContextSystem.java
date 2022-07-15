@@ -19,7 +19,7 @@ import com.github.rmheuer.engine.render.event.WindowResizeEvent;
 import com.github.rmheuer.engine.render.opengl.OpenGLBackend;
 import com.github.rmheuer.engine.render.shader.Shader;
 import com.github.rmheuer.engine.render.shader.ShaderProgram;
-import com.github.rmheuer.engine.render.texture.Texture;
+import com.github.rmheuer.engine.render.texture.Texture2D;
 import com.github.rmheuer.engine.render.texture.TextureData;
 
 public final class RenderContextSystem implements GameSystem {
@@ -38,7 +38,7 @@ public final class RenderContextSystem implements GameSystem {
 
         Game.get().getAssetManager().registerSerializer(ShaderProgram.class, new ShaderProgramSerializer());
         Game.get().getAssetManager().registerSerializer(Shader.class, new ShaderSerializer());
-        Game.get().getAssetManager().registerSerializer(Texture.class, new TextureSerializer());
+        Game.get().getAssetManager().registerSerializer(Texture2D.class, new TextureSerializer());
         Game.get().getAssetManager().registerSerializer(TextureData.class, new TextureDataSerializer());
 
         ctx.setWindow(backend.createWindow(windowSettings));

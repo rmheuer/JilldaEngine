@@ -1,17 +1,17 @@
 package com.github.rmheuer.engine.render2d.font;
 
 import com.github.rmheuer.engine.core.math.Vector2f;
-import com.github.rmheuer.engine.render.texture.Texture;
+import com.github.rmheuer.engine.render.texture.Texture2D;
 
 public final class GlyphInfo {
-    private final Texture tex;
+    private final Texture2D tex;
     private final Vector2f size;
     private final Vector2f offset;
     private final float xAdvance;
     private final Vector2f uvMin;
     private final Vector2f uvMax;
 
-    public GlyphInfo(Texture tex, Vector2f size, Vector2f offset, float xAdvance, Vector2f uvMin, Vector2f uvMax) {
+    public GlyphInfo(Texture2D tex, Vector2f size, Vector2f offset, float xAdvance, Vector2f uvMin, Vector2f uvMax) {
         this.tex = tex;
         this.size = size;
         this.offset = offset;
@@ -20,7 +20,7 @@ public final class GlyphInfo {
         this.uvMax = uvMax;
     }
 
-    public Texture getTexture() {
+    public Texture2D getTexture() {
         return tex;
     }
 

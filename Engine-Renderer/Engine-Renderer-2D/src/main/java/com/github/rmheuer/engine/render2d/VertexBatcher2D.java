@@ -1,12 +1,12 @@
 package com.github.rmheuer.engine.render2d;
 
-import com.github.rmheuer.engine.render.texture.Texture;
+import com.github.rmheuer.engine.render.texture.Texture2D;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class VertexBatcher2D {
-    public static List<VertexBatch> batch(List<DrawVertex> vertices, List<Integer> indices, Texture defaultTexture) {
+    public static List<VertexBatch> batch(List<DrawVertex> vertices, List<Integer> indices, Texture2D defaultTexture) {
         // Here we assume that a polygon is grouped with sequential vertices
         // and indices, and that the texture is constant throughout the polygon.
         // This is true for all polygons from a DrawList2D.

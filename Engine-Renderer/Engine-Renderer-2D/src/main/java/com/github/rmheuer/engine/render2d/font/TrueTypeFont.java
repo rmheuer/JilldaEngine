@@ -2,9 +2,8 @@ package com.github.rmheuer.engine.render2d.font;
 
 import com.github.rmheuer.engine.core.math.Vector2f;
 import com.github.rmheuer.engine.core.resource.ResourceFile;
-import com.github.rmheuer.engine.render.RenderBackend;
 import com.github.rmheuer.engine.render.RendererAPI;
-import com.github.rmheuer.engine.render.texture.Texture;
+import com.github.rmheuer.engine.render.texture.Texture2D;
 import com.github.rmheuer.engine.render.texture.TextureData;
 import com.github.rmheuer.engine.render.texture.TextureFilter;
 import com.github.rmheuer.engine.render.texture.TextureSettings;
@@ -32,7 +31,7 @@ public final class TrueTypeFont extends Font {
     private final ByteBuffer ttf;
     private final STBTTFontinfo fontInfo;
     private final STBTTPackedchar.Buffer cdata;
-    private final Texture atlas;
+    private final Texture2D atlas;
     private final GlyphInfo[] glyphs;
     private final ResourceFile ttfFile;
     private final float heightPx;

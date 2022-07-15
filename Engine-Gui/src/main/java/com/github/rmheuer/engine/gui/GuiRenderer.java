@@ -10,7 +10,7 @@ import com.github.rmheuer.engine.core.serial.node.SerialObject;
 import com.github.rmheuer.engine.core.serial.obj.Transient;
 import com.github.rmheuer.engine.render2d.CompositeDrawList2D;
 import com.github.rmheuer.engine.render2d.Rectangle;
-import com.github.rmheuer.engine.render.texture.Texture;
+import com.github.rmheuer.engine.render.texture.Texture2D;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 @Transient
 public final class GuiRenderer implements WorldLocalSingleton {
@@ -732,7 +731,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
         return isWidgetClicked(MouseButton.LEFT);
     }
 
-    public boolean imageButton(Texture img, float width, float height, Vector2f uv0, Vector2f uv1) {
+    public boolean imageButton(Texture2D img, float width, float height, Vector2f uv0, Vector2f uv1) {
         beginWidget(new Vector2f(width, height));
 
         draw.drawImage(pane.cursor.x, pane.cursor.y, width, height, img, uv0.x, uv0.y, uv1.x, uv1.y);
@@ -740,13 +739,13 @@ public final class GuiRenderer implements WorldLocalSingleton {
         return isWidgetClicked(MouseButton.LEFT);
     }
 
-    public void image(Texture img, float width, float height, Vector2f uv0, Vector2f uv1) {
+    public void image(Texture2D img, float width, float height, Vector2f uv0, Vector2f uv1) {
         beginWidget(new Vector2f(width, height));
         draw.drawImage(pane.cursor.x, pane.cursor.y, width, height, img, uv0.x, uv0.y, uv1.x, uv1.y);
     }
 
     // Important: Only use for sizes smaller than text height
-    public void icon(Texture img, float width, float height, Vector2f uv0, Vector2f uv1) {
+    public void icon(Texture2D img, float width, float height, Vector2f uv0, Vector2f uv1) {
         float textHeight = textHeight();
         beginWidget(new Vector2f(width, textHeight()));
 
