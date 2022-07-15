@@ -1,11 +1,14 @@
 package com.github.rmheuer.vulkantest;
 
 import com.github.rmheuer.engine.core.math.MathUtils;
+import com.github.rmheuer.engine.core.math.Vector2f;
+import com.github.rmheuer.engine.core.math.Vector3f;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.vulkan.VkApplicationInfo;
 import org.lwjgl.vulkan.VkAttachmentDescription;
 import org.lwjgl.vulkan.VkAttachmentReference;
+import org.lwjgl.vulkan.VkBufferCreateInfo;
 import org.lwjgl.vulkan.VkClearValue;
 import org.lwjgl.vulkan.VkCommandBuffer;
 import org.lwjgl.vulkan.VkCommandBufferAllocateInfo;
@@ -25,9 +28,12 @@ import org.lwjgl.vulkan.VkImageViewCreateInfo;
 import org.lwjgl.vulkan.VkInstance;
 import org.lwjgl.vulkan.VkInstanceCreateInfo;
 import org.lwjgl.vulkan.VkLayerProperties;
+import org.lwjgl.vulkan.VkMemoryAllocateInfo;
+import org.lwjgl.vulkan.VkMemoryRequirements;
 import org.lwjgl.vulkan.VkOffset2D;
 import org.lwjgl.vulkan.VkPhysicalDevice;
 import org.lwjgl.vulkan.VkPhysicalDeviceFeatures;
+import org.lwjgl.vulkan.VkPhysicalDeviceMemoryProperties;
 import org.lwjgl.vulkan.VkPhysicalDeviceProperties;
 import org.lwjgl.vulkan.VkPipelineColorBlendAttachmentState;
 import org.lwjgl.vulkan.VkPipelineColorBlendStateCreateInfo;
@@ -53,6 +59,8 @@ import org.lwjgl.vulkan.VkSubpassDescription;
 import org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR;
 import org.lwjgl.vulkan.VkSurfaceFormatKHR;
 import org.lwjgl.vulkan.VkSwapchainCreateInfoKHR;
+import org.lwjgl.vulkan.VkVertexInputAttributeDescription;
+import org.lwjgl.vulkan.VkVertexInputBindingDescription;
 import org.lwjgl.vulkan.VkViewport;
 
 import java.nio.ByteBuffer;
@@ -89,6 +97,12 @@ public final class VulkanTest {
             VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
 
+    private static final Vertex[] VERTICES = {
+            new Vertex(new Vector2f( 0.0f, -0.5f), new Vector3f(1.0f, 1.0f, 1.0f)),
+            new Vertex(new Vector2f( 0.5f,  0.5f), new Vector3f(0.0f, 1.0f, 0.0f)),
+            new Vertex(new Vector2f(-0.5f,  0.5f), new Vector3f(0.0f, 0.0f, 1.0f))
+    };
+
     private long window;
     private VkInstance instance;
     private long surface;
@@ -110,14 +124,22 @@ public final class VulkanTest {
     private long imageAvailableSemaphore;
     private long renderFinishedSemaphore;
     private long inFlightFence;
+    private boolean framebufferResized = false;
+    private long vertexBuffer;
+    private long vertexBufferMemory;
+
+    private void framebufferResizeCallback(long window, int width, int height) {
+        framebufferResized = true;
+    }
 
     private void initWindow() {
         glfwInit();
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
         window = glfwCreateWindow(WIDTH, HEIGHT, TITLE, NULL, NULL);
+        glfwSetFramebufferSizeCallback(window, this::framebufferResizeCallback);
     }
 
     private void checkError(int err) {
@@ -622,8 +644,13 @@ public final class VulkanTest {
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = VkPipelineVertexInputStateCreateInfo.calloc();
         vertexInputInfo.sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO);
-        vertexInputInfo.pVertexBindingDescriptions(null);
-        vertexInputInfo.pVertexAttributeDescriptions(null);
+
+        VkVertexInputBindingDescription.Buffer pBindingDesc = VkVertexInputBindingDescription.calloc(1);
+        Vertex.getBindingDescription(pBindingDesc.get(0));
+        VkVertexInputAttributeDescription.Buffer attributeDesc = Vertex.getAttributeDescriptions();
+
+        vertexInputInfo.pVertexBindingDescriptions(pBindingDesc);
+        vertexInputInfo.pVertexAttributeDescriptions(attributeDesc);
 
         VkPipelineInputAssemblyStateCreateInfo inputAssembly = VkPipelineInputAssemblyStateCreateInfo.calloc();
         inputAssembly.sType(VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO);
@@ -753,6 +780,68 @@ public final class VulkanTest {
         commandPool = pCommandPool[0];
     }
 
+    private int findMemoryType(int typeFilter, int properties) {
+        VkPhysicalDeviceMemoryProperties memProperties = VkPhysicalDeviceMemoryProperties.malloc();
+        vkGetPhysicalDeviceMemoryProperties(physicalDevice, memProperties);
+
+        int size = memProperties.memoryTypeCount();
+
+        for (int i = 0; i < size; i++) {
+            if ((typeFilter & (1 << i)) != 0 && (memProperties.memoryTypes(i).propertyFlags() & properties) == properties) {
+                memProperties.free();
+                return i;
+            }
+        }
+
+        throw new RuntimeException("Failed to find suitable memory type");
+    }
+
+    private void createVertexBuffer() {
+        int size = VERTICES.length * Vertex.SIZEOF;
+
+        VkBufferCreateInfo bufferInfo = VkBufferCreateInfo.calloc();
+        bufferInfo.sType(VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO);
+        bufferInfo.size(size);
+        bufferInfo.usage(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+        bufferInfo.sharingMode(VK_SHARING_MODE_EXCLUSIVE);
+
+        long[] pVertexBuffer = new long[1];
+        int result = vkCreateBuffer(device, bufferInfo, null, pVertexBuffer);
+        checkError(result);
+        vertexBuffer = pVertexBuffer[0];
+
+        bufferInfo.free();
+
+        VkMemoryRequirements memRequirements = VkMemoryRequirements.malloc();
+        vkGetBufferMemoryRequirements(device, vertexBuffer, memRequirements);
+
+        VkMemoryAllocateInfo allocInfo = VkMemoryAllocateInfo.calloc();
+        allocInfo.sType(VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO);
+        allocInfo.allocationSize(memRequirements.size());
+        allocInfo.memoryTypeIndex(findMemoryType(memRequirements.memoryTypeBits(), VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
+
+        long[] pMemory = new long[1];
+        result = vkAllocateMemory(device, allocInfo, null, pMemory);
+        checkError(result);
+        vertexBufferMemory = pMemory[0];
+
+        vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
+
+        PointerBuffer pData = memAllocPointer(1);
+        vkMapMemory(device, vertexBufferMemory, 0, size, 0, pData);
+        ByteBuffer data = pData.getByteBuffer(0, size);
+        data.position(0);
+        data.limit(size);
+        for (Vertex v : VERTICES) {
+            v.addToBuffer(data);
+        }
+        vkUnmapMemory(device, vertexBufferMemory);
+
+        pData.free();
+        allocInfo.free();
+        memRequirements.free();
+    }
+
     private void createCommandBuffer() {
         VkCommandBufferAllocateInfo allocInfo = VkCommandBufferAllocateInfo.calloc();
         allocInfo.sType(VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO);
@@ -801,6 +890,7 @@ public final class VulkanTest {
         createGraphicsPipeline();
         createFramebuffers();
         createCommandPool();
+        createVertexBuffer();
         createCommandBuffer();
         createSyncObjects();
     }
@@ -856,8 +946,12 @@ public final class VulkanTest {
         scissor.extent(swapChainExtent);
         vkCmdSetScissor(commandBuffer, 0, pScissor);
 
+        long[] vertexBuffers = {vertexBuffer};
+        long[] offsets = {0};
+        vkCmdBindVertexBuffers(commandBuffer, 0, vertexBuffers, offsets);
+
         // DRAW IT!!!!!
-        vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+        vkCmdDraw(commandBuffer, VERTICES.length, 1, 0, 0);
 
         vkCmdEndRenderPass(commandBuffer);
         result = vkEndCommandBuffer(commandBuffer);
@@ -867,11 +961,18 @@ public final class VulkanTest {
     private void drawFrame() {
         long[] pFence = {inFlightFence};
         vkWaitForFences(device, pFence, true, Long.MAX_VALUE);
-        vkResetFences(device, pFence);
 
         int[] pImageIndex = new int[1];
-        vkAcquireNextImageKHR(device, swapChain, Long.MAX_VALUE, imageAvailableSemaphore, VK_NULL_HANDLE, pImageIndex);
+        int result = vkAcquireNextImageKHR(device, swapChain, Long.MAX_VALUE, imageAvailableSemaphore, VK_NULL_HANDLE, pImageIndex);
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
+            framebufferResized = false;
+            recreateSwapChain();
+            return;
+        } else {
+            checkError(result);
+        }
 
+        vkResetFences(device, pFence);
         vkResetCommandBuffer(commandBuffer, 0);
         recordCommandBuffer(commandBuffer, pImageIndex[0]);
 
@@ -895,7 +996,7 @@ public final class VulkanTest {
         signalSemaphores.put(0, renderFinishedSemaphore);
         submitInfo.pSignalSemaphores(signalSemaphores);
 
-        int result = vkQueueSubmit(graphicsQueue, submitInfo, inFlightFence);
+        result = vkQueueSubmit(graphicsQueue, submitInfo, inFlightFence);
         checkError(result);
 
         VkPresentInfoKHR presentInfo = VkPresentInfoKHR.calloc();
@@ -924,6 +1025,28 @@ public final class VulkanTest {
         presentInfo.free();
     }
 
+    private void cleanUpSwapChain() {
+        for (long framebuffer : swapChainFramebuffers) {
+            vkDestroyFramebuffer(device, framebuffer, null);
+        }
+
+        for (long imageView : swapChainImageViews) {
+            vkDestroyImageView(device, imageView, null);
+        }
+
+        vkDestroySwapchainKHR(device, swapChain, null);
+    }
+
+    private void recreateSwapChain() {
+        vkDeviceWaitIdle(device);
+
+        cleanUpSwapChain();
+
+        createSwapChain();
+        createImageViews();
+        createFramebuffers();
+    }
+
     private void loop() {
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
@@ -934,25 +1057,18 @@ public final class VulkanTest {
     }
 
     private void cleanUp() {
+        cleanUpSwapChain();
+
+        vkDestroyBuffer(device, vertexBuffer, null);
+        vkFreeMemory(device, vertexBufferMemory, null);
+
         vkDestroySemaphore(device, imageAvailableSemaphore, null);
         vkDestroySemaphore(device, renderFinishedSemaphore, null);
         vkDestroyFence(device, inFlightFence, null);
-
         vkDestroyCommandPool(device, commandPool, null);
-
-        for (long framebuffer : swapChainFramebuffers) {
-            vkDestroyFramebuffer(device, framebuffer, null);
-        }
-
         vkDestroyPipeline(device, graphicsPipeline, null);
         vkDestroyPipelineLayout(device, pipelineLayout, null);
         vkDestroyRenderPass(device, renderPass, null);
-
-        for (long imageView : swapChainImageViews) {
-            vkDestroyImageView(device, imageView, null);
-        }
-
-        vkDestroySwapchainKHR(device, swapChain, null);
         vkDestroyDevice(device, null);
         vkDestroySurfaceKHR(instance, surface, null);
         vkDestroyInstance(instance, null);
