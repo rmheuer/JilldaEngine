@@ -10,6 +10,7 @@ import com.github.rmheuer.engine.core.serial.obj.TypeCodec;
 import com.github.rmheuer.engine.core.util.ReflectUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Set;
 
 // TODO: Detect @SerializeWith on fields
@@ -30,7 +31,8 @@ public final class FieldBasedObjectCodec<T> implements TypeCodec<T> {
         SerialObject obj = new SerialObject();
         for (Field field : fields) {
             String name = field.getName();
-            if (!field.getType().isAnnotationPresent(Transient.class)) {
+
+            if (!Modifier.isTransient(field.getModifiers()) && !field.getType().isAnnotationPresent(Transient.class)) {
                 Object value;
                 try {
                     field.setAccessible(true);
@@ -55,14 +57,16 @@ public final class FieldBasedObjectCodec<T> implements TypeCodec<T> {
 
         SerialObject obj = (SerialObject) node;
         for (Field field : fields) {
-            SerialNode valueNode = obj.get(field.getName());
-            Object value = ctx.deserialize(valueNode, field.getType());
+            if (!Modifier.isTransient(field.getModifiers()) && !field.getType().isAnnotationPresent(Transient.class)) {
+                SerialNode valueNode = obj.get(field.getName());
+                Object value = ctx.deserialize(valueNode, field.getType());
 
-            try {
-                field.setAccessible(true);
-                field.set(instance, value);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to set field: " + field, e);
+                try {
+                    field.setAccessible(true);
+                    field.set(instance, value);
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to set field: " + field, e);
+                }
             }
         }
 
