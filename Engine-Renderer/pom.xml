@@ -155,5 +155,6 @@
     <modules>
         <module>Engine-Renderer-Core</module>
         <module>Engine-Renderer-2D</module>
+        <module>Engine-Renderer-3D</module>
     </modules>
 </project>
