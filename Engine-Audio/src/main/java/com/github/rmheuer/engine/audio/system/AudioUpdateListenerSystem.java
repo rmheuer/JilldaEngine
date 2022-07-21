@@ -5,7 +5,7 @@ import com.github.rmheuer.engine.audio.Listener;
 import com.github.rmheuer.engine.audio.component.AudioListener;
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
-import com.github.rmheuer.engine.core.math.Transform;
+import com.github.rmheuer.engine.core.transform.Transform;
 
 public final class AudioUpdateListenerSystem implements GameSystem {
     @Override

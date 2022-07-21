@@ -1,7 +1,7 @@
 package com.github.rmheuer.engine.render.event;
 
 import com.github.rmheuer.engine.core.event.Event;
-import com.github.rmheuer.engine.core.math.Transform;
+import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.render.camera.Camera;
 
 public final class RenderSceneEvent implements Event {

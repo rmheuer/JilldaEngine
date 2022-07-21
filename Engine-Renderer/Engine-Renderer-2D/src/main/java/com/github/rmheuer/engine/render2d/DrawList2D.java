@@ -1,7 +1,7 @@
 package com.github.rmheuer.engine.render2d;
 
 import com.github.rmheuer.engine.core.math.MathUtils;
-import com.github.rmheuer.engine.core.math.Transform;
+import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.math.Vector2f;
 import com.github.rmheuer.engine.core.math.Vector4f;
 import com.github.rmheuer.engine.render.texture.Texture2D;

@@ -8,7 +8,7 @@ import com.github.rmheuer.engine.core.ecs.system.schedule.Stage;
 import com.github.rmheuer.engine.core.input.keyboard.Key;
 import com.github.rmheuer.engine.core.input.keyboard.Keyboard;
 import com.github.rmheuer.engine.core.main.Game;
-import com.github.rmheuer.engine.core.math.Transform;
+import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.math.Vector3f;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
 import com.github.rmheuer.engine.core.util.Pair;
@@ -21,7 +21,11 @@ import com.github.rmheuer.engine.render.mesh.MeshDataUsage;
 import com.github.rmheuer.engine.render.mesh.PrimitiveType;
 import com.github.rmheuer.engine.render.shader.ShaderProgram;
 import com.github.rmheuer.engine.render.system.RenderContextSystem;
+import com.github.rmheuer.engine.render.texture.CubeMap;
+import com.github.rmheuer.engine.render.texture.CubeMapBuilder;
 import com.github.rmheuer.engine.render.texture.Texture2D;
+import com.github.rmheuer.engine.render.texture.TextureSettings;
+import com.github.rmheuer.engine.render3d.Primitives3D;
 import com.github.rmheuer.engine.render3d.component.MeshRenderer;
 import com.github.rmheuer.engine.render3d.loader.DefaultVertex;
 import com.github.rmheuer.engine.render3d.loader.ObjLoader;
@@ -58,7 +62,6 @@ public final class SandboxInitSystem implements GameSystem {
                     b.createShader(new JarResourceFile("vertex.glsl")),
                     b.createShader(new JarResourceFile("fragment.glsl"))
             );
-            shader.claim();
         } catch (IOException e) {
             throw new RuntimeException("Failed to load shaders", e);
         }
@@ -81,6 +84,38 @@ public final class SandboxInitSystem implements GameSystem {
         Entity entity = world.getRoot().newChild();
         entity.addComponent(r);
         entity.addComponent(tx);
+
+        ShaderProgram skyboxShader;
+        CubeMap skyboxTex;
+        try {
+            skyboxShader = b.createShaderProgram(
+                    b.createShader(new JarResourceFile("skybox/vertex.glsl")),
+                    b.createShader(new JarResourceFile("skybox/fragment.glsl"))
+            );
+            skyboxTex = new CubeMapBuilder(new TextureSettings())
+                    .setPositiveXFace(new JarResourceFile("skybox/skybox_left.png"))
+                    .setNegativeXFace(new JarResourceFile("skybox/skybox_right.png"))
+                    .setPositiveYFace(new JarResourceFile("skybox/skybox_up.png"))
+                    .setNegativeYFace(new JarResourceFile("skybox/skybox_down.png"))
+                    .setPositiveZFace(new JarResourceFile("skybox/skybox_front.png"))
+                    .setNegativeZFace(new JarResourceFile("skybox/skybox_back.png"))
+                    .build();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load skybox", e);
+        }
+        Material skyMat = new Material(skyboxShader);
+        skyMat.setCubeMap("m_Texture", skyboxTex);
+
+        MeshRenderer skyRenderer = new MeshRenderer();
+        skyRenderer.setMesh(Primitives3D.CUBE);
+        skyRenderer.setMaterial(skyMat);
+
+        Entity skybox = world.getRoot().newChild();
+        skybox.addComponent(skyRenderer);
+        Transform skyboxTx = new Transform();
+        skyboxTx.getScale().mul(500);
+        skybox.addComponent(skyboxTx);
+        skybox.addComponent(new AlignPosition(cameraTx));
     }
 
     @Override
@@ -106,6 +141,10 @@ public final class SandboxInitSystem implements GameSystem {
             if (kb.isKeyPressed(Key.DOWN)) rot.x -= turnScale;
             if (kb.isKeyPressed(Key.LEFT)) rot.y += turnScale;
             if (kb.isKeyPressed(Key.RIGHT)) rot.y -= turnScale;
+        });
+
+        world.forEach(AlignPosition.class, Transform.class, (align, tx) -> {
+            tx.setPosition(new Vector3f(align.target.getPosition()));
         });
     }
 }

@@ -13,7 +13,7 @@ import com.github.rmheuer.engine.audio.source.SampleSource;
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
 import com.github.rmheuer.engine.core.event.EventDispatcher;
-import com.github.rmheuer.engine.core.math.Transform;
+import com.github.rmheuer.engine.core.transform.Transform;
 
 import java.nio.ShortBuffer;
 import java.io.IOException;

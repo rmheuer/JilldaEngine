@@ -2,14 +2,17 @@ package com.github.rmheuer.engine.render.system;
 
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
+import com.github.rmheuer.engine.core.ecs.system.annotation.After;
 import com.github.rmheuer.engine.core.main.Game;
-import com.github.rmheuer.engine.core.math.Transform;
+import com.github.rmheuer.engine.core.transform.PropagateTransformSystem;
+import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.render.RenderContext;
 import com.github.rmheuer.engine.render.RendererAPI;
 import com.github.rmheuer.engine.render.camera.Camera;
 import com.github.rmheuer.engine.render.event.RenderSceneEvent;
 import com.github.rmheuer.engine.render.framebuffer.Framebuffer;
 
+@After(after = PropagateTransformSystem.class)
 public final class RenderFrameSystem implements GameSystem {
     @Override
     public void update(World world, float delta) {

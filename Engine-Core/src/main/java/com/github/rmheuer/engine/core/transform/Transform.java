@@ -1,17 +1,25 @@
-package com.github.rmheuer.engine.core.math;
+package com.github.rmheuer.engine.core.transform;
 
 import com.github.rmheuer.engine.core.ecs.component.Component;
+import com.github.rmheuer.engine.core.math.Matrix4f;
+import com.github.rmheuer.engine.core.math.Vector3f;
 
 // The Euler angles for rotation are applied in z, x, y order.
 public final class Transform implements Component {
+    // Local
     private Vector3f position;
     private Vector3f rotation;
     private Vector3f scale;
+
+    // Global, set by propagate system
+    final Matrix4f global;
 
     public Transform() {
 	position = new Vector3f(0, 0, 0);
 	rotation = new Vector3f(0, 0, 0);
 	scale = new Vector3f(1, 1, 1);
+
+	global = new Matrix4f();
     }
 
     public Matrix4f getMatrix() {
@@ -23,8 +31,16 @@ public final class Transform implements Component {
 	    .scale(scale);
     }
 
+    public Matrix4f getGlobalMatrix() {
+         return new Matrix4f(global);
+    }
+
     public Matrix4f getInverseMatrix() {
-	return getMatrix().invert();
+        return getMatrix().invert();
+    }
+
+    public Matrix4f getGlobalInverseMatrix() {
+        return getGlobalMatrix().invert();
     }
 
     public Vector3f getForward() {
@@ -38,6 +54,8 @@ public final class Transform implements Component {
     public Vector3f getRight() {
         return new Vector3f(1, 0, 0).rotateZ(rotation.z).rotateX(rotation.x).rotateY(rotation.y);
     }
+
+    // TODO: Global forward, up, right
 
     public Vector3f getPosition() {
 	return position;

@@ -3,7 +3,7 @@ package com.github.rmheuer.engine.render3d.system;
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
 import com.github.rmheuer.engine.core.event.EventDispatcher;
-import com.github.rmheuer.engine.core.math.Transform;
+import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.render.RendererAPI;
 import com.github.rmheuer.engine.render.event.RenderSceneEvent;
 import com.github.rmheuer.engine.render.mesh.Mesh;
@@ -35,12 +35,16 @@ public final class MeshRenderSystem implements GameSystem {
                         textures[slotIdx] = prop.getTexture2D();
                         u.setInt(slotIdx);
                         slotIdx++;
+                    } else if (prop.isCubeMap()) {
+                        textures[slotIdx] = prop.getCubeMap();
+                        u.setInt(slotIdx);
+                        slotIdx++;
                     }
                 }
 
                 shader.getUniform(ShaderConstants.UNIFORM_NAME_PROJECTION).setMatrix4f(event.getCamera().getProjection().getMatrix());
-                shader.getUniform(ShaderConstants.UNIFORM_NAME_VIEW).setMatrix4f(event.getCameraTransform().getInverseMatrix());
-                shader.getUniform(ShaderConstants.UNIFORM_NAME_TRANSFORM).setMatrix4f(tx.getMatrix());
+                shader.getUniform(ShaderConstants.UNIFORM_NAME_VIEW).setMatrix4f(event.getCameraTransform().getGlobalInverseMatrix());
+                shader.getUniform(ShaderConstants.UNIFORM_NAME_TRANSFORM).setMatrix4f(tx.getGlobalMatrix());
 
                 for (int i = 0; i < textures.length; i++) {
                     Texture tex = textures[i];

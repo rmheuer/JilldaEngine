@@ -8,6 +8,7 @@ import com.github.rmheuer.engine.core.ecs.system.GameSystem;
 import com.github.rmheuer.engine.core.ecs.system.schedule.Stage;
 import com.github.rmheuer.engine.core.ecs.system.schedule.SystemScheduler;
 import com.github.rmheuer.engine.core.event.EventDispatcher;
+import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.util.QuadConsumer;
 import com.github.rmheuer.engine.core.util.TriConsumer;
 
@@ -26,6 +27,8 @@ public final class World {
         root = registry.newEntity("Root");
         singletons = registry.newEntity("Singletons");
         scheduler = new SystemScheduler(systems);
+
+        root.addComponent(new Transform());
     }
 
     public void init() {

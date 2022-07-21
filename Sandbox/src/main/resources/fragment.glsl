@@ -14,7 +14,7 @@ void main(void) {
     float normDotDir = dot(v_Normal, lightDir);
     float lightAmt = max(0.25, normDotDir);
 
-    vec4 texColor = texture2D(m_Texture, v_TexCoord);
+    vec4 texColor = texture(m_Texture, v_TexCoord);
     texColor.rgb *= lightAmt;
 
     o_Color = texColor;

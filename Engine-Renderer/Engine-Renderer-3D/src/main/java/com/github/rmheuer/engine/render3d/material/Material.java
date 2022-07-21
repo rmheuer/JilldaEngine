@@ -2,6 +2,7 @@ package com.github.rmheuer.engine.render3d.material;
 
 import com.github.rmheuer.engine.core.asset.Asset;
 import com.github.rmheuer.engine.render.shader.ShaderProgram;
+import com.github.rmheuer.engine.render.texture.CubeMap;
 import com.github.rmheuer.engine.render.texture.Texture2D;
 
 import java.util.Collection;
@@ -46,12 +47,19 @@ public final class Material extends Asset {
         return getProperty(key).getTexture2D();
     }
 
+    public CubeMap getCubeMap(String key) { return getProperty(key).getCubeMap(); }
+
     private MaterialProperty getOrCreateProperty(String key) {
         return properties.computeIfAbsent(key, MaterialProperty::new);
     }
 
     public Material setTexture2D(String key, Texture2D texture) {
         getOrCreateProperty(key).setTexture2D(texture);
+        return this;
+    }
+
+    public Material setCubeMap(String key, CubeMap map) {
+        getOrCreateProperty(key).setCubeMap(map);
         return this;
     }
 
