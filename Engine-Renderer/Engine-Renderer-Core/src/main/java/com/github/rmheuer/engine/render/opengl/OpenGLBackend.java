@@ -9,6 +9,7 @@ import com.github.rmheuer.engine.render.mesh.PrimitiveType;
 import com.github.rmheuer.engine.render.mesh.Vertex;
 import com.github.rmheuer.engine.render.shader.Shader;
 import com.github.rmheuer.engine.render.shader.ShaderProgram;
+import com.github.rmheuer.engine.render.texture.CubeMap;
 import com.github.rmheuer.engine.render.texture.Texture2D;
 import com.github.rmheuer.engine.render.texture.TextureData;
 import com.github.rmheuer.engine.render.texture.TextureSettings;
@@ -53,12 +54,17 @@ public final class OpenGLBackend implements RenderBackend {
     }
 
     @Override
-    public Texture2D createTexture(ResourceFile res, TextureSettings settings) throws IOException {
+    public Texture2D createTexture2D(ResourceFile res, TextureSettings settings) throws IOException {
         return new OpenGLTexture2D(res, settings);
     }
 
     @Override
-    public Texture2D createTexture(TextureData data, TextureSettings settings) {
+    public Texture2D createTexture2D(TextureData data, TextureSettings settings) {
         return new OpenGLTexture2D(data, settings);
+    }
+
+    @Override
+    public CubeMap createCubeMap(TextureSettings settings, TextureData posX, TextureData negX, TextureData posY, TextureData negY, TextureData posZ, TextureData negZ) {
+        return new OpenGLCubeMap(settings, posX, negX, posY, negY, posZ, negZ);
     }
 }

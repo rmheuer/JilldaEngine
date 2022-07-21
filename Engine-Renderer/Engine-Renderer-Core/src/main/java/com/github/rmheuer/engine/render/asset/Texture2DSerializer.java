@@ -27,6 +27,6 @@ public final class Texture2DSerializer implements AssetSerializer<Texture2D> {
         SerialObject obj = (SerialObject) BinarySerialCodec.get().decode(src.readAsStream());
         TextureSettings settings = ObjectSerializer.get().deserialize(obj.get("settings"), TextureSettings.class);
         TextureData data = mgr.getAsset(TextureData.class, ObjectSerializer.get().deserialize(obj.get("data"), ResourceFile.class));
-        return RendererAPI.getBackend().createTexture(data, settings);
+        return RendererAPI.getBackend().createTexture2D(data, settings);
     }
 }

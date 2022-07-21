@@ -41,7 +41,7 @@ public final class Renderer2D {
         byte[] whiteData = {
                 (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
         };
-        whiteTex = backend.createTexture(TextureData.fromByteArray(whiteData, 1, 1));
+        whiteTex = backend.createTexture2D(TextureData.fromByteArray(whiteData, 1, 1));
         whiteTex.claim();
 
         shader.bind();

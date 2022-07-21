@@ -29,7 +29,7 @@ public final class EditorSetupSceneSystem implements GameSystem {
         Entity root = world.getRoot();
 
         Entity camera = root.newChild("Camera");
-        camera.addComponent(new Camera(new OrthographicProjection(800, 600)));
+        camera.addComponent(new Camera(new OrthographicProjection()));
         camera.addComponent(new Transform());
 
         makeWindow(root, "File Tree", new FileTreeWindow());

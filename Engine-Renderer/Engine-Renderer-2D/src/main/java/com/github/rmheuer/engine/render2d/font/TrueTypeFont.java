@@ -93,7 +93,7 @@ public final class TrueTypeFont extends Font {
             );
             TextureSettings atlasSettings = new TextureSettings()
                     .setFilters(TextureFilter.NEAREST);
-            atlas = RendererAPI.getBackend().createTexture(atlasData, atlasSettings);
+            atlas = RendererAPI.getBackend().createTexture2D(atlasData, atlasSettings);
             atlas.claim();
 
             STBTTAlignedQuad q = STBTTAlignedQuad.malloc(stack);

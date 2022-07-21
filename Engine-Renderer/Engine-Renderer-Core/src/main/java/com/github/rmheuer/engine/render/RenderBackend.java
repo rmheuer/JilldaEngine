@@ -23,9 +23,9 @@ public interface RenderBackend {
     Shader createShader(ResourceFile res) throws IOException;
     ShaderProgram createShaderProgram(Shader... shaders);
     <T extends Vertex> Mesh<T> createMesh(PrimitiveType primType);
-    Texture2D createTexture(ResourceFile res, TextureSettings settings) throws IOException;
-    default Texture2D createTexture(ResourceFile res) throws IOException { return createTexture(res, new TextureSettings()); }
-    Texture2D createTexture(TextureData data, TextureSettings settings);
-    default Texture2D createTexture(TextureData data) { return createTexture(data, new TextureSettings()); }
+    Texture2D createTexture2D(ResourceFile res, TextureSettings settings) throws IOException;
+    default Texture2D createTexture2D(ResourceFile res) throws IOException { return createTexture2D(res, new TextureSettings()); }
+    Texture2D createTexture2D(TextureData data, TextureSettings settings);
+    default Texture2D createTexture2D(TextureData data) { return createTexture2D(data, new TextureSettings()); }
     CubeMap createCubeMap(TextureSettings settings, TextureData posX, TextureData negX, TextureData posY, TextureData negY, TextureData posZ, TextureData negZ);
 }
