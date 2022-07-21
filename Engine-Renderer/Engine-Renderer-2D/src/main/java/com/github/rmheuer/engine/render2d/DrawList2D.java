@@ -1,6 +1,7 @@
 package com.github.rmheuer.engine.render2d;
 
 import com.github.rmheuer.engine.core.math.MathUtils;
+import com.github.rmheuer.engine.core.math.Transform;
 import com.github.rmheuer.engine.core.math.Vector2f;
 import com.github.rmheuer.engine.core.math.Vector4f;
 import com.github.rmheuer.engine.render.texture.Texture2D;
@@ -30,12 +31,18 @@ public class DrawList2D {
 
     private final Deque<Rectangle> clipStack;
     private Rectangle clipRect;
+    private Transform planeTransform;
 
     public DrawList2D() {
         vertices = new ArrayList<>();
         indices = new ArrayList<>();
         clipStack = new ArrayDeque<>();
         clipRect = null;
+        planeTransform = new Transform();
+    }
+
+    public void setPlaneTransform(Transform tx) {
+        planeTransform = tx;
     }
 
     public void join(DrawList2D other) {
@@ -52,6 +59,10 @@ public class DrawList2D {
 
     public List<Integer> getIndices() {
         return indices;
+    }
+
+    public Transform getPlaneTransform() {
+        return planeTransform;
     }
 
     public void pushClip(float x, float y, float w, float h) { pushClip(Rectangle.fromXYSizes(x, y, w, h)); }

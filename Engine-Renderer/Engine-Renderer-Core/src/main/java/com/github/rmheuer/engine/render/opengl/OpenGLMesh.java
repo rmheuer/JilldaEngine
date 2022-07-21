@@ -16,7 +16,7 @@ import java.util.List;
 
 import static org.lwjgl.opengl.GL33C.*;
 
-public final class OpenGLMesh<V extends Vertex> implements Mesh<V> {
+public final class OpenGLMesh<V extends Vertex> extends Mesh<V> {
     private final int vao;
     private final int vbo;
     private final int ibo;
@@ -74,7 +74,7 @@ public final class OpenGLMesh<V extends Vertex> implements Mesh<V> {
     }
 
     @Override
-    public void delete() {
+    public void freeAsset() {
 	glDeleteBuffers(vbo);
 	glDeleteBuffers(ibo);
 	glDeleteVertexArrays(vao);

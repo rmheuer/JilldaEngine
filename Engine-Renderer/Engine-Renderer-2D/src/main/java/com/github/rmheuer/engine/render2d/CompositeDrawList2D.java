@@ -34,6 +34,11 @@ public final class CompositeDrawList2D extends DrawList2D {
         super.join(other);
     }
 
+    @Override
+    public List<DrawVertex> getVertices() {
+        return super.getVertices();
+    }
+
     private void step() {
         depth += depthInterval;
     }

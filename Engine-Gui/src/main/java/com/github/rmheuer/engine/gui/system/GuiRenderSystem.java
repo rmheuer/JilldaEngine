@@ -12,6 +12,7 @@ import com.github.rmheuer.engine.gui.component.GuiWindow;
 import com.github.rmheuer.engine.render.event.RenderSceneEvent;
 import com.github.rmheuer.engine.render.framebuffer.Framebuffer;
 import com.github.rmheuer.engine.render.system.RenderContextSystem;
+import com.github.rmheuer.engine.render2d.DrawList2D;
 import com.github.rmheuer.engine.render2d.RenderContext2D;
 import com.github.rmheuer.engine.render2d.system.RenderBeginFrame2DSystem;
 
@@ -37,6 +38,7 @@ public final class GuiRenderSystem implements GameSystem {
             Framebuffer fb = e.getCamera().getFramebuffer();
             if (!fb.isDefault()) {
                 // GUI only renders on the default framebuffer
+                // TODO: Change this?
                 return;
             }
 
@@ -50,7 +52,8 @@ public final class GuiRenderSystem implements GameSystem {
             });
             gui.endFrame();
 
-            ctx2d.getRenderer().draw(gui.getDrawList());
+            DrawList2D drawList = gui.getDrawList();
+            ctx2d.getRenderer().draw(drawList);
         });
     }
 }
