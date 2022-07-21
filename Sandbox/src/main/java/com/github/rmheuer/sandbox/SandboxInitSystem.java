@@ -84,6 +84,9 @@ public final class SandboxInitSystem implements GameSystem {
         Entity entity = world.getRoot().newChild();
         entity.addComponent(r);
         entity.addComponent(tx);
+        Spin spin = new Spin();
+        spin.speeds.set((float) Math.random(), (float) Math.random(), (float) Math.random());
+        entity.addComponent(spin);
 
         ShaderProgram skyboxShader;
         CubeMap skyboxTex;
@@ -145,6 +148,10 @@ public final class SandboxInitSystem implements GameSystem {
 
         world.forEach(AlignPosition.class, Transform.class, (align, tx) -> {
             tx.setPosition(new Vector3f(align.target.getPosition()));
+        });
+
+        world.forEach(Spin.class, Transform.class, (spin, tx) -> {
+            tx.getRotation().add(new Vector3f(spin.speeds).mul(delta));
         });
     }
 }
