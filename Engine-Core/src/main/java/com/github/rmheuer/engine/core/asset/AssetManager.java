@@ -38,9 +38,14 @@ public final class AssetManager {
             throw new RuntimeException("Failed to load asset " + src.getPath() + " of type " + assetType);
         }
 
-        asset.setMetadata(this, src);
+        asset.setMetadata(this, assetType, src);
 
         return asset;
+    }
+
+    void unloadAsset(Asset asset) {
+        Pair<Class<? extends Asset>, ResourceFile> pair = new Pair<>(asset.getType(), asset.getSourceFile());
+        assetCache.remove(pair);
     }
 
     public <T extends Asset> T getAsset(Class<T> assetType, ResourceFile src) {

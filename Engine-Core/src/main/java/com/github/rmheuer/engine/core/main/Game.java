@@ -1,6 +1,7 @@
 package com.github.rmheuer.engine.core.main;
 
 import com.github.rmheuer.engine.core.Time;
+import com.github.rmheuer.engine.core.asset.Asset;
 import com.github.rmheuer.engine.core.asset.AssetManager;
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
@@ -82,6 +83,7 @@ public final class Game {
 
     private void close() {
         world.close();
+        Asset.cleanUp();
     }
 
     public void run() {
