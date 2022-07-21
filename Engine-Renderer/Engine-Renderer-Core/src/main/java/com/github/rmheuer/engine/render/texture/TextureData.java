@@ -47,8 +47,7 @@ public final class TextureData extends Asset {
         buf.put(pixels);
         buf.flip();
 
-        return new TextureData(buf, width, height, () -> {
-        });
+        return new TextureData(buf, width, height, () -> {});
     }
 
     private final ByteBuffer pixels;

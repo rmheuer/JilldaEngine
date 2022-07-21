@@ -13,8 +13,10 @@ public abstract class Asset extends RefCounted {
         System.out.println("Cleaning up assets");
         List<Asset> copy = new ArrayList<>(activeAssets);
         for (Asset asset : copy) {
-            System.out.println("[Debug] Freeing " + asset.getClass());
-            asset.freeAsset();
+            if (activeAssets.remove(asset)) {
+                System.out.println("[Debug] Cleaning up " + asset.getClass());
+                asset.freeAsset();
+            }
         }
     }
 
@@ -24,16 +26,20 @@ public abstract class Asset extends RefCounted {
 
     public Asset() {
         activeAssets.add(this);
+        System.out.println("[Debug] Allocating " + getClass());
     }
 
     protected abstract void freeAsset();
 
     @Override
     protected final void free() {
-        System.out.println("[Debug] Freeing " + getClass());
-        activeAssets.remove(this);
+        if (!activeAssets.remove(this))
+            return;
+
         if (manager != null)
             manager.unloadAsset(this);
+
+        System.out.println("[Debug] Dynamic freeing " + getClass());
         freeAsset();
     }
 
