@@ -1,5 +1,6 @@
 package com.github.rmheuer.sandbox;
 
+import com.github.rmheuer.engine.core.asset.AssetManager;
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.entity.Entity;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
@@ -8,6 +9,7 @@ import com.github.rmheuer.engine.core.ecs.system.schedule.Stage;
 import com.github.rmheuer.engine.core.input.keyboard.Key;
 import com.github.rmheuer.engine.core.input.keyboard.Keyboard;
 import com.github.rmheuer.engine.core.main.Game;
+import com.github.rmheuer.engine.core.resource.file.FileResourceFile;
 import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.math.Vector3f;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
@@ -19,11 +21,13 @@ import com.github.rmheuer.engine.render.camera.PerspectiveProjection;
 import com.github.rmheuer.engine.render.mesh.Mesh;
 import com.github.rmheuer.engine.render.mesh.MeshDataUsage;
 import com.github.rmheuer.engine.render.mesh.PrimitiveType;
+import com.github.rmheuer.engine.render.shader.Shader;
 import com.github.rmheuer.engine.render.shader.ShaderProgram;
 import com.github.rmheuer.engine.render.system.RenderContextSystem;
 import com.github.rmheuer.engine.render.texture.CubeMap;
 import com.github.rmheuer.engine.render.texture.CubeMapBuilder;
 import com.github.rmheuer.engine.render.texture.Texture2D;
+import com.github.rmheuer.engine.render.texture.TextureData;
 import com.github.rmheuer.engine.render.texture.TextureSettings;
 import com.github.rmheuer.engine.render3d.Primitives3D;
 import com.github.rmheuer.engine.render3d.component.MeshRenderer;
@@ -46,6 +50,7 @@ public final class SandboxInitSystem implements GameSystem {
         cam.addComponent(new KeyboardControl());
 
         RenderBackend b = RendererAPI.getBackend();
+        AssetManager a = Game.get().getAssetManager();
 
         Pair<List<DefaultVertex>, List<Integer>> meshData;
         try {
@@ -56,23 +61,8 @@ public final class SandboxInitSystem implements GameSystem {
         Mesh<DefaultVertex> mesh = b.createMesh(PrimitiveType.TRIANGLES);
         mesh.setData(meshData.getA(), meshData.getB(), MeshDataUsage.STATIC);
 
-        ShaderProgram shader;
-        try {
-            shader = b.createShaderProgram(
-                    b.createShader(new JarResourceFile("vertex.glsl")),
-                    b.createShader(new JarResourceFile("fragment.glsl"))
-            );
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load shaders", e);
-        }
-
-        Texture2D texture;
-        try {
-            texture = b.createTexture2D(new JarResourceFile("snowman-tex.png"));
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load texture", e);
-        }
-
+        ShaderProgram shader = a.getAsset(ShaderProgram.class, new JarResourceFile("shader.shprog"));
+        Texture2D texture = a.getAsset(Texture2D.class, new JarResourceFile("snowman-tex.tex2d"));;
         Material mat = new Material(shader);
         mat.setTexture2D("m_Texture", texture);
 
@@ -94,24 +84,8 @@ public final class SandboxInitSystem implements GameSystem {
             entity.addComponent(spin);
         }
 
-        ShaderProgram skyboxShader;
-        CubeMap skyboxTex;
-        try {
-            skyboxShader = b.createShaderProgram(
-                    b.createShader(new JarResourceFile("skybox/vertex.glsl")),
-                    b.createShader(new JarResourceFile("skybox/fragment.glsl"))
-            );
-            skyboxTex = new CubeMapBuilder(new TextureSettings())
-                    .setPositiveXFace(new JarResourceFile("skybox/skybox_left.png"))
-                    .setNegativeXFace(new JarResourceFile("skybox/skybox_right.png"))
-                    .setPositiveYFace(new JarResourceFile("skybox/skybox_up.png"))
-                    .setNegativeYFace(new JarResourceFile("skybox/skybox_down.png"))
-                    .setPositiveZFace(new JarResourceFile("skybox/skybox_front.png"))
-                    .setNegativeZFace(new JarResourceFile("skybox/skybox_back.png"))
-                    .build();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load skybox", e);
-        }
+        ShaderProgram skyboxShader = a.getAsset(ShaderProgram.class, new JarResourceFile("skybox/skybox.shprog"));
+        CubeMap skyboxTex = a.getAsset(CubeMap.class, new JarResourceFile("skybox/skybox.cubemap"));
         Material skyMat = new Material(skyboxShader);
         skyMat.setCubeMap("m_Texture", skyboxTex);
 

@@ -32,7 +32,11 @@ public final class FieldBasedObjectCodec<T> implements TypeCodec<T> {
         for (Field field : fields) {
             String name = field.getName();
 
-            if (!Modifier.isTransient(field.getModifiers()) && !field.getType().isAnnotationPresent(Transient.class)) {
+            int mods = field.getModifiers();
+            boolean trans = Modifier.isTransient(mods);
+            boolean stat = Modifier.isStatic(mods);
+
+            if (!trans && !stat && !field.getType().isAnnotationPresent(Transient.class)) {
                 Object value;
                 try {
                     field.setAccessible(true);
@@ -57,7 +61,11 @@ public final class FieldBasedObjectCodec<T> implements TypeCodec<T> {
 
         SerialObject obj = (SerialObject) node;
         for (Field field : fields) {
-            if (!Modifier.isTransient(field.getModifiers()) && !field.getType().isAnnotationPresent(Transient.class)) {
+            int mods = field.getModifiers();
+            boolean trans = Modifier.isTransient(mods);
+            boolean stat = Modifier.isStatic(mods);
+
+            if (!trans && !stat && !field.getType().isAnnotationPresent(Transient.class)) {
                 SerialNode valueNode = obj.get(field.getName());
                 Object value = ctx.deserialize(valueNode, field.getType());
 

@@ -23,13 +23,19 @@ public final class AssetManager {
         serializers.put(assetType, serializer);
     }
 
-    private <T extends Asset> T loadAsset(Class<T> assetType, ResourceFile src) {
+    public <T extends Asset> AssetSerializer<T> getSerializer(Class<T> assetType) {
         AssetSerializer<? extends Asset> wildcardSerializer = serializers.get(assetType);
 
         // This will always be safe because the value will always have the same
         // type as the key in the serializers map
         @SuppressWarnings("unchecked")
         AssetSerializer<T> serializer = (AssetSerializer<T>) wildcardSerializer;
+
+        return serializer;
+    }
+
+    private <T extends Asset> T loadAsset(Class<T> assetType, ResourceFile src) {
+        AssetSerializer<T> serializer = getSerializer(assetType);
 
         T asset;
         try {
@@ -50,7 +56,13 @@ public final class AssetManager {
 
     public <T extends Asset> T getAsset(Class<T> assetType, ResourceFile src) {
         Pair<Class<? extends Asset>, ResourceFile> pair = new Pair<>(assetType, src);
-        Asset asset = assetCache.computeIfAbsent(pair, (p) -> loadAsset(p.getA(), p.getB()));
+        Asset asset;
+        if (assetCache.containsKey(pair)) {
+            asset = assetCache.get(pair);
+        } else {
+            asset = loadAsset(assetType, src);
+            assetCache.put(pair, asset);
+        }
 
         // Asset cache will only ever contain assets that match the specified type
         @SuppressWarnings("unchecked")

@@ -3,13 +3,33 @@ package com.github.rmheuer.engine.core.resource.jar;
 import com.github.rmheuer.engine.core.resource.ResourceFile;
 import com.github.rmheuer.engine.core.resource.ResourceGroup;
 import com.github.rmheuer.engine.core.resource.ResourceUtils;
+import com.github.rmheuer.engine.core.serial.node.SerialNode;
+import com.github.rmheuer.engine.core.serial.node.SerialObject;
+import com.github.rmheuer.engine.core.serial.node.SerialString;
+import com.github.rmheuer.engine.core.serial.obj.DeserializationContext;
+import com.github.rmheuer.engine.core.serial.obj.SerializationContext;
+import com.github.rmheuer.engine.core.serial.obj.SerializeWith;
+import com.github.rmheuer.engine.core.serial.obj.TypeCodec;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Objects;
 
+@SerializeWith(JarResourceFile.Serializer.class)
 public final class JarResourceFile extends ResourceFile {
+    public static final class Serializer implements TypeCodec<JarResourceFile> {
+        @Override
+        public SerialNode serialize(JarResourceFile jarResourceFile, SerializationContext ctx) {
+            return new SerialString(jarResourceFile.getPath());
+        }
+
+        @Override
+        public JarResourceFile deserialize(SerialNode node, DeserializationContext ctx) {
+            return new JarResourceFile(((SerialString) node).getValue());
+        }
+    }
+
     private final String name;
     private final String path;
 
