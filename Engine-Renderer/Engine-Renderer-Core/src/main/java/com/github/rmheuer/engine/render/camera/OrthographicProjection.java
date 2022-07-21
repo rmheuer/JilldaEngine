@@ -5,9 +5,8 @@ import com.github.rmheuer.engine.core.math.Matrix4f;
 public final class OrthographicProjection implements Projection {
     private final Matrix4f matrix;
 
-    public OrthographicProjection(int width, int height) {
-	matrix = new Matrix4f();
-	resize(width, height);
+    public OrthographicProjection() {
+    	matrix = new Matrix4f();
     }
 
     @Override

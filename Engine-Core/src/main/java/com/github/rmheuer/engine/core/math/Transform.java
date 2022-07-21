@@ -61,4 +61,8 @@ public final class Transform implements Component {
 	this.scale = scale;
 	return this;
     }
+
+    public Vector3f transform(Vector3f vec) {
+        return getMatrix().transformPosition(vec);
+    }
 }

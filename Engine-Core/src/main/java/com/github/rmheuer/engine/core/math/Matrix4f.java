@@ -42,6 +42,20 @@ public final class Matrix4f {
 	return this;
     }
 
+    public Matrix4f perspective(float fov, float aspect, float near, float far) {
+    	identity();
+
+    	float tanHalfFOV = MathUtils.tanf(fov / 2);
+    	m00 = 1 / (aspect * tanHalfFOV);
+    	m11 = 1 / tanHalfFOV;
+    	m22 = -(far + near) / (far - near);
+    	m32 = -1;
+    	m23 = -(2 * far * near) / (far - near);
+    	m33 = 0;
+
+    	return this;
+	}
+
     public Matrix4f translate(Vector3f vec) {
 	return mul(
 	    1, 0, 0, vec.x,
@@ -166,6 +180,13 @@ public final class Matrix4f {
 	return dest;
     }
 
+    public Vector3f transformPosition(Vector3f v) {
+		float x = m00 * v.x + m01 * v.y + m02 * v.z + m03;
+		float y = m10 * v.x + m11 * v.y + m12 * v.z + m13;
+		float z = m20 * v.x + m21 * v.y + m22 * v.z + m23;
+		return new Vector3f(x, y, z);
+	}
+
     public Matrix4f invert() {
 	return invert(this);
     }
@@ -266,18 +287,18 @@ public final class Matrix4f {
     public Matrix4f setM01(float m01) { this.m01 = m01; return this; }
     public Matrix4f setM02(float m02) { this.m02 = m02; return this; }
     public Matrix4f setM03(float m03) { this.m03 = m03; return this; }
-    public Matrix4f setM10(float m00) { this.m10 = m10; return this; }
-    public Matrix4f setM11(float m01) { this.m11 = m11; return this; }
-    public Matrix4f setM12(float m02) { this.m12 = m12; return this; }
-    public Matrix4f setM13(float m03) { this.m13 = m13; return this; }
-    public Matrix4f setM20(float m00) { this.m20 = m20; return this; }
-    public Matrix4f setM21(float m01) { this.m21 = m21; return this; }
-    public Matrix4f setM22(float m02) { this.m22 = m22; return this; }
-    public Matrix4f setM23(float m03) { this.m23 = m23; return this; }
-    public Matrix4f setM30(float m00) { this.m30 = m30; return this; }
-    public Matrix4f setM31(float m01) { this.m31 = m31; return this; }
-    public Matrix4f setM32(float m02) { this.m32 = m32; return this; }
-    public Matrix4f setM33(float m03) { this.m33 = m33; return this; }
+    public Matrix4f setM10(float m10) { this.m10 = m10; return this; }
+    public Matrix4f setM11(float m11) { this.m11 = m11; return this; }
+    public Matrix4f setM12(float m12) { this.m12 = m12; return this; }
+    public Matrix4f setM13(float m13) { this.m13 = m13; return this; }
+    public Matrix4f setM20(float m20) { this.m20 = m20; return this; }
+    public Matrix4f setM21(float m21) { this.m21 = m21; return this; }
+    public Matrix4f setM22(float m22) { this.m22 = m22; return this; }
+    public Matrix4f setM23(float m23) { this.m23 = m23; return this; }
+    public Matrix4f setM30(float m30) { this.m30 = m30; return this; }
+    public Matrix4f setM31(float m31) { this.m31 = m31; return this; }
+    public Matrix4f setM32(float m32) { this.m32 = m32; return this; }
+    public Matrix4f setM33(float m33) { this.m33 = m33; return this; }
 
     public Matrix4f set(int i, int j, float m) {
 	switch (i) {

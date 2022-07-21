@@ -2,6 +2,8 @@ package com.github.rmheuer.engine.core.math;
 
 // TODO: Use lookup table for trig
 public final class MathUtils {
+    public static final float fPI = (float) Math.PI;
+
     public static float sqrtf(float value) {
 	return (float) Math.sqrt(value);
     }
@@ -13,6 +15,8 @@ public final class MathUtils {
     public static float cosf(float value) {
 	return (float) Math.cos(value);
     }
+
+    public static float tanf(float value) { return (float) Math.tan(value); }
 
     public static float lerp(float a, float b, float f) {
 	return a + (b - a) * f;
