@@ -12,9 +12,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.github.rmheuer.engine</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>Engine-Core</artifactId>
-      <version>1.0</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
