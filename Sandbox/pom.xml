@@ -28,5 +28,10 @@
             <artifactId>Engine-Renderer-2D</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>Engine-Renderer-3D</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

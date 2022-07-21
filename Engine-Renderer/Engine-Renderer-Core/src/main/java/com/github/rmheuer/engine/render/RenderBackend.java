@@ -17,6 +17,9 @@ public interface RenderBackend {
     // Basic render commands
     void setViewportSize(int width, int height);
     void clear();
+
+    // Limit getters
+    int getMaxTextureSlots();
     
     // Primitive creators
     Window createWindow(WindowSettings settings);

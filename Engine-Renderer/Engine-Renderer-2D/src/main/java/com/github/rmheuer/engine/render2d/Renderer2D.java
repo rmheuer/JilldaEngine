@@ -28,6 +28,7 @@ public final class Renderer2D {
     public Renderer2D() {
         RenderBackend backend = RendererAPI.getBackend();
         mesh = backend.createMesh(PrimitiveType.TRIANGLES);
+        mesh.claim();
         try {
             shader = backend.createShaderProgram(
                     backend.createShader(new JarResourceFile(VERTEX_SHADER_PATH)),
@@ -83,6 +84,6 @@ public final class Renderer2D {
     public void delete() {
         whiteTex.release();
         shader.release();
-        mesh.delete();
+        mesh.release();
     }
 }

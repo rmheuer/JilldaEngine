@@ -10,7 +10,9 @@ public abstract class Asset extends RefCounted {
     // TODO: Maybe move to AssetManager
     private static final List<Asset> activeAssets = new ArrayList<>();
     public static void cleanUp() {
-        for (Asset asset : activeAssets) {
+        System.out.println("Cleaning up assets");
+        List<Asset> copy = new ArrayList<>(activeAssets);
+        for (Asset asset : copy) {
             System.out.println("[Debug] Freeing " + asset.getClass());
             asset.freeAsset();
         }
@@ -30,7 +32,8 @@ public abstract class Asset extends RefCounted {
     protected final void free() {
         System.out.println("[Debug] Freeing " + getClass());
         activeAssets.remove(this);
-        manager.unloadAsset(this);
+        if (manager != null)
+            manager.unloadAsset(this);
         freeAsset();
     }
 

@@ -27,6 +27,8 @@ import com.github.rmheuer.engine.render.mesh.VertexLayout;
 import com.github.rmheuer.engine.render.shader.AttribType;
 import com.github.rmheuer.engine.render.shader.ShaderProgram;
 import com.github.rmheuer.engine.render.system.RenderContextSystem;
+import com.github.rmheuer.engine.render3d.component.MeshRenderer;
+import com.github.rmheuer.engine.render3d.material.Material;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -65,9 +67,6 @@ public final class SandboxInitSystem implements GameSystem {
         }
     }
 
-    private Mesh<MyVertex> mesh;
-    private ShaderProgram shader;
-
     @Override
     public void init(World world) {
         Entity cam = world.getRoot().newChild();
@@ -79,7 +78,7 @@ public final class SandboxInitSystem implements GameSystem {
 
         RenderBackend b = RendererAPI.getBackend();
 
-        mesh = b.createMesh(PrimitiveType.TRIANGLES);
+        Mesh<MyVertex> mesh = b.createMesh(PrimitiveType.TRIANGLES);
         MeshBuilder<MyVertex> builder = new MeshBuilder<>();
         builder.vertex(new MyVertex(new Vector3f(-0.5f, -0.5f, 0.0f), new Vector3f(1, 0, 0)));
         builder.vertex(new MyVertex(new Vector3f( 0.5f, -0.5f, 0.0f), new Vector3f(0, 1, 0)));
@@ -87,6 +86,7 @@ public final class SandboxInitSystem implements GameSystem {
         builder.indices(0, 1, 2);
         mesh.setData(builder, MeshDataUsage.STATIC);
 
+        ShaderProgram shader;
         try {
             shader = b.createShaderProgram(
                     b.createShader(new JarResourceFile("vertex.glsl")),
@@ -96,6 +96,17 @@ public final class SandboxInitSystem implements GameSystem {
         } catch (IOException e) {
             throw new RuntimeException("Failed to load shaders");
         }
+
+        Material mat = new Material(shader);
+
+        MeshRenderer r = new MeshRenderer();
+        r.setMesh(mesh);
+        r.setMaterial(mat);
+        Transform tx = new Transform();
+
+        Entity entity = world.getRoot().newChild();
+        entity.addComponent(r);
+        entity.addComponent(tx);
     }
 
     @Override
@@ -122,24 +133,5 @@ public final class SandboxInitSystem implements GameSystem {
             if (kb.isKeyPressed(Key.LEFT)) rot.y += turnScale;
             if (kb.isKeyPressed(Key.RIGHT)) rot.y -= turnScale;
         });
-    }
-
-    @Override
-    public void onEvent(World world, EventDispatcher dispatch) {
-        dispatch.dispatch(RenderSceneEvent.class, (event) -> {
-            world.forEach(Camera.class, Transform.class, (cam, tx) -> {
-                shader.bind();
-                shader.getUniform("u_Projection").setMatrix4f(cam.getProjection().getMatrix());
-                shader.getUniform("u_View").setMatrix4f(tx.getInverseMatrix());
-                mesh.draw();
-                shader.unbind();
-            });
-        });
-    }
-
-    @Override
-    public void close(World world) {
-        mesh.delete();
-        shader.release();
     }
 }

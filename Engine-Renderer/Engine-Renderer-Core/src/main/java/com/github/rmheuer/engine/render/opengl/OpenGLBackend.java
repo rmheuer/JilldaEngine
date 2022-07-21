@@ -34,6 +34,11 @@ public final class OpenGLBackend implements RenderBackend {
     }
 
     @Override
+    public int getMaxTextureSlots() {
+        return 16;
+    }
+
+    @Override
     public Window createWindow(WindowSettings settings) {
         return new OpenGLWindow(settings);
     }
