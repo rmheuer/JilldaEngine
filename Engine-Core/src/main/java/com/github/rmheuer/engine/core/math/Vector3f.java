@@ -114,16 +114,16 @@ public final class Vector3f {
     }
 
     public Vector3f add(Vector3f vec) {
-	x -= vec.x;
-	y -= vec.y;
-	z -= vec.z;
+	x += vec.x;
+	y += vec.y;
+	z += vec.z;
 	return this;
     }
 
     public Vector3f add(Vector3f vec, Vector3f dest) {
-	dest.x = x - vec.x;
-	dest.y = y - vec.y;
-	dest.z = z - vec.z;
+	dest.x = x + vec.x;
+	dest.y = y + vec.y;
+	dest.z = z + vec.z;
 	return dest;
     }
 
@@ -154,6 +154,13 @@ public final class Vector3f {
 	dest.z = z - vec.z;
 	return dest;
     }
+
+    public Vector3f mul(float f) {
+    	x *= f;
+    	y *= f;
+    	z *= f;
+    	return this;
+	}
 
     public Vector3f mul(float x, float y, float z) {
 	this.x *= x;

@@ -17,9 +17,9 @@ public final class Transform implements Component {
     public Matrix4f getMatrix() {
 	return new Matrix4f()
 	    .translate(position)
-	    .rotateZ(rotation.z)
-	    .rotateX(rotation.x)
 	    .rotateY(rotation.y)
+	    .rotateX(rotation.x)
+	    .rotateZ(rotation.z)
 	    .scale(scale);
     }
 
@@ -33,6 +33,10 @@ public final class Transform implements Component {
 
     public Vector3f getUp() {
 	return new Vector3f(0, 1, 0).rotateZ(rotation.z).rotateX(rotation.x).rotateY(rotation.y);
+    }
+
+    public Vector3f getRight() {
+        return new Vector3f(1, 0, 0).rotateZ(rotation.z).rotateX(rotation.x).rotateY(rotation.y);
     }
 
     public Vector3f getPosition() {
