@@ -15,6 +15,7 @@
     <module>BinTool</module>
     <module>Engine-Editor</module>
       <module>VulkanTest</module>
+      <module>Sandbox</module>
   </modules>
 
   <properties>
