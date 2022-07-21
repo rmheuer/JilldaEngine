@@ -22,7 +22,7 @@ public final class RenderFrameSystem implements GameSystem {
             // If camera has no set framebuffer, it should use the default
             Framebuffer fb = camera.getFramebuffer();
             if (fb == null) {
-                camera.setFramebuffer(fb = ctx.getWindow().getDefaultFramebuffer());
+                fb = ctx.getWindow().getDefaultFramebuffer();
             }
 
             fb.bind();
