@@ -119,7 +119,7 @@ public final class ObjLoader {
                 case "vt":
                     texCoords.add(new Vector2f(
                             Float.parseFloat(tokens[1]),
-                            Float.parseFloat(tokens[2])
+                            1 - Float.parseFloat(tokens[2]) // Flip y coordinate here
                     ));
                     break;
                 case "vn":

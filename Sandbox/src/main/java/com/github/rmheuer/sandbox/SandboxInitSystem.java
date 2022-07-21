@@ -21,6 +21,7 @@ import com.github.rmheuer.engine.render.mesh.MeshDataUsage;
 import com.github.rmheuer.engine.render.mesh.PrimitiveType;
 import com.github.rmheuer.engine.render.shader.ShaderProgram;
 import com.github.rmheuer.engine.render.system.RenderContextSystem;
+import com.github.rmheuer.engine.render.texture.Texture2D;
 import com.github.rmheuer.engine.render3d.component.MeshRenderer;
 import com.github.rmheuer.engine.render3d.loader.DefaultVertex;
 import com.github.rmheuer.engine.render3d.loader.ObjLoader;
@@ -62,7 +63,15 @@ public final class SandboxInitSystem implements GameSystem {
             throw new RuntimeException("Failed to load shaders", e);
         }
 
+        Texture2D texture;
+        try {
+            texture = b.createTexture2D(new JarResourceFile("snowman-tex.png"));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load texture", e);
+        }
+
         Material mat = new Material(shader);
+        mat.setTexture2D("m_Texture", texture);
 
         MeshRenderer r = new MeshRenderer();
         r.setMesh(mesh);

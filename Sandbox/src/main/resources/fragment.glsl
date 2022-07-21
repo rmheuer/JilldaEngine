@@ -4,6 +4,8 @@
 in vec2 v_TexCoord;
 in vec3 v_Normal;
 
+uniform sampler2D m_Texture;
+
 layout(location = 0) out vec4 o_Color;
 
 void main(void) {
@@ -12,5 +14,8 @@ void main(void) {
     float normDotDir = dot(v_Normal, lightDir);
     float lightAmt = max(0.25, normDotDir);
 
-    o_Color = vec4(lightAmt, lightAmt, lightAmt, 1.0);
+    vec4 texColor = texture2D(m_Texture, v_TexCoord);
+    texColor.rgb *= lightAmt;
+
+    o_Color = texColor;
 }
