@@ -79,14 +79,20 @@ public final class SandboxInitSystem implements GameSystem {
         MeshRenderer r = new MeshRenderer();
         r.setMesh(mesh);
         r.setMaterial(mat);
-        Transform tx = new Transform();
 
-        Entity entity = world.getRoot().newChild();
-        entity.addComponent(r);
-        entity.addComponent(tx);
-        Spin spin = new Spin();
-        spin.speeds.set((float) Math.random(), (float) Math.random(), (float) Math.random());
-        entity.addComponent(spin);
+        Entity entity = world.getRoot();
+        for (int i = 0; i < 10; i++) {
+            entity = entity.newChild();
+
+            Transform tx = new Transform();
+            tx.getPosition().y = 5;
+
+            entity.addComponent(r);
+            entity.addComponent(tx);
+            Spin spin = new Spin();
+            spin.speeds.set((float) Math.random(), (float) Math.random(), (float) Math.random());
+            entity.addComponent(spin);
+        }
 
         ShaderProgram skyboxShader;
         CubeMap skyboxTex;
