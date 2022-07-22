@@ -10,6 +10,9 @@ import com.github.rmheuer.engine.core.input.keyboard.Key;
 import com.github.rmheuer.engine.core.input.keyboard.Keyboard;
 import com.github.rmheuer.engine.core.main.Game;
 import com.github.rmheuer.engine.core.resource.file.FileResourceFile;
+import com.github.rmheuer.engine.core.serial.codec.bin.BinarySerialCodec;
+import com.github.rmheuer.engine.core.serial.codec.json.JsonSerialCodec;
+import com.github.rmheuer.engine.core.serial.node.SerialNode;
 import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.math.Vector3f;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
@@ -35,6 +38,7 @@ import com.github.rmheuer.engine.render3d.loader.DefaultVertex;
 import com.github.rmheuer.engine.render3d.loader.ObjLoader;
 import com.github.rmheuer.engine.render3d.material.Material;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -99,6 +103,15 @@ public final class SandboxInitSystem implements GameSystem {
         skyboxTx.getScale().mul(500);
         skybox.addComponent(skyboxTx);
         skybox.addComponent(new AlignPosition(cameraTx));
+
+        try {
+            SerialNode node = BinarySerialCodec.get().decode(new JarResourceFile("skybox/skybox.cubemap").readAsStream());
+            ByteArrayOutputStream str = new ByteArrayOutputStream();
+            JsonSerialCodec.get().encode(node, str);
+            System.out.println(new String(str.toByteArray()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

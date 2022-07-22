@@ -1,8 +1,10 @@
 package com.github.rmheuer.engine.core.util;
 
 public final class StringUtils {
-    public static final String escapeChar(char c) {
-	if (c >= 32 && c < 127) {
+    public static String escapeChar(char c) {
+		if (c == '\\') {
+			return "\\\\";
+		} else if (c >= 32 && c < 127) {
 	    return String.valueOf(c);
 	} else if (c == '\n') {
 	    return "\\n";
@@ -14,14 +16,12 @@ public final class StringUtils {
 	    return "\\b";
 	} else if (c == '\f') {
 	    return "\\f";
-	} else if (c == '\\') {
-	    return "\\\\";
 	} else {
 	    return String.format("\\u%04x", (int) c);
 	}
     }
 
-    public static final String escapeString(String str) {
+    public static String escapeString(String str) {
 	StringBuilder out = new StringBuilder();
 	for (char c : str.toCharArray()) {
 	    out.append(escapeChar(c));
@@ -29,7 +29,7 @@ public final class StringUtils {
 	return out.toString();
     }
 
-    public static final String quoteChar(char c) {
+    public static String quoteChar(char c) {
 	if (c == '\'') {
 	    return "'\\''";
 	} else {
@@ -37,7 +37,7 @@ public final class StringUtils {
 	}
     }
 
-    public static final String quoteString(String str) {
+    public static String quoteString(String str) {
 	return "\"" + escapeString(str).replace("\"", "\\\"") + "\"";
     }
     
