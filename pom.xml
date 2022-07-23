@@ -16,6 +16,7 @@
     <module>Engine-Editor</module>
       <module>VulkanTest</module>
       <module>Sandbox</module>
+      <module>Engine-ImGui</module>
   </modules>
 
   <properties>
