@@ -1,5 +1,9 @@
 package imgui;
 
+import imgui.fn.ImGuiInputTextCallback;
+import imgui.fn.ImGuiItemsGetter;
+import imgui.fn.ImGuiSizeCallback;
+
 import static imgui.ImGuiMacros.FLT_MIN;
 
 public final class ImGui {

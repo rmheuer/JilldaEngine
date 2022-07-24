@@ -1,4 +1,4 @@
-package imgui;
+package imgui.fn;
 
 @FunctionalInterface
 public interface ImGuiSizeCallback {
