@@ -1,4 +1,6 @@
 package imgui;
 
-public class ImGuiTableSortSpecs {
+public final class ImGuiTableSortSpecs {
+    public ImGuiTableColumnSortSpecs[] specs;
+    public boolean specsDirty;
 }

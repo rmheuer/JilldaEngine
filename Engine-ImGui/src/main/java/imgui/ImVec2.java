@@ -1,5 +1,7 @@
 package imgui;
 
+import java.util.Objects;
+
 public final class ImVec2 {
     public float x;
     public float y;
@@ -29,5 +31,19 @@ public final class ImVec2 {
             default:
                 throw new IndexOutOfBoundsException(String.valueOf(idx));
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ImVec2 imVec2 = (ImVec2) o;
+        return Float.compare(imVec2.x, x) == 0 &&
+                Float.compare(imVec2.y, y) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);
     }
 }
