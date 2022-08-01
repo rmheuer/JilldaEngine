@@ -1,7 +1,12 @@
 package com.github.rmheuer.engine.render.texture;
 
-import com.github.rmheuer.engine.core.asset.Asset;
+import com.github.rmheuer.engine.core.nat.NativeObject;
+import com.github.rmheuer.engine.core.nat.NativeObjectManager;
 
-public abstract class Texture extends Asset {
-    public abstract void bindToSlot(int slot);
+public interface Texture {
+    interface Native extends NativeObject {
+        void bindToSlot(int slot);
+    }
+
+    Native getNative(NativeObjectManager mgr);
 }

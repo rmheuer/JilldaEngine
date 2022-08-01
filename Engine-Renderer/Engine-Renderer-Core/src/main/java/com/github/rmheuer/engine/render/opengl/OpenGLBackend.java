@@ -1,31 +1,26 @@
 package com.github.rmheuer.engine.render.opengl;
 
-import com.github.rmheuer.engine.core.resource.ResourceFile;
 import com.github.rmheuer.engine.render.RenderBackend;
 import com.github.rmheuer.engine.render.Window;
 import com.github.rmheuer.engine.render.WindowSettings;
 import com.github.rmheuer.engine.render.mesh.Mesh;
 import com.github.rmheuer.engine.render.mesh.PrimitiveType;
-import com.github.rmheuer.engine.render.mesh.Vertex;
 import com.github.rmheuer.engine.render.shader.Shader;
 import com.github.rmheuer.engine.render.shader.ShaderProgram;
+import com.github.rmheuer.engine.render.shader.ShaderType;
 import com.github.rmheuer.engine.render.texture.CubeMap;
-import com.github.rmheuer.engine.render.texture.Texture2D;
-import com.github.rmheuer.engine.render.texture.TextureData;
-import com.github.rmheuer.engine.render.texture.TextureSettings;
-
-import java.io.IOException;
+import com.github.rmheuer.engine.render.texture.Image;
 
 import static org.lwjgl.opengl.GL33C.*;
 
-public final class OpenGLBackend implements RenderBackend {
+public final class OpenGLBackend extends RenderBackend {
     @Override
     public void setViewportSize(int width, int height) {
         glViewport(0, 0, width, height);
     }
 
     @Override
-    public void clear() {
+    public void prepareFrame() {
         glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
@@ -34,42 +29,32 @@ public final class OpenGLBackend implements RenderBackend {
     }
 
     @Override
-    public int getMaxTextureSlots() {
-        return 16;
-    }
-
-    @Override
     public Window createWindow(WindowSettings settings) {
         return new OpenGLWindow(settings);
     }
 
     @Override
-    public Shader createShader(ResourceFile res) throws IOException {
-        return new OpenGLShader(res);
+    public Image.Native createImageNative(int width, int height) {
+        return new GLImageNative(width, height);
     }
 
     @Override
-    public ShaderProgram createShaderProgram(Shader... shaders) {
-        return new OpenGLShaderProgram(shaders);
+    public CubeMap.Native createCubeMapNative() {
+        return new GLCubeMapNative();
     }
 
     @Override
-    public <V extends Vertex> Mesh<V> createMesh(PrimitiveType primType) {
-        return new OpenGLMesh<>(primType);
+    public Shader.Native createShaderNative(ShaderType type, String source) {
+        return new GLShaderNative(type, source);
     }
 
     @Override
-    public Texture2D createTexture2D(ResourceFile res, TextureSettings settings) throws IOException {
-        return new OpenGLTexture2D(res, settings);
+    public ShaderProgram.Native createShaderProgramNative(ShaderProgram program, Shader.Native[] shaderNatives) {
+        return new GLShaderProgramNative(program, shaderNatives);
     }
 
     @Override
-    public Texture2D createTexture2D(TextureData data, TextureSettings settings) {
-        return new OpenGLTexture2D(data, settings);
-    }
-
-    @Override
-    public CubeMap createCubeMap(TextureSettings settings, TextureData posX, TextureData negX, TextureData posY, TextureData negY, TextureData posZ, TextureData negZ) {
-        return new OpenGLCubeMap(settings, posX, negX, posY, negY, posZ, negZ);
+    public Mesh.Native createMeshNative(PrimitiveType primType) {
+        return new GLMeshNative(primType);
     }
 }

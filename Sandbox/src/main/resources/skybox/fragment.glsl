@@ -1,5 +1,4 @@
 #version 330 core
-#type fragment
 
 in vec3 v_TexDir;
 

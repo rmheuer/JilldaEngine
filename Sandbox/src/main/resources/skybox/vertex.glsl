@@ -1,5 +1,4 @@
 #version 330 core
-#type vertex
 
 layout(location = 0) in vec3 a_Position;
 

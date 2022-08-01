@@ -20,10 +20,6 @@ public final class MeshRenderer implements Component {
     }
 
     public void setMesh(Mesh<?> mesh) {
-        if (this.mesh != null)
-            this.mesh.release();
-        mesh.claim();
-
         this.mesh = mesh;
     }
 

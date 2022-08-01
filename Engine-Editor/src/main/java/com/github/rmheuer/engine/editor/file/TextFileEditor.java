@@ -37,7 +37,6 @@ public final class TextFileEditor implements FileEditor {
 
         try {
             font = new TrueTypeFont(new JarResourceFile(FONT_PATH), 14);
-            font.claim();
         } catch (IOException e) {
             throw new RuntimeException("Failed to load font");
         }
@@ -328,9 +327,5 @@ public final class TextFileEditor implements FileEditor {
         } else {
             g.text("No file open");
         }
-    }
-
-    public void close() {
-        font.release();
     }
 }

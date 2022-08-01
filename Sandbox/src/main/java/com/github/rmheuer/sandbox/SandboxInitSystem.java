@@ -1,6 +1,5 @@
 package com.github.rmheuer.sandbox;
 
-import com.github.rmheuer.engine.core.asset.AssetManager;
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.entity.Entity;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
@@ -9,7 +8,6 @@ import com.github.rmheuer.engine.core.ecs.system.schedule.Stage;
 import com.github.rmheuer.engine.core.input.keyboard.Key;
 import com.github.rmheuer.engine.core.input.keyboard.Keyboard;
 import com.github.rmheuer.engine.core.main.Game;
-import com.github.rmheuer.engine.core.resource.file.FileResourceFile;
 import com.github.rmheuer.engine.core.serial.codec.bin.BinarySerialCodec;
 import com.github.rmheuer.engine.core.serial.codec.json.JsonSerialCodec;
 import com.github.rmheuer.engine.core.serial.node.SerialNode;
@@ -18,7 +16,6 @@ import com.github.rmheuer.engine.core.math.Vector3f;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
 import com.github.rmheuer.engine.core.util.Pair;
 import com.github.rmheuer.engine.render.RenderBackend;
-import com.github.rmheuer.engine.render.RendererAPI;
 import com.github.rmheuer.engine.render.camera.Camera;
 import com.github.rmheuer.engine.render.camera.PerspectiveProjection;
 import com.github.rmheuer.engine.render.mesh.Mesh;
@@ -26,12 +23,10 @@ import com.github.rmheuer.engine.render.mesh.MeshDataUsage;
 import com.github.rmheuer.engine.render.mesh.PrimitiveType;
 import com.github.rmheuer.engine.render.shader.Shader;
 import com.github.rmheuer.engine.render.shader.ShaderProgram;
+import com.github.rmheuer.engine.render.shader.ShaderType;
 import com.github.rmheuer.engine.render.system.RenderContextSystem;
 import com.github.rmheuer.engine.render.texture.CubeMap;
-import com.github.rmheuer.engine.render.texture.CubeMapBuilder;
-import com.github.rmheuer.engine.render.texture.Texture2D;
-import com.github.rmheuer.engine.render.texture.TextureData;
-import com.github.rmheuer.engine.render.texture.TextureSettings;
+import com.github.rmheuer.engine.render.texture.Image;
 import com.github.rmheuer.engine.render3d.Primitives3D;
 import com.github.rmheuer.engine.render3d.component.MeshRenderer;
 import com.github.rmheuer.engine.render3d.loader.DefaultVertex;
@@ -53,20 +48,26 @@ public final class SandboxInitSystem implements GameSystem {
         cam.addComponent(cameraTx);
         cam.addComponent(new KeyboardControl());
 
-        RenderBackend b = RendererAPI.getBackend();
-        AssetManager a = Game.get().getAssetManager();
-
         Pair<List<DefaultVertex>, List<Integer>> meshData;
         try {
             meshData = ObjLoader.loadObj(new JarResourceFile("snowman.obj"));
         } catch (IOException e) {
             throw new RuntimeException("Failed to load mesh", e);
         }
-        Mesh<DefaultVertex> mesh = b.createMesh(PrimitiveType.TRIANGLES);
+        Mesh<DefaultVertex> mesh = new Mesh<>(PrimitiveType.TRIANGLES);
         mesh.setData(meshData.getA(), meshData.getB(), MeshDataUsage.STATIC);
 
-        ShaderProgram shader = a.getAsset(ShaderProgram.class, new JarResourceFile("shader.shprog"));
-        Texture2D texture = a.getAsset(Texture2D.class, new JarResourceFile("snowman-tex.tex2d"));;
+        ShaderProgram shader;
+        Image texture;
+        try {
+            shader = new ShaderProgram(
+                    new Shader(ShaderType.VERTEX, new JarResourceFile("vertex.glsl")),
+                    new Shader(ShaderType.FRAGMENT, new JarResourceFile("fragment.glsl"))
+            );
+            texture = Image.decode(new JarResourceFile("snowman-tex.png"));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load snowman assets", e);
+        }
         Material mat = new Material(shader);
         mat.setTexture2D("m_Texture", texture);
 
@@ -88,8 +89,23 @@ public final class SandboxInitSystem implements GameSystem {
             entity.addComponent(spin);
         }
 
-        ShaderProgram skyboxShader = a.getAsset(ShaderProgram.class, new JarResourceFile("skybox/skybox.shprog"));
-        CubeMap skyboxTex = a.getAsset(CubeMap.class, new JarResourceFile("skybox/skybox.cubemap"));
+        ShaderProgram skyboxShader;
+        CubeMap skyboxTex;
+        try {
+            skyboxShader = new ShaderProgram(
+                    new Shader(ShaderType.VERTEX, new JarResourceFile("skybox/vertex.glsl")),
+                    new Shader(ShaderType.FRAGMENT, new JarResourceFile("skybox/fragment.glsl"))
+            );
+            skyboxTex = new CubeMap();
+            skyboxTex.setPosX(Image.decode(new JarResourceFile("skybox/skybox_left.png")));
+            skyboxTex.setPosY(Image.decode(new JarResourceFile("skybox/skybox_up.png")));
+            skyboxTex.setPosZ(Image.decode(new JarResourceFile("skybox/skybox_front.png")));
+            skyboxTex.setNegX(Image.decode(new JarResourceFile("skybox/skybox_right.png")));
+            skyboxTex.setNegY(Image.decode(new JarResourceFile("skybox/skybox_down.png")));
+            skyboxTex.setNegZ(Image.decode(new JarResourceFile("skybox/skybox_back.png")));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load skybox assets", e);
+        }
         Material skyMat = new Material(skyboxShader);
         skyMat.setCubeMap("m_Texture", skyboxTex);
 
@@ -103,15 +119,6 @@ public final class SandboxInitSystem implements GameSystem {
         skyboxTx.getScale().mul(500);
         skybox.addComponent(skyboxTx);
         skybox.addComponent(new AlignPosition(cameraTx));
-
-        try {
-            SerialNode node = BinarySerialCodec.get().decode(new JarResourceFile("skybox/skybox.cubemap").readAsStream());
-            ByteArrayOutputStream str = new ByteArrayOutputStream();
-            JsonSerialCodec.get().encode(node, str);
-            System.out.println(new String(str.toByteArray()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

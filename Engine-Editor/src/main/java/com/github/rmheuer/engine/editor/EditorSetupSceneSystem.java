@@ -75,6 +75,5 @@ public final class EditorSetupSceneSystem implements GameSystem {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        editor.close();
     }
 }

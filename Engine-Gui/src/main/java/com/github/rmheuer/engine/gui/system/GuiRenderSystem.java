@@ -9,8 +9,8 @@ import com.github.rmheuer.engine.core.event.EventDispatcher;
 import com.github.rmheuer.engine.core.math.Vector2i;
 import com.github.rmheuer.engine.gui.GuiRenderer;
 import com.github.rmheuer.engine.gui.component.GuiWindow;
+import com.github.rmheuer.engine.render.RenderContext;
 import com.github.rmheuer.engine.render.event.RenderSceneEvent;
-import com.github.rmheuer.engine.render.framebuffer.Framebuffer;
 import com.github.rmheuer.engine.render.system.RenderContextSystem;
 import com.github.rmheuer.engine.render2d.DrawList2D;
 import com.github.rmheuer.engine.render2d.RenderContext2D;
@@ -25,24 +25,13 @@ public final class GuiRenderSystem implements GameSystem {
     }
 
     @Override
-    public void close(World world) {
-        world.getLocalSingleton(GuiRenderer.class).delete();
-    }
-
-    @Override
     public void onEvent(World world, EventDispatcher d) {
         d.dispatch(RenderSceneEvent.class, (e) -> {
             RenderContext2D ctx2d = world.getLocalSingleton(RenderContext2D.class);
             GuiRenderer gui = world.getLocalSingleton(GuiRenderer.class);
 
-            Framebuffer fb = e.getCamera().getFramebuffer();
-            if (!fb.isDefault()) {
-                // GUI only renders on the default framebuffer
-                // TODO: Change this?
-                return;
-            }
-
-            Vector2i size = fb.getSize();
+            // TODO: Get this from target framebuffer
+            Vector2i size = world.getLocalSingleton(RenderContext.class).getWindow().getSize();
             gui.beginFrame(size.x, size.y);
 
             world.forEach(GuiWindow.class, Name.class, (win, name) -> {

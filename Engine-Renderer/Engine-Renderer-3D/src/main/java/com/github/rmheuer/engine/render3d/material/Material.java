@@ -1,15 +1,14 @@
 package com.github.rmheuer.engine.render3d.material;
 
-import com.github.rmheuer.engine.core.asset.Asset;
 import com.github.rmheuer.engine.render.shader.ShaderProgram;
 import com.github.rmheuer.engine.render.texture.CubeMap;
-import com.github.rmheuer.engine.render.texture.Texture2D;
+import com.github.rmheuer.engine.render.texture.Image;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class Material extends Asset {
+public final class Material {
     private final Map<String, MaterialProperty> properties;
     private ShaderProgram shader;
 
@@ -20,8 +19,6 @@ public final class Material extends Asset {
     public Material(ShaderProgram shader) {
         properties = new HashMap<>();
         this.shader = shader;
-        if (shader != null)
-            shader.claim();
     }
 
     public ShaderProgram getShader() {
@@ -29,13 +26,7 @@ public final class Material extends Asset {
     }
 
     public Material setShader(ShaderProgram shader) {
-        if (this.shader != null)
-            this.shader.release();
-
         this.shader = shader;
-        if (shader != null)
-            shader.claim();
-
         return this;
     }
 
@@ -43,7 +34,7 @@ public final class Material extends Asset {
         return properties.get(key);
     }
 
-    public Texture2D getTexture2D(String key) {
+    public Image getTexture2D(String key) {
         return getProperty(key).getTexture2D();
     }
 
@@ -53,7 +44,7 @@ public final class Material extends Asset {
         return properties.computeIfAbsent(key, MaterialProperty::new);
     }
 
-    public Material setTexture2D(String key, Texture2D texture) {
+    public Material setTexture2D(String key, Image texture) {
         getOrCreateProperty(key).setTexture2D(texture);
         return this;
     }
@@ -65,11 +56,5 @@ public final class Material extends Asset {
 
     public Collection<MaterialProperty> getProperties() {
         return properties.values();
-    }
-
-    @Override
-    protected void freeAsset() {
-        if (shader != null)
-            shader.release();
     }
 }

@@ -2,7 +2,6 @@ package com.github.rmheuer.engine.render3d;
 
 import com.github.rmheuer.engine.core.math.Vector2f;
 import com.github.rmheuer.engine.core.math.Vector3f;
-import com.github.rmheuer.engine.render.RendererAPI;
 import com.github.rmheuer.engine.render.mesh.Mesh;
 import com.github.rmheuer.engine.render.mesh.MeshBuilder;
 import com.github.rmheuer.engine.render.mesh.MeshDataUsage;
@@ -43,10 +42,7 @@ public final class Primitives3D {
         cubeFace(builder, npn, npp, nnp, nnn, -1,  0,  0); // Left
         cubeFace(builder, ppp, ppn, pnn, pnp,  1,  0,  0); // Right
 
-        Mesh<DefaultVertex> mesh = RendererAPI.getBackend().createMesh(PrimitiveType.TRIANGLES);
-        mesh.setData(builder, MeshDataUsage.STATIC);
-
-        return mesh;
+        return new Mesh<>(PrimitiveType.TRIANGLES, builder, MeshDataUsage.STATIC);
     }
 
     private Primitives3D() {

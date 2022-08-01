@@ -11,20 +11,20 @@ public final class ScheduleConstraints {
     private final Class<? extends SystemGroup> group;
 
     public ScheduleConstraints(Set<Class<? extends GameSystem>> before, Set<Class<? extends GameSystem>> after, Class<? extends SystemGroup> group) {
-	this.before = before;
-	this.after = after;
-	this.group = group;
+        this.before = before;
+        this.after = after;
+        this.group = group;
     }
 
     public Set<Class<? extends GameSystem>> getBefore() {
-	return before;
+        return before;
     }
 
     public Set<Class<? extends GameSystem>> getAfter() {
-	return after;
+        return after;
     }
 
     public Class<? extends SystemGroup> getGroup() {
-	return group;
+        return group;
     }
 }

@@ -1,34 +1,35 @@
 package com.github.rmheuer.engine.render;
 
-import com.github.rmheuer.engine.core.resource.ResourceFile;
 import com.github.rmheuer.engine.render.mesh.Mesh;
 import com.github.rmheuer.engine.render.mesh.PrimitiveType;
-import com.github.rmheuer.engine.render.mesh.Vertex;
 import com.github.rmheuer.engine.render.shader.Shader;
 import com.github.rmheuer.engine.render.shader.ShaderProgram;
+import com.github.rmheuer.engine.render.shader.ShaderType;
 import com.github.rmheuer.engine.render.texture.CubeMap;
-import com.github.rmheuer.engine.render.texture.Texture2D;
-import com.github.rmheuer.engine.render.texture.TextureData;
-import com.github.rmheuer.engine.render.texture.TextureSettings;
+import com.github.rmheuer.engine.render.texture.Image;
 
-import java.io.IOException;
+public abstract class RenderBackend {
+    private static RenderBackend instance;
 
-public interface RenderBackend {
-    // Basic render commands
-    void setViewportSize(int width, int height);
-    void clear();
+    public static RenderBackend get() {
+        return instance;
+    }
 
-    // Limit getters
-    int getMaxTextureSlots();
-    
-    // Primitive creators
-    Window createWindow(WindowSettings settings);
-    Shader createShader(ResourceFile res) throws IOException;
-    ShaderProgram createShaderProgram(Shader... shaders);
-    <T extends Vertex> Mesh<T> createMesh(PrimitiveType primType);
-    Texture2D createTexture2D(ResourceFile res, TextureSettings settings) throws IOException;
-    default Texture2D createTexture2D(ResourceFile res) throws IOException { return createTexture2D(res, new TextureSettings()); }
-    Texture2D createTexture2D(TextureData data, TextureSettings settings);
-    default Texture2D createTexture2D(TextureData data) { return createTexture2D(data, new TextureSettings()); }
-    CubeMap createCubeMap(TextureSettings settings, TextureData posX, TextureData negX, TextureData posY, TextureData negY, TextureData posZ, TextureData negZ);
+    protected RenderBackend() {
+        if (instance != null)
+            throw new IllegalStateException("Render backend already instantiated");
+
+        instance = this;
+    }
+
+    public abstract void setViewportSize(int width, int height);
+    public abstract void prepareFrame();
+
+    public abstract Window createWindow(WindowSettings settings);
+
+    public abstract Image.Native createImageNative(int width, int height);
+    public abstract CubeMap.Native createCubeMapNative();
+    public abstract Shader.Native createShaderNative(ShaderType type, String source);
+    public abstract ShaderProgram.Native createShaderProgramNative(ShaderProgram program, Shader.Native[] shaderNatives);
+    public abstract Mesh.Native createMeshNative(PrimitiveType primType);
 }

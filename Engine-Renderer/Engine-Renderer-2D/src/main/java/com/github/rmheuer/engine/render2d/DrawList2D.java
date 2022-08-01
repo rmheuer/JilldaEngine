@@ -4,7 +4,7 @@ import com.github.rmheuer.engine.core.math.MathUtils;
 import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.math.Vector2f;
 import com.github.rmheuer.engine.core.math.Vector4f;
-import com.github.rmheuer.engine.render.texture.Texture2D;
+import com.github.rmheuer.engine.render.texture.Image;
 import com.github.rmheuer.engine.render2d.font.Font;
 
 import java.util.ArrayDeque;
@@ -292,56 +292,56 @@ public class DrawList2D {
         }, color);
     }
 
-    public void drawImage(float depth, Rectangle r, Texture2D img, Rectangle uvs) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(float depth, Rectangle r, Texture2D img, Vector2f uv0, Vector2f uv1) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(float depth, Rectangle r, Texture2D img, Vector2f uv0, float u1, float v1) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(float depth, Rectangle r, Texture2D img, float u0, float v0, Vector2f uv1) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(float depth, Rectangle r, Texture2D img, float u0, float v0, float u1, float v1) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, u0, v0, u1, v1); }
-    public void drawImage(float depth, Vector2f pos, Vector2f size, Texture2D img, Rectangle uvs) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(float depth, Vector2f pos, float w, float h, Texture2D img, Rectangle uvs) { drawImage(depth, pos.x, pos.y, w, h, img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(float depth, float x, float y, Vector2f size, Texture2D img, Rectangle uvs) { drawImage(depth, x, y, size.x, size.y, img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(float depth, float x, float y, float w, float h, Texture2D img, Rectangle uvs) { drawImage(depth, x, y, w, h, img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(float depth, Vector2f pos, Vector2f size, Texture2D img, Vector2f uv0, Vector2f uv1) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(float depth, Vector2f pos, Vector2f size, Texture2D img, Vector2f uv0, float u1, float v1) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(float depth, Vector2f pos, Vector2f size, Texture2D img, float u0, float v0, Vector2f uv1) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(float depth, Vector2f pos, Vector2f size, Texture2D img, float u0, float v0, float u1, float v1) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, u0, v0, u1, v1); }
-    public void drawImage(float depth, Vector2f pos, float w, float h, Texture2D img, Vector2f uv0, Vector2f uv1) { drawImage(depth, pos.x, pos.y, w, h, img, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(float depth, Vector2f pos, float w, float h, Texture2D img, Vector2f uv0, float u1, float v1) { drawImage(depth, pos.x, pos.y, w, h, img, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(float depth, Vector2f pos, float w, float h, Texture2D img, float u0, float v0, Vector2f uv1) { drawImage(depth, pos.x, pos.y, w, h, img, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(float depth, Vector2f pos, float w, float h, Texture2D img, float u0, float v0, float u1, float v1) { drawImage(depth, pos.x, pos.y, w, h, img, u0, v0, u1, v1); }
-    public void drawImage(float depth, float x, float y, Vector2f size, Texture2D img, Vector2f uv0, Vector2f uv1) { drawImage(depth, x, y, size.x, size.y, img, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(float depth, float x, float y, Vector2f size, Texture2D img, Vector2f uv0, float u1, float v1) { drawImage(depth, x, y, size.x, size.y, img, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(float depth, float x, float y, Vector2f size, Texture2D img, float u0, float v0, Vector2f uv1) { drawImage(depth, x, y, size.x, size.y, img, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(float depth, float x, float y, Vector2f size, Texture2D img, float u0, float v0, float u1, float v1) { drawImage(depth, x, y, size.x, size.y, img, u0, v0, u1, v1); }
-    public void drawImage(float depth, float x, float y, float w, float h, Texture2D img, Vector2f uv0, Vector2f uv1) { drawImage(depth, x, y, w, h, img, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(float depth, float x, float y, float w, float h, Texture2D img, Vector2f uv0, float u1, float v1) { drawImage(depth, x, y, w, h, img, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(float depth, float x, float y, float w, float h, Texture2D img, float u0, float v0, Vector2f uv1) { drawImage(depth, x, y, w, h, img, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(float depth, float x, float y, float w, float h, Texture2D img, float u0, float v0, float u1, float v1) { drawImage(depth, x, y, w, h, img, new Vector4f(1, 1, 1, 1), u0, v0, u1, v1); }
-    public void drawImage(float depth, Rectangle r, Texture2D img, Vector4f tint, Rectangle uvs) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(float depth, Rectangle r, Texture2D img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(float depth, Rectangle r, Texture2D img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(float depth, Rectangle r, Texture2D img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(float depth, Rectangle r, Texture2D img, Vector4f tint, float u0, float v0, float u1, float v1) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, u0, v0, u1, v1); }
-    public void drawImage(float depth, Vector2f pos, Vector2f size, Texture2D img, Vector4f tint, Rectangle uvs) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(float depth, Vector2f pos, float w, float h, Texture2D img, Vector4f tint, Rectangle uvs) { drawImage(depth, pos.x, pos.y, w, h, img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(float depth, float x, float y, Vector2f size, Texture2D img, Vector4f tint, Rectangle uvs) { drawImage(depth, x, y, size.x, size.y, img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(float depth, float x, float y, float w, float h, Texture2D img, Vector4f tint, Rectangle uvs) { drawImage(depth, x, y, w, h, img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(float depth, Vector2f pos, Vector2f size, Texture2D img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(float depth, Vector2f pos, Vector2f size, Texture2D img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, tint, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(float depth, Vector2f pos, Vector2f size, Texture2D img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, tint, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(float depth, Vector2f pos, Vector2f size, Texture2D img, Vector4f tint, float u0, float v0, float u1, float v1) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, tint, u0, v0, u1, v1); }
-    public void drawImage(float depth, Vector2f pos, float w, float h, Texture2D img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(depth, pos.x, pos.y, w, h, img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(float depth, Vector2f pos, float w, float h, Texture2D img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(depth, pos.x, pos.y, w, h, img, tint, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(float depth, Vector2f pos, float w, float h, Texture2D img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(depth, pos.x, pos.y, w, h, img, tint, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(float depth, Vector2f pos, float w, float h, Texture2D img, Vector4f tint, float u0, float v0, float u1, float v1) { drawImage(depth, pos.x, pos.y, w, h, img, tint, u0, v0, u1, v1); }
-    public void drawImage(float depth, float x, float y, Vector2f size, Texture2D img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(depth, x, y, size.x, size.y, img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(float depth, float x, float y, Vector2f size, Texture2D img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(depth, x, y, size.x, size.y, img, tint, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(float depth, float x, float y, Vector2f size, Texture2D img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(depth, x, y, size.x, size.y, img, tint, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(float depth, float x, float y, Vector2f size, Texture2D img, Vector4f tint, float u0, float v0, float u1, float v1) { drawImage(depth, x, y, size.x, size.y, img, tint, u0, v0, u1, v1); }
-    public void drawImage(float depth, float x, float y, float w, float h, Texture2D img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(depth, x, y, w, h, img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(float depth, float x, float y, float w, float h, Texture2D img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(depth, x, y, w, h, img, tint, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(float depth, float x, float y, float w, float h, Texture2D img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(depth, x, y, w, h, img, tint, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(float depth, float x, float y, float w, float h, Texture2D img, Vector4f tint, float u0, float v0, float u1, float v1) {
+    public void drawImage(float depth, Rectangle r, Image img, Rectangle uvs) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(float depth, Rectangle r, Image img, Vector2f uv0, Vector2f uv1) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(float depth, Rectangle r, Image img, Vector2f uv0, float u1, float v1) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(float depth, Rectangle r, Image img, float u0, float v0, Vector2f uv1) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(float depth, Rectangle r, Image img, float u0, float v0, float u1, float v1) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, u0, v0, u1, v1); }
+    public void drawImage(float depth, Vector2f pos, Vector2f size, Image img, Rectangle uvs) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(float depth, Vector2f pos, float w, float h, Image img, Rectangle uvs) { drawImage(depth, pos.x, pos.y, w, h, img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(float depth, float x, float y, Vector2f size, Image img, Rectangle uvs) { drawImage(depth, x, y, size.x, size.y, img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(float depth, float x, float y, float w, float h, Image img, Rectangle uvs) { drawImage(depth, x, y, w, h, img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(float depth, Vector2f pos, Vector2f size, Image img, Vector2f uv0, Vector2f uv1) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(float depth, Vector2f pos, Vector2f size, Image img, Vector2f uv0, float u1, float v1) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(float depth, Vector2f pos, Vector2f size, Image img, float u0, float v0, Vector2f uv1) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(float depth, Vector2f pos, Vector2f size, Image img, float u0, float v0, float u1, float v1) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, u0, v0, u1, v1); }
+    public void drawImage(float depth, Vector2f pos, float w, float h, Image img, Vector2f uv0, Vector2f uv1) { drawImage(depth, pos.x, pos.y, w, h, img, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(float depth, Vector2f pos, float w, float h, Image img, Vector2f uv0, float u1, float v1) { drawImage(depth, pos.x, pos.y, w, h, img, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(float depth, Vector2f pos, float w, float h, Image img, float u0, float v0, Vector2f uv1) { drawImage(depth, pos.x, pos.y, w, h, img, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(float depth, Vector2f pos, float w, float h, Image img, float u0, float v0, float u1, float v1) { drawImage(depth, pos.x, pos.y, w, h, img, u0, v0, u1, v1); }
+    public void drawImage(float depth, float x, float y, Vector2f size, Image img, Vector2f uv0, Vector2f uv1) { drawImage(depth, x, y, size.x, size.y, img, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(float depth, float x, float y, Vector2f size, Image img, Vector2f uv0, float u1, float v1) { drawImage(depth, x, y, size.x, size.y, img, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(float depth, float x, float y, Vector2f size, Image img, float u0, float v0, Vector2f uv1) { drawImage(depth, x, y, size.x, size.y, img, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(float depth, float x, float y, Vector2f size, Image img, float u0, float v0, float u1, float v1) { drawImage(depth, x, y, size.x, size.y, img, u0, v0, u1, v1); }
+    public void drawImage(float depth, float x, float y, float w, float h, Image img, Vector2f uv0, Vector2f uv1) { drawImage(depth, x, y, w, h, img, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(float depth, float x, float y, float w, float h, Image img, Vector2f uv0, float u1, float v1) { drawImage(depth, x, y, w, h, img, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(float depth, float x, float y, float w, float h, Image img, float u0, float v0, Vector2f uv1) { drawImage(depth, x, y, w, h, img, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(float depth, float x, float y, float w, float h, Image img, float u0, float v0, float u1, float v1) { drawImage(depth, x, y, w, h, img, new Vector4f(1, 1, 1, 1), u0, v0, u1, v1); }
+    public void drawImage(float depth, Rectangle r, Image img, Vector4f tint, Rectangle uvs) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(float depth, Rectangle r, Image img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(float depth, Rectangle r, Image img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(float depth, Rectangle r, Image img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(float depth, Rectangle r, Image img, Vector4f tint, float u0, float v0, float u1, float v1) { drawImage(depth, r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, u0, v0, u1, v1); }
+    public void drawImage(float depth, Vector2f pos, Vector2f size, Image img, Vector4f tint, Rectangle uvs) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(float depth, Vector2f pos, float w, float h, Image img, Vector4f tint, Rectangle uvs) { drawImage(depth, pos.x, pos.y, w, h, img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(float depth, float x, float y, Vector2f size, Image img, Vector4f tint, Rectangle uvs) { drawImage(depth, x, y, size.x, size.y, img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(float depth, float x, float y, float w, float h, Image img, Vector4f tint, Rectangle uvs) { drawImage(depth, x, y, w, h, img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(float depth, Vector2f pos, Vector2f size, Image img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(float depth, Vector2f pos, Vector2f size, Image img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, tint, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(float depth, Vector2f pos, Vector2f size, Image img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, tint, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(float depth, Vector2f pos, Vector2f size, Image img, Vector4f tint, float u0, float v0, float u1, float v1) { drawImage(depth, pos.x, pos.y, size.x, size.y, img, tint, u0, v0, u1, v1); }
+    public void drawImage(float depth, Vector2f pos, float w, float h, Image img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(depth, pos.x, pos.y, w, h, img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(float depth, Vector2f pos, float w, float h, Image img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(depth, pos.x, pos.y, w, h, img, tint, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(float depth, Vector2f pos, float w, float h, Image img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(depth, pos.x, pos.y, w, h, img, tint, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(float depth, Vector2f pos, float w, float h, Image img, Vector4f tint, float u0, float v0, float u1, float v1) { drawImage(depth, pos.x, pos.y, w, h, img, tint, u0, v0, u1, v1); }
+    public void drawImage(float depth, float x, float y, Vector2f size, Image img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(depth, x, y, size.x, size.y, img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(float depth, float x, float y, Vector2f size, Image img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(depth, x, y, size.x, size.y, img, tint, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(float depth, float x, float y, Vector2f size, Image img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(depth, x, y, size.x, size.y, img, tint, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(float depth, float x, float y, Vector2f size, Image img, Vector4f tint, float u0, float v0, float u1, float v1) { drawImage(depth, x, y, size.x, size.y, img, tint, u0, v0, u1, v1); }
+    public void drawImage(float depth, float x, float y, float w, float h, Image img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(depth, x, y, w, h, img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(float depth, float x, float y, float w, float h, Image img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(depth, x, y, w, h, img, tint, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(float depth, float x, float y, float w, float h, Image img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(depth, x, y, w, h, img, tint, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(float depth, float x, float y, float w, float h, Image img, Vector4f tint, float u0, float v0, float u1, float v1) {
         Rectangle rect = Rectangle.fromXYSizes(x, y, w, h);
         if (clipRect != null)
              rect = rect.intersect(clipRect);

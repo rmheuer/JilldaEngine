@@ -1,5 +1,4 @@
 #version 330 core
-#type fragment
 
 in vec2 v_TexCoord;
 in vec3 v_Normal;

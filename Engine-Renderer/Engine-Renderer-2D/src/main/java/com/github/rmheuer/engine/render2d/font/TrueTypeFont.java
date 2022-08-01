@@ -2,11 +2,8 @@ package com.github.rmheuer.engine.render2d.font;
 
 import com.github.rmheuer.engine.core.math.Vector2f;
 import com.github.rmheuer.engine.core.resource.ResourceFile;
-import com.github.rmheuer.engine.render.RendererAPI;
-import com.github.rmheuer.engine.render.texture.Texture2D;
-import com.github.rmheuer.engine.render.texture.TextureData;
+import com.github.rmheuer.engine.render.texture.Image;
 import com.github.rmheuer.engine.render.texture.TextureFilter;
-import com.github.rmheuer.engine.render.texture.TextureSettings;
 
 import org.lwjgl.stb.STBTTAlignedQuad;
 import org.lwjgl.stb.STBTTFontinfo;
@@ -27,11 +24,7 @@ public final class TrueTypeFont extends Font {
     private static final char CHAR_BASE = 32;
     private static final char CHAR_COUNT = 96;
 
-    @SuppressWarnings("unused")
     private final ByteBuffer ttf;
-    private final STBTTFontinfo fontInfo;
-    private final STBTTPackedchar.Buffer cdata;
-    private final Texture2D atlas;
     private final GlyphInfo[] glyphs;
     private final ResourceFile ttfFile;
     private final float heightPx;
@@ -50,8 +43,8 @@ public final class TrueTypeFont extends Font {
         int bitmapHeight = 512;
         int pixelCount = bitmapWidth * bitmapHeight;
 
-        fontInfo = STBTTFontinfo.create();
-        cdata = STBTTPackedchar.create(CHAR_COUNT);
+        STBTTFontinfo fontInfo = STBTTFontinfo.create();
+        STBTTPackedchar.Buffer cdata = STBTTPackedchar.create(CHAR_COUNT);
 
         stbtt_InitFont(fontInfo, ttf);
         float scale = stbtt_ScaleForMappingEmToPixels(fontInfo, heightPx);
@@ -78,23 +71,19 @@ public final class TrueTypeFont extends Font {
             stbtt_PackEnd(pc);
 
             // Convert bitmap data to RGBA
-            ByteBuffer pixels = MemoryUtil.memAlloc(pixelCount * 4);
+            int[] pixels = new int[pixelCount];
             for (int i = 0; i < pixelCount; i++) {
-                pixels.putInt((bitmap.get(i) << 24) | 0x00FFFFFF);
+                pixels[i] = ((bitmap.get(i) << 24) | 0x00FFFFFF);
             }
-            pixels.flip();
             MemoryUtil.memFree(bitmap);
 
-            TextureData atlasData = new TextureData(
-                    pixels,
+            Image atlas = new Image(
                     bitmapWidth,
                     bitmapHeight,
-                    () -> MemoryUtil.memFree(pixels)
+                    pixels
             );
-            TextureSettings atlasSettings = new TextureSettings()
-                    .setFilters(TextureFilter.NEAREST);
-            atlas = RendererAPI.getBackend().createTexture2D(atlasData, atlasSettings);
-            atlas.claim();
+            atlas.setMinFilter(TextureFilter.LINEAR);
+            atlas.setMagFilter(TextureFilter.LINEAR);
 
             STBTTAlignedQuad q = STBTTAlignedQuad.malloc(stack);
             glyphs = new GlyphInfo[CHAR_COUNT];
@@ -125,6 +114,9 @@ public final class TrueTypeFont extends Font {
                 glyphs[i] = glyph;
             }
         }
+
+        fontInfo.free();
+        cdata.free();
     }
 
     public ResourceFile getTtfFile() {
@@ -141,12 +133,5 @@ public final class TrueTypeFont extends Font {
             return getGlyph('?');
 
         return glyphs[c - CHAR_BASE];
-    }
-
-    @Override
-    public void freeAsset() {
-        atlas.release();
-        fontInfo.free();
-        cdata.free();
     }
 }

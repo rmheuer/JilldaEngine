@@ -77,7 +77,6 @@ public final class GuiStyle {
                     16
             );
             defaultFont = font;
-            defaultFont.claim();
         } catch (IOException e) {
             throw new RuntimeException("Failed to load default font", e);
         }
@@ -187,15 +186,9 @@ public final class GuiStyle {
     public void pushFont(Font font) {
         fontStack.push(this.font);
         this.font = font;
-        font.claim();
     }
 
     public void popFont() {
-        font.release();
         font = fontStack.pollFirst();
-    }
-
-    public void delete() {
-        defaultFont.release();
     }
 }

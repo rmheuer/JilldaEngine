@@ -1,23 +1,23 @@
 package com.github.rmheuer.engine.render2d;
 
 import com.github.rmheuer.engine.render.mesh.MeshBuilder;
-import com.github.rmheuer.engine.render.texture.Texture2D;
+import com.github.rmheuer.engine.render.texture.Image;
 
 import java.util.List;
 
 import static com.github.rmheuer.engine.render2d.Renderer2D.MAX_TEXTURE_SLOTS;
 
 public final class VertexBatch {
-    private final Texture2D[] textures;
+    private final Image[] textures;
     private final MeshBuilder<Vertex2D> data;
 
     public VertexBatch() {
-        textures = new Texture2D[MAX_TEXTURE_SLOTS];
+        textures = new Image[MAX_TEXTURE_SLOTS];
         data = new MeshBuilder<>();
     }
 
-    public boolean addVertex(DrawVertex v, Texture2D defaultTexture) {
-        Texture2D tex = v.getTex();
+    public boolean addVertex(DrawVertex v, Image defaultTexture) {
+        Image tex = v.getTex();
         if (tex == null)
             tex = defaultTexture;
 
@@ -52,7 +52,7 @@ public final class VertexBatch {
         }
     }
 
-    public Texture2D[] getTextures() {
+    public Image[] getTextures() {
         return textures;
     }
 

@@ -1,11 +1,9 @@
 package com.github.rmheuer.engine.render2d.font;
 
-import com.github.rmheuer.engine.core.asset.Asset;
 import com.github.rmheuer.engine.core.math.Vector4f;
 import com.github.rmheuer.engine.render2d.DrawList2D;
-import com.github.rmheuer.engine.render2d.Renderer2D;
 
-public abstract class Font extends Asset {
+public abstract class Font {
     protected FontMetrics metrics = null;
 
     protected abstract GlyphInfo getGlyph(char c);

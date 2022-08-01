@@ -21,7 +21,6 @@ import com.github.rmheuer.engine.render.event.WindowCloseEvent;
 import com.github.rmheuer.engine.render.event.WindowFramebufferResizeEvent;
 import com.github.rmheuer.engine.render.event.WindowResizeEvent;
 
-import com.github.rmheuer.engine.render.framebuffer.Framebuffer;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.DoubleBuffer;

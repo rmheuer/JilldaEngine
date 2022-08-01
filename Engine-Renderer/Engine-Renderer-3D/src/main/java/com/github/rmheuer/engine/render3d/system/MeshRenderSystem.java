@@ -3,8 +3,11 @@ package com.github.rmheuer.engine.render3d.system;
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
 import com.github.rmheuer.engine.core.event.EventDispatcher;
+import com.github.rmheuer.engine.core.main.Game;
+import com.github.rmheuer.engine.core.nat.NativeObjectManager;
 import com.github.rmheuer.engine.core.transform.Transform;
-import com.github.rmheuer.engine.render.RendererAPI;
+import com.github.rmheuer.engine.render.RenderConstants;
+import com.github.rmheuer.engine.render.RenderContext;
 import com.github.rmheuer.engine.render.event.RenderSceneEvent;
 import com.github.rmheuer.engine.render.mesh.Mesh;
 import com.github.rmheuer.engine.render.shader.ShaderConstants;
@@ -19,15 +22,20 @@ public final class MeshRenderSystem implements GameSystem {
     @Override
     public void onEvent(World world, EventDispatcher d) {
         d.dispatch(RenderSceneEvent.class, (event) -> {
+            RenderContext ctx = world.getLocalSingleton(RenderContext.class);
+
             world.forEach(MeshRenderer.class, Transform.class, (m, tx) -> {
                 Material mat = m.getMaterial();
                 ShaderProgram shader = mat.getShader();
                 Mesh<?> mesh = m.getMesh();
 
-                Texture[] textures = new Texture[RendererAPI.getBackend().getMaxTextureSlots()];
+                NativeObjectManager nom = ctx.getNativeObjectManager();
+                ShaderProgram.Native nShader = shader.getNative(nom);
+
+                Texture[] textures = new Texture[RenderConstants.MAX_TEXTURE_SLOTS];
                 int slotIdx = 0;
 
-                shader.bind();
+                nShader.bind();
                 for (MaterialProperty prop : mat.getProperties()) {
                     ShaderUniform u = shader.getUniform(prop.getName());
 
@@ -51,11 +59,12 @@ public final class MeshRenderSystem implements GameSystem {
                     if (tex == null)
                         break;
 
-                    tex.bindToSlot(i);
+                    tex.getNative(nom).bindToSlot(i);
                 }
 
-                mesh.draw();
-                shader.unbind();
+                nShader.updateUniformValues();
+                mesh.getNative(nom).render();
+                nShader.unbind();
             });
         });
     }

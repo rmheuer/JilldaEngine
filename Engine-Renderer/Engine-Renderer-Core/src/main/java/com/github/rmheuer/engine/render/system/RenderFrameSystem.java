@@ -6,11 +6,11 @@ import com.github.rmheuer.engine.core.ecs.system.annotation.After;
 import com.github.rmheuer.engine.core.main.Game;
 import com.github.rmheuer.engine.core.transform.PropagateTransformSystem;
 import com.github.rmheuer.engine.core.transform.Transform;
+import com.github.rmheuer.engine.render.RenderBackend;
+import com.github.rmheuer.engine.render.RenderConstants;
 import com.github.rmheuer.engine.render.RenderContext;
-import com.github.rmheuer.engine.render.RendererAPI;
 import com.github.rmheuer.engine.render.camera.Camera;
 import com.github.rmheuer.engine.render.event.RenderSceneEvent;
-import com.github.rmheuer.engine.render.framebuffer.Framebuffer;
 
 @After(after = PropagateTransformSystem.class)
 public final class RenderFrameSystem implements GameSystem {
@@ -22,22 +22,15 @@ public final class RenderFrameSystem implements GameSystem {
         world.forEach(Camera.class, Transform.class, (camera, tx) -> {
             foundCamera[0] = true;
 
-            // If camera has no set framebuffer, it should use the default
-            Framebuffer fb = camera.getFramebuffer();
-            if (fb == null) {
-                fb = ctx.getWindow().getDefaultFramebuffer();
-            }
-
-            fb.bind();
-            RendererAPI.getBackend().clear();
+            RenderBackend.get().prepareFrame();
             Game.get().postImmediateEvent(new RenderSceneEvent(camera, tx));
-            fb.unbind();
         });
 
         // There is required to be at least one camera
         if (!foundCamera[0])
             throw new IllegalStateException("No camera in scene, or camera has no transform");
 
+        ctx.getNativeObjectManager().freeUnusedObjects(RenderConstants.MAX_OBJECTS_FREED_PER_FRAME);
         ctx.getWindow().update();
     }
 }

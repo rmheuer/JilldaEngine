@@ -37,47 +37,47 @@ public final class Entity {
 		}
 	}
 
-    private final EntityRegistry registry;
+	private final EntityRegistry registry;
 
-    public Entity(EntityRegistry registry) {
-	this.registry = registry;
+	public Entity(EntityRegistry registry) {
+		this.registry = registry;
 
-	addComponent(new Hierarchy());
-    }
+		addComponent(new Hierarchy());
+	}
 
-    public void addComponent(Component c) {
-	registry.addComponent(this, c);
-    }
+	public void addComponent(Component c) {
+		registry.addComponent(this, c);
+	}
 
-    public <T extends Component> T getComponent(Class<T> type) {
-	return registry.getComponent(this, type);
-    }
+	public <T extends Component> T getComponent(Class<T> type) {
+		return registry.getComponent(this, type);
+	}
 
-    public void removeComponent(Class<? extends Component> type) {
-	registry.removeComponent(this, type);
-    }
+	public void removeComponent(Class<? extends Component> type) {
+		registry.removeComponent(this, type);
+	}
 
-    public boolean hasComponent(Class<? extends Component> type) {
-	return registry.hasComponent(this, type);
-    }
+	public boolean hasComponent(Class<? extends Component> type) {
+		return registry.hasComponent(this, type);
+	}
 
-    public Set<Component> getComponents() {
-    	return registry.getComponents(this);
+	public Set<Component> getComponents() {
+		return registry.getComponents(this);
 	}
 
 	public Entity newChild() {
-    	Entity child = registry.newEntity();
-    	setupChild(child);
-    	return child;
+		Entity child = registry.newEntity();
+		setupChild(child);
+		return child;
 	}
 
-    public Entity newChild(String name) {
-	Entity child = registry.newEntity(name);
-	setupChild(child);
-	return child;
-    }
+	public Entity newChild(String name) {
+		Entity child = registry.newEntity(name);
+		setupChild(child);
+		return child;
+	}
 
-    private void setupChild(Entity child) {
+	private void setupChild(Entity child) {
 		Hierarchy hierarchy = getComponent(Hierarchy.class);
 		Hierarchy childHierarchy = child.getComponent(Hierarchy.class);
 
@@ -85,40 +85,40 @@ public final class Entity {
 		childHierarchy.setParent(this);
 	}
 
-    public void addChild(Entity child) {
-	Hierarchy childHierarchy = child.getComponent(Hierarchy.class);
-	if (childHierarchy.getParent() != null) {
-	    Entity parent = childHierarchy.getParent();
-	    Hierarchy parentHierarchy = parent.getComponent(Hierarchy.class);
+	public void addChild(Entity child) {
+		Hierarchy childHierarchy = child.getComponent(Hierarchy.class);
+		if (childHierarchy.getParent() != null) {
+			Entity parent = childHierarchy.getParent();
+			Hierarchy parentHierarchy = parent.getComponent(Hierarchy.class);
 
-	    parentHierarchy.getChildren().remove(child);
+			parentHierarchy.getChildren().remove(child);
+		}
+
+		Hierarchy hierarchy = getComponent(Hierarchy.class);
+		childHierarchy.setParent(this);
+		hierarchy.getChildren().add(child);
 	}
 
-	Hierarchy hierarchy = getComponent(Hierarchy.class);
-	childHierarchy.setParent(this);
-	hierarchy.getChildren().add(child);
-    }
-
-    public List<Entity> getChildren() {
-    	return getComponent(Hierarchy.class).getChildren();
+	public List<Entity> getChildren() {
+		return getComponent(Hierarchy.class).getChildren();
 	}
 
 	public String getName() {
-    	return getComponent(Name.class).getName();
+		return getComponent(Name.class).getName();
 	}
 
-    public void delete() {
-	Hierarchy hierarchy = getComponent(Hierarchy.class);
-	for (Entity child : new ArrayList<>(hierarchy.getChildren())) {
-	    child.delete();
-	}
+	public void delete() {
+		Hierarchy hierarchy = getComponent(Hierarchy.class);
+		for (Entity child : new ArrayList<>(hierarchy.getChildren())) {
+			child.delete();
+		}
 
-	Entity parent = hierarchy.getParent();
-	if (parent != null) {
-	    Hierarchy parentHierarchy = parent.getComponent(Hierarchy.class);
-	    parentHierarchy.getChildren().remove(this);
-	}
+		Entity parent = hierarchy.getParent();
+		if (parent != null) {
+			Hierarchy parentHierarchy = parent.getComponent(Hierarchy.class);
+			parentHierarchy.getChildren().remove(this);
+		}
 
-	registry.delete(this);
-    }
+		registry.delete(this);
+	}
 }

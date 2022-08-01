@@ -105,18 +105,18 @@ public final class EntityRegistry {
     }
 
     public Set<Component> getComponents(Entity e) {
-    	if (!entities.contains(e))
-    		return Collections.emptySet();
+        if (!entities.contains(e))
+            return Collections.emptySet();
 
-    	Set<Component> out = new HashSet<>();
-    	for (Map<Entity, Component> map : components.values()) {
-    		Component c = map.get(e);
-    		if (c != null)
-    			out.add(c);
-		}
+        Set<Component> out = new HashSet<>();
+        for (Map<Entity, Component> map : components.values()) {
+            Component c = map.get(e);
+            if (c != null)
+                out.add(c);
+        }
 
-    	return out;
-	}
+        return out;
+    }
 
     public void delete(Entity e) {
         if (!entities.contains(e))

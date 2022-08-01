@@ -10,19 +10,19 @@ public final class Hierarchy implements Component {
     private List<Entity> children;
 
     public Hierarchy() {
-	parent = null;
-	children = new ArrayList<>();
+        parent = null;
+        children = new ArrayList<>();
     }
-    
+
     public Entity getParent() {
-	return parent;
+        return parent;
     }
 
     public void setParent(Entity parent) {
-	this.parent = parent;
+        this.parent = parent;
     }
 
     public List<Entity> getChildren() {
-	return children;
+        return children;
     }
 }

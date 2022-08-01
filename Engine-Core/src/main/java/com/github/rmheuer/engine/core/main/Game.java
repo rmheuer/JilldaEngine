@@ -1,15 +1,13 @@
 package com.github.rmheuer.engine.core.main;
 
 import com.github.rmheuer.engine.core.Time;
-import com.github.rmheuer.engine.core.asset.Asset;
-import com.github.rmheuer.engine.core.asset.AssetManager;
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
-import com.github.rmheuer.engine.core.ecs.system.schedule.Stage;
-import com.github.rmheuer.engine.core.ecs.system.schedule.SystemScheduler;
 import com.github.rmheuer.engine.core.event.Event;
 import com.github.rmheuer.engine.core.event.EventDispatcher;
 import com.github.rmheuer.engine.core.input.InputManager;
+import com.github.rmheuer.engine.core.nat.NativeObjectManager;
+import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
 import com.github.rmheuer.engine.core.serial.codec.bin.BinarySerialCodec;
 import com.github.rmheuer.engine.core.serial.node.SerialNode;
 import com.github.rmheuer.engine.core.serial.obj.ObjectSerializer;
@@ -30,10 +28,8 @@ public final class Game {
     private boolean running;
 
     private World world;
-    private SystemScheduler schedule;
     private Queue<Event> eventQueue;
     private InputManager inputManager;
-    private AssetManager assetManager;
 
     public static Game get() {
         return INSTANCE;
@@ -45,11 +41,9 @@ public final class Game {
     }
 
     private Set<GameSystem> loadSystems() {
-        // TODO: Use Resource API once it is written
-
         try {
             SerialNode node = BinarySerialCodec.get()
-                    .decode(getClass().getClassLoader().getResourceAsStream("systems.bin"));
+                    .decode(new JarResourceFile("systems.bin").readAsStream());
 
             System.out.println(node);
             GameSystem[] systems = ObjectSerializer.get().deserialize(node, GameSystem[].class);
@@ -65,7 +59,6 @@ public final class Game {
     private void init() {
         eventQueue = new ConcurrentLinkedQueue<>();
         inputManager = new InputManager();
-        assetManager = new AssetManager();
 
         Set<GameSystem> systems = loadSystems();
         world = new World(systems);
@@ -83,7 +76,6 @@ public final class Game {
 
     private void close() {
         world.close();
-        Asset.cleanUp();
     }
 
     public void run() {
@@ -163,9 +155,5 @@ public final class Game {
 
     public InputManager getInputManager() {
         return inputManager;
-    }
-
-    public AssetManager getAssetManager() {
-        return assetManager;
     }
 }
