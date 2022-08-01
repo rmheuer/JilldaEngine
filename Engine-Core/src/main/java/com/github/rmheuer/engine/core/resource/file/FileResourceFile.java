@@ -67,7 +67,10 @@ public final class FileResourceFile extends ResourceFile {
 
     @Override
     public void create() throws IOException {
-        if (!file.createNewFile()) {
+        boolean mkdirOut = file.getParentFile().mkdirs();
+        boolean createOut = file.createNewFile();
+
+        if (!mkdirOut || !createOut) {
             throw new IOException("Failed to create new file");
         }
     }

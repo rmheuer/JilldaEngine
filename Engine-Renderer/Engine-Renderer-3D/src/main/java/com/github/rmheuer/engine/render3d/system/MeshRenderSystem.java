@@ -31,20 +31,20 @@ public final class MeshRenderSystem implements GameSystem {
 
                 NativeObjectManager nom = ctx.getNativeObjectManager();
                 ShaderProgram.Native nShader = shader.getNative(nom);
+                Mesh.Native nMesh = mesh.getNative(nom);
+                Texture.Native[] nTextures = new Texture.Native[RenderConstants.MAX_TEXTURE_SLOTS];
 
-                Texture[] textures = new Texture[RenderConstants.MAX_TEXTURE_SLOTS];
                 int slotIdx = 0;
-
                 nShader.bind();
                 for (MaterialProperty prop : mat.getProperties()) {
                     ShaderUniform u = shader.getUniform(prop.getName());
 
                     if (prop.isTexture2D()) {
-                        textures[slotIdx] = prop.getTexture2D();
+                        nTextures[slotIdx] = prop.getTexture2D().getNative(nom);
                         u.setInt(slotIdx);
                         slotIdx++;
                     } else if (prop.isCubeMap()) {
-                        textures[slotIdx] = prop.getCubeMap();
+                        nTextures[slotIdx] = prop.getCubeMap().getNative(nom);
                         u.setInt(slotIdx);
                         slotIdx++;
                     }
@@ -54,16 +54,16 @@ public final class MeshRenderSystem implements GameSystem {
                 shader.getUniform(ShaderConstants.UNIFORM_NAME_VIEW).setMatrix4f(event.getCameraTransform().getGlobalInverseMatrix());
                 shader.getUniform(ShaderConstants.UNIFORM_NAME_TRANSFORM).setMatrix4f(tx.getGlobalMatrix());
 
-                for (int i = 0; i < textures.length; i++) {
-                    Texture tex = textures[i];
+                for (int i = 0; i < nTextures.length; i++) {
+                    Texture.Native tex = nTextures[i];
                     if (tex == null)
                         break;
 
-                    tex.getNative(nom).bindToSlot(i);
+                    tex.bindToSlot(i);
                 }
 
                 nShader.updateUniformValues();
-                mesh.getNative(nom).render();
+                nMesh.render();
                 nShader.unbind();
             });
         });

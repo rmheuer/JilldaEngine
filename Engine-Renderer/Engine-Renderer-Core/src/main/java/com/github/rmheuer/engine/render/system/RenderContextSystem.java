@@ -12,6 +12,7 @@ import com.github.rmheuer.engine.render.event.WindowCloseEvent;
 import com.github.rmheuer.engine.render.event.WindowFramebufferResizeEvent;
 import com.github.rmheuer.engine.render.event.WindowResizeEvent;
 import com.github.rmheuer.engine.render.opengl.OpenGLBackend;
+import com.github.rmheuer.engine.render.opengl.lwjgl.LwjglOpenGL;
 
 public final class RenderContextSystem implements GameSystem {
     private WindowSettings windowSettings;
@@ -26,7 +27,7 @@ public final class RenderContextSystem implements GameSystem {
 
         // Will automatically set singleton instance
         // Might want to change later
-        RenderBackend backend = new OpenGLBackend();
+        RenderBackend backend = new OpenGLBackend(new LwjglOpenGL());
 
         ctx.setWindow(backend.createWindow(windowSettings));
     }

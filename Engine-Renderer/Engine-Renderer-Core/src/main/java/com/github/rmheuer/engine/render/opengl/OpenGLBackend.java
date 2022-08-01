@@ -14,18 +14,24 @@ import com.github.rmheuer.engine.render.texture.Image;
 import static org.lwjgl.opengl.GL33C.*;
 
 public final class OpenGLBackend extends RenderBackend {
+    private final OpenGL gl;
+
+    public OpenGLBackend(OpenGL gl) {
+        this.gl = gl;
+    }
+
     @Override
     public void setViewportSize(int width, int height) {
-        glViewport(0, 0, width, height);
+        gl.viewport(0, 0, width, height);
     }
 
     @Override
     public void prepareFrame() {
-        glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        gl.clearColor(0.1f, 0.2f, 0.3f, 1.0f);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.enable(gl.DEPTH_TEST);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     }
 
     @Override
@@ -35,26 +41,26 @@ public final class OpenGLBackend extends RenderBackend {
 
     @Override
     public Image.Native createImageNative(int width, int height) {
-        return new GLImageNative(width, height);
+        return new GLImageNative(gl, width, height);
     }
 
     @Override
     public CubeMap.Native createCubeMapNative() {
-        return new GLCubeMapNative();
+        return new GLCubeMapNative(gl);
     }
 
     @Override
     public Shader.Native createShaderNative(ShaderType type, String source) {
-        return new GLShaderNative(type, source);
+        return new GLShaderNative(gl, type, source);
     }
 
     @Override
     public ShaderProgram.Native createShaderProgramNative(ShaderProgram program, Shader.Native[] shaderNatives) {
-        return new GLShaderProgramNative(program, shaderNatives);
+        return new GLShaderProgramNative(gl, program, shaderNatives);
     }
 
     @Override
     public Mesh.Native createMeshNative(PrimitiveType primType) {
-        return new GLMeshNative(primType);
+        return new GLMeshNative(gl, primType);
     }
 }

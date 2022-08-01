@@ -4,62 +4,62 @@ import com.github.rmheuer.engine.core.nat.NativeObjectFreeFn;
 import com.github.rmheuer.engine.render.texture.CubeMap;
 import com.github.rmheuer.engine.render.texture.Image;
 import com.github.rmheuer.engine.render.texture.TextureFilter;
-import org.lwjgl.opengl.GL33C;
 
 import static com.github.rmheuer.engine.render.opengl.GLEnumConversions.getGlTextureFilter;
-import static org.lwjgl.opengl.GL33C.*;
 
 public final class GLCubeMapNative implements CubeMap.Native {
+    private final OpenGL gl;
     private final int id;
 
-    public GLCubeMapNative() {
-        id = glGenTextures();
-        glBindTexture(GL_TEXTURE_CUBE_MAP, id);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    public GLCubeMapNative(OpenGL gl) {
+        this.gl = gl;
+        id = gl.genTextures();
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, id);
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     }
 
     @Override
     public void setPosXImage(Image posX) {
-        glBindTexture(GL_TEXTURE_CUBE_MAP, id);
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, posX.getWidth(), posX.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, posX.getRgbaData());
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, id);
+        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X, 0, gl.RGBA, posX.getWidth(), posX.getHeight(), 0, gl.RGBA, gl.UNSIGNED_BYTE, posX.getRgbaData());
     }
 
     @Override
     public void setNegXImage(Image negX) {
-        glBindTexture(GL_TEXTURE_CUBE_MAP, id);
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA, negX.getWidth(), negX.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, negX.getRgbaData());
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, id);
+        gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 0, gl.RGBA, negX.getWidth(), negX.getHeight(), 0, gl.RGBA, gl.UNSIGNED_BYTE, negX.getRgbaData());
     }
 
     @Override
     public void setPosYImage(Image posY) {
-        glBindTexture(GL_TEXTURE_CUBE_MAP, id);
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA, posY.getWidth(), posY.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, posY.getRgbaData());
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, id);
+        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 0, gl.RGBA, posY.getWidth(), posY.getHeight(), 0, gl.RGBA, gl.UNSIGNED_BYTE, posY.getRgbaData());
     }
 
     @Override
     public void setNegYImage(Image negY) {
-        glBindTexture(GL_TEXTURE_CUBE_MAP, id);
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA, negY.getWidth(), negY.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, negY.getRgbaData());
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, id);
+        gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, gl.RGBA, negY.getWidth(), negY.getHeight(), 0, gl.RGBA, gl.UNSIGNED_BYTE, negY.getRgbaData());
     }
 
     @Override
     public void setPosZImage(Image posZ) {
-        glBindTexture(GL_TEXTURE_CUBE_MAP, id);
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA, posZ.getWidth(), posZ.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, posZ.getRgbaData());
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, id);
+        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 0, gl.RGBA, posZ.getWidth(), posZ.getHeight(), 0, gl.RGBA, gl.UNSIGNED_BYTE, posZ.getRgbaData());
     }
 
     @Override
     public void setNegZImage(Image negZ) {
-        glBindTexture(GL_TEXTURE_CUBE_MAP, id);
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, negZ.getWidth(), negZ.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, negZ.getRgbaData());
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, id);
+        gl.texImage2D(gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, gl.RGBA, negZ.getWidth(), negZ.getHeight(), 0, gl.RGBA, gl.UNSIGNED_BYTE, negZ.getRgbaData());
     }
 
     @Override
     public void setFilters(TextureFilter minFilter, TextureFilter magFilter) {
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, getGlTextureFilter(magFilter));
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, getGlTextureFilter(minFilter));
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, getGlTextureFilter(gl, magFilter));
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, getGlTextureFilter(gl, minFilter));
     }
 
     @Override
@@ -68,12 +68,12 @@ public final class GLCubeMapNative implements CubeMap.Native {
             throw new IndexOutOfBoundsException("Slot index out of bounds: " + slot);
         }
 
-        glActiveTexture(GL_TEXTURE0 + slot);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, id);
+        gl.activeTexture(gl.TEXTURE0 + slot);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, id);
     }
 
     @Override
     public NativeObjectFreeFn getFreeFn() {
-        return new GLDestructor(id, GL33C::glDeleteTextures);
+        return new GLDestructor(id, gl::deleteTextures);
     }
 }

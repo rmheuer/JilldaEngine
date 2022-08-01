@@ -1,5 +1,4 @@
 #version 330 core
-#type fragment
 
 in vec4 v_Color;
 in vec2 v_TexCoord;

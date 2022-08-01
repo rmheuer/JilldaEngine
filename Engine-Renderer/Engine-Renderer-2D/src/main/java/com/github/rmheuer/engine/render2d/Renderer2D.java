@@ -1,9 +1,9 @@
 package com.github.rmheuer.engine.render2d;
 
-import com.github.rmheuer.engine.core.main.Game;
 import com.github.rmheuer.engine.core.nat.NativeObjectManager;
 import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
+import com.github.rmheuer.engine.render.RenderConstants;
 import com.github.rmheuer.engine.render.camera.Camera;
 import com.github.rmheuer.engine.render.mesh.Mesh;
 import com.github.rmheuer.engine.render.mesh.MeshDataUsage;
@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.util.List;
 
 public final class Renderer2D {
-    public static final int MAX_TEXTURE_SLOTS = 16;
-
     private static final String VERTEX_SHADER_PATH = "com/github/rmheuer/engine/render2d/shaders/vertex.glsl";
     private static final String FRAGMENT_SHADER_PATH = "com/github/rmheuer/engine/render2d/shaders/fragment.glsl";
 
@@ -42,7 +40,7 @@ public final class Renderer2D {
         int[] whiteData = {0xFFFFFFFF};
         whiteTex = new Image(1, 1, whiteData);
 
-        for (int i = 0; i < MAX_TEXTURE_SLOTS; i++) {
+        for (int i = 0; i < RenderConstants.MAX_TEXTURE_SLOTS; i++) {
             shader.getUniform("u_Textures[" + i + "]").setInt(i);
         }
     }
@@ -55,17 +53,28 @@ public final class Renderer2D {
     private void drawBatch(VertexBatch batch) {
         mesh.setData(batch.getData(), MeshDataUsage.DYNAMIC);
 
+        // Natives must be pre-obtained to prevent accidental state changes
         ShaderProgram.Native nShader = shader.getNative(nom);
+        Mesh.Native nMesh = mesh.getNative(nom);
+        Image.Native[] nTextures = new Image.Native[RenderConstants.MAX_TEXTURE_SLOTS];
 
-        nShader.bind();
-        for (int i = 0; i < MAX_TEXTURE_SLOTS; i++) {
+        for (int i = 0; i < nTextures.length; i++) {
             Image tex = batch.getTextures()[i];
             if (tex != null) {
-                tex.getNative(nom).bindToSlot(i);
+                nTextures[i] = tex.getNative(nom);
             }
         }
 
-        mesh.getNative(nom).render();
+        nShader.bind();
+        for (int i = 0; i < nTextures.length; i++) {
+            Image.Native nTex = nTextures[i];
+            if (nTex != null) {
+                nTex.bindToSlot(i);
+            }
+        }
+
+        nShader.updateUniformValues();
+        nMesh.render();
         nShader.unbind();
     }
 

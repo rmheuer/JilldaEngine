@@ -16,9 +16,9 @@ import java.util.List;
 
 import static com.github.rmheuer.engine.render.opengl.GLEnumConversions.getGlMeshDataUsage;
 import static com.github.rmheuer.engine.render.opengl.GLEnumConversions.getGlPrimitiveType;
-import static org.lwjgl.opengl.GL33C.*;
 
 public final class GLMeshNative implements Mesh.Native {
+    private final OpenGL gl;
     private final int vao, vbo, ibo;
     private final int primType;
 
@@ -28,17 +28,18 @@ public final class GLMeshNative implements Mesh.Native {
     private boolean renderUsingIndexBuffer;
     private int indexCount;
 
-    public GLMeshNative(PrimitiveType primType) {
-        vao = glGenVertexArrays();
-        vbo = glGenBuffers();
-        ibo = glGenBuffers();
-        this.primType = getGlPrimitiveType(primType);
+    public GLMeshNative(OpenGL gl, PrimitiveType primType) {
+        this.gl = gl;
+        vao = gl.genVertexArrays();
+        vbo = gl.genBuffers();
+        ibo = gl.genBuffers();
+        this.primType = getGlPrimitiveType(gl, primType);
 
         // Attach buffers to VAO
-        glBindVertexArray(vao);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-        glBindVertexArray(0);
+        gl.bindVertexArray(vao);
+        gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+        gl.bindVertexArray(0);
 
         hasUploadedLayout = false;
     }
@@ -53,17 +54,17 @@ public final class GLMeshNative implements Mesh.Native {
         }
 
         ByteBuffer vertexBuf = storeVerticesToBuffer(vertices);
-        int glUsage = getGlMeshDataUsage(usage);
+        int glUsage = getGlMeshDataUsage(gl, usage);
 
-        glBindVertexArray(vao);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, vertexBuf, glUsage);
+        gl.bindVertexArray(vao);
+        gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+        gl.bufferData(gl.ARRAY_BUFFER, vertexBuf, glUsage);
         if (indices != null) {
             IntBuffer indexBuf = storeIndicesToBuffer(indices);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuf, glUsage);
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexBuf, glUsage);
         }
-        glBindVertexArray(0);
+        gl.bindVertexArray(0);
 
         if (indices != null) {
             indexCount = indices.size();
@@ -80,12 +81,12 @@ public final class GLMeshNative implements Mesh.Native {
         if (!hasUploadedLayout)
             return;
 
-        glBindVertexArray(vao);
+        gl.bindVertexArray(vao);
         if (renderUsingIndexBuffer)
-            glDrawElements(primType, indexCount, GL_UNSIGNED_INT, 0L);
+            gl.drawElements(primType, indexCount, gl.UNSIGNED_INT, 0L);
         else
-            glDrawArrays(primType, 0, indexCount);
-        glBindVertexArray(0);
+            gl.drawArrays(primType, 0, indexCount);
+        gl.bindVertexArray(0);
     }
 
     private ByteBuffer storeVerticesToBuffer(List<? extends Vertex> vertices) {
@@ -116,29 +117,31 @@ public final class GLMeshNative implements Mesh.Native {
             stride += type.getElemCount() * SizeOf.FLOAT;
 
         int offset = 0;
-        glBindVertexArray(vao);
+        gl.bindVertexArray(vao);
         for (int i = 0; i < layout.length; i++) {
             AttribType type = layout[i];
-            glVertexAttribPointer(
+            gl.vertexAttribPointer(
                     i,
                     type.getElemCount(),
-                    GL_FLOAT,
+                    gl.FLOAT,
                     false, /* Normalized */
                     stride,
                     offset
             );
-            glEnableVertexAttribArray(i);
+            gl.enableVertexAttribArray(i);
             offset += type.getElemCount() * SizeOf.FLOAT;
         }
-        glBindVertexArray(0);
+        gl.bindVertexArray(0);
 
         hasUploadedLayout = true;
     }
 
     private static final class Destructor implements NativeObjectFreeFn {
+        private final OpenGL gl;
         private final int vao, vbo, ibo;
 
-        public Destructor(int vao, int vbo, int ibo) {
+        public Destructor(OpenGL gl, int vao, int vbo, int ibo) {
+            this.gl = gl;
             this.vao = vao;
             this.vbo = vbo;
             this.ibo = ibo;
@@ -146,14 +149,14 @@ public final class GLMeshNative implements Mesh.Native {
 
         @Override
         public void free() {
-            glDeleteBuffers(vbo);
-            glDeleteBuffers(ibo);
-            glDeleteVertexArrays(vao);
+            gl.deleteBuffers(vbo);
+            gl.deleteBuffers(ibo);
+            gl.deleteVertexArrays(vao);
         }
     }
 
     @Override
     public NativeObjectFreeFn getFreeFn() {
-        return new Destructor(vao, vbo, ibo);
+        return new Destructor(gl, vao, vbo, ibo);
     }
 }

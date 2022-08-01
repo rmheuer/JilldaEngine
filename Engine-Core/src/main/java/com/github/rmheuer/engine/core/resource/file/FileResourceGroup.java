@@ -8,6 +8,7 @@ import com.github.rmheuer.engine.core.resource.ResourceUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -115,7 +116,7 @@ public final class FileResourceGroup extends ResourceGroup {
     public Set<ResourceFile> getResources() {
         File[] children = file.listFiles();
         if (children == null)
-            throw new IllegalStateException("No children");
+            return Collections.emptySet();
 
         Set<ResourceFile> out = new HashSet<>();
         for (File child : children) {
@@ -131,7 +132,7 @@ public final class FileResourceGroup extends ResourceGroup {
     public Set<ResourceGroup> getSubgroups() {
         File[] children = file.listFiles();
         if (children == null)
-            throw new IllegalStateException("No children");
+            return Collections.emptySet();
 
         Set<ResourceGroup> out = new HashSet<>();
         for (File child : children) {

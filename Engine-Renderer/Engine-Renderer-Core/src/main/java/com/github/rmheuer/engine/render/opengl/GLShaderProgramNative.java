@@ -7,30 +7,29 @@ import com.github.rmheuer.engine.core.nat.NativeObjectFreeFn;
 import com.github.rmheuer.engine.render.shader.Shader;
 import com.github.rmheuer.engine.render.shader.ShaderProgram;
 import com.github.rmheuer.engine.render.shader.ShaderUniform;
-import org.lwjgl.opengl.GL33C;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.lwjgl.opengl.GL33C.*;
-
 public final class GLShaderProgramNative implements ShaderProgram.Native {
+    private final OpenGL gl;
     private final ShaderProgram program;
     private final int id;
     private final Map<String, Integer> uniformLocations;
 
-    public GLShaderProgramNative(ShaderProgram program, Shader.Native[] shaderNatives) {
+    public GLShaderProgramNative(OpenGL gl, ShaderProgram program, Shader.Native[] shaderNatives) {
+        this.gl = gl;
         this.program = program;
 
-        id = glCreateProgram();
+        id = gl.createProgram();
         for (Shader.Native shader : shaderNatives) {
-            GLShaderNative gl = (GLShaderNative) shader;
-            glAttachShader(id, gl.getId());
+            GLShaderNative glShader = (GLShaderNative) shader;
+            gl.attachShader(id, glShader.getId());
         }
 
-        glLinkProgram(id);
-        if (glGetProgrami(id, GL_LINK_STATUS) == GL_FALSE) {
-            System.err.println(glGetProgramInfoLog(id));
+        gl.linkProgram(id);
+        if (gl.getProgrami(id, gl.LINK_STATUS) == gl.FALSE) {
+            System.err.println(gl.getProgramInfoLog(id));
             throw new RuntimeException("Shader program linking failed");
         }
 
@@ -39,36 +38,36 @@ public final class GLShaderProgramNative implements ShaderProgram.Native {
 
     @Override
     public void bind() {
-        glUseProgram(id);
+        gl.useProgram(id);
     }
 
     @Override
     public void unbind() {
-        glUseProgram(0);
+        gl.useProgram(0);
     }
 
     private int getUniformLocation(String name) {
-        return uniformLocations.computeIfAbsent(name, (n) -> glGetUniformLocation(id, n));
+        return uniformLocations.computeIfAbsent(name, (n) -> gl.getUniformLocation(id, n));
     }
 
     private void updateUniform(ShaderUniform uniform) {
         int loc = getUniformLocation(uniform.getName());
 
         if (uniform.isFloat()) {
-            glUniform1f(loc, uniform.getFloat());
+            gl.uniform1f(loc, uniform.getFloat());
         } else if (uniform.isVector2f()) {
             Vector2f v = uniform.getVector2f();
-            glUniform2f(loc, v.x, v.y);
+            gl.uniform2f(loc, v.x, v.y);
         } else if (uniform.isVector3f()) {
             Vector3f v = uniform.getVector3f();
-            glUniform3f(loc, v.x, v.y, v.z);
+            gl.uniform3f(loc, v.x, v.y, v.z);
         } else if (uniform.isVector4f()) {
             Vector4f v = uniform.getVector4f();
-            glUniform4f(loc, v.x, v.y, v.z, v.w);
+            gl.uniform4f(loc, v.x, v.y, v.z, v.w);
         } else if (uniform.isInt()) {
-            glUniform1i(loc, uniform.getInt());
+            gl.uniform1i(loc, uniform.getInt());
         } else if (uniform.isMatrix4f()) {
-            glUniformMatrix4fv(loc, false, uniform.getMatrix4f().getColumnMajor());
+            gl.uniformMatrix4fv(loc, false, uniform.getMatrix4f().getColumnMajor());
         }
     }
 
@@ -84,6 +83,6 @@ public final class GLShaderProgramNative implements ShaderProgram.Native {
 
     @Override
     public NativeObjectFreeFn getFreeFn() {
-        return new GLDestructor(id, GL33C::glDeleteProgram);
+        return new GLDestructor(id, gl::deleteProgram);
     }
 }
