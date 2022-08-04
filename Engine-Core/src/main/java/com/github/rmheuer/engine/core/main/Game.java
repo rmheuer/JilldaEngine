@@ -119,7 +119,7 @@ public final class Game {
     }
 
     // Queues an event to be dispatched next frame
-    public void postEvent(Event event) {
+    public void postGlobalEvent(Event event) {
         eventQueue.add(event);
     }
 
@@ -129,7 +129,7 @@ public final class Game {
     }
 
     // Dispatches an event immediately
-    public void postImmediateEvent(Event event) {
+    public void postGlobalImmediateEvent(Event event) {
         dispatchEvent(event);
     }
 

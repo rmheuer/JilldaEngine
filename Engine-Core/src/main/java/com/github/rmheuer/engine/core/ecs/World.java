@@ -7,12 +7,15 @@ import com.github.rmheuer.engine.core.ecs.entity.EntityRegistry;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
 import com.github.rmheuer.engine.core.ecs.system.schedule.Stage;
 import com.github.rmheuer.engine.core.ecs.system.schedule.SystemScheduler;
+import com.github.rmheuer.engine.core.event.Event;
 import com.github.rmheuer.engine.core.event.EventDispatcher;
 import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.util.QuadConsumer;
 import com.github.rmheuer.engine.core.util.TriConsumer;
 
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -21,12 +24,14 @@ public final class World {
     private final Entity root;
     private final Entity singletons;
     private final transient SystemScheduler scheduler;
+    private final Queue<Event> eventQueue;
 
     public World(Set<GameSystem> systems) {
         registry = new EntityRegistry();
         root = registry.newEntity("Root");
         singletons = registry.newEntity("Singletons");
         scheduler = new SystemScheduler(systems);
+        eventQueue = new ConcurrentLinkedQueue<>();
 
         root.addComponent(new Transform());
     }
@@ -35,7 +40,25 @@ public final class World {
         scheduler.doStage(Stage.INIT, (sys) -> sys.init(this), false);
     }
 
+    private void dispatchEvent(Event event) {
+        EventDispatcher dispatcher = new EventDispatcher(event);
+        onEvent(dispatcher);
+    }
+
+    public void postEvent(Event event) {
+        eventQueue.add(event);
+    }
+
+    public void postImmediateEvent(Event event) {
+        dispatchEvent(event);
+    }
+
     public void update(float delta) {
+        Event event;
+        while ((event = eventQueue.poll()) != null) {
+            dispatchEvent(event);
+        }
+
         scheduler.doStage(Stage.UPDATE, (sys) -> sys.update(this, delta), true);
     }
 

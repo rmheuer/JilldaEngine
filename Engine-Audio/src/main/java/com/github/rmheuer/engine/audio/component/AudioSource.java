@@ -33,23 +33,23 @@ public final class AudioSource implements Component {
     }
 
     public void play() {
-	Game.get().postImmediateEvent(new SourcePlayEvent(this));
+	Game.get().postGlobalImmediateEvent(new SourcePlayEvent(this));
     }
 
     public void loop() {
-	Game.get().postImmediateEvent(new SourceLoopEvent(this));
+	Game.get().postGlobalImmediateEvent(new SourceLoopEvent(this));
     }
 
     public void pause() {
-	Game.get().postImmediateEvent(new SourcePauseEvent(this));
+	Game.get().postGlobalImmediateEvent(new SourcePauseEvent(this));
     }
 
     public void resume() {
-	Game.get().postImmediateEvent(new SourceResumeEvent(this));
+	Game.get().postGlobalImmediateEvent(new SourceResumeEvent(this));
     }
 
     public void stop() {
-	Game.get().postImmediateEvent(new SourceStopEvent(this));
+	Game.get().postGlobalImmediateEvent(new SourceStopEvent(this));
     }
 
     public boolean isPlaying() {

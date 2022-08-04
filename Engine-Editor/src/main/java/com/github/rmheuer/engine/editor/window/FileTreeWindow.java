@@ -37,7 +37,7 @@ public final class FileTreeWindow implements GuiRenderable {
 
     private void select(Resource res, boolean save) {
 	selection = res;
-	Game.get().postImmediateEvent(new FileTreeSelectionChangeEvent(res, save));
+	Game.get().postGlobalImmediateEvent(new FileTreeSelectionChangeEvent(res, save));
     }
 
     private boolean showNode(GuiRenderer g, Resource res, String label, int flags) {
@@ -117,11 +117,11 @@ public final class FileTreeWindow implements GuiRenderable {
 
     private void scanForDeletingSelection(ResourceGroup g) {
         for (ResourceFile file : g.getResources()) {
-            Game.get().postImmediateEvent(new FileDeleteEvent(file));
+            Game.get().postGlobalImmediateEvent(new FileDeleteEvent(file));
         }
 
         for (ResourceGroup group : g.getSubgroups()) {
-            Game.get().postImmediateEvent(new FileDeleteEvent(g));
+            Game.get().postGlobalImmediateEvent(new FileDeleteEvent(g));
             scanForDeletingSelection(group);
         }
     }
@@ -135,7 +135,7 @@ public final class FileTreeWindow implements GuiRenderable {
         if (g.button("Delete")) {
             if (context.isGroup())
                 scanForDeletingSelection((ResourceGroup) context);
-            Game.get().postImmediateEvent(new FileDeleteEvent(context));
+            Game.get().postGlobalImmediateEvent(new FileDeleteEvent(context));
             context.delete();
 
             g.closeContextMenu();

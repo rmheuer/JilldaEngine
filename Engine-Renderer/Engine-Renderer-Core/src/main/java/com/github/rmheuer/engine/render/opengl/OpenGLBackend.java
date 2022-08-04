@@ -27,7 +27,7 @@ public final class OpenGLBackend extends RenderBackend {
 
     @Override
     public void prepareFrame() {
-        gl.clearColor(0.1f, 0.2f, 0.3f, 1.0f);
+        gl.clearColor(0.0f, 0.15f, 0.3f, 1.0f);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.enable(gl.DEPTH_TEST);
         gl.enable(gl.BLEND);

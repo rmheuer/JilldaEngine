@@ -10,57 +10,64 @@ public final class MeshBuilder<V extends Vertex> {
     private int mark;
 
     public MeshBuilder() {
-	vertices = new ArrayList<>();
-	indices = new ArrayList<>();
-	mark = 0;
+        vertices = new ArrayList<>();
+        indices = new ArrayList<>();
+        mark = 0;
     }
 
     public MeshBuilder<V> mark() {
-	mark = vertices.size();
-	return this;
+        mark = vertices.size();
+        return this;
     }
 
     public MeshBuilder<V> vertex(V vertex) {
-	vertices.add(vertex);
-	return this;
+        vertices.add(vertex);
+        return this;
     }
 
     @SafeVarargs
     public final MeshBuilder<V> vertices(V... vertices) {
-	this.vertices.addAll(Arrays.asList(vertices));
-	return this;
+        this.vertices.addAll(Arrays.asList(vertices));
+        return this;
     }
 
     public MeshBuilder<V> index(int i) {
-	indices.add(mark + i);
-	return this;
+        indices.add(mark + i);
+        return this;
     }
 
     public MeshBuilder<V> indices(int... indices) {
-	for (int i : indices) {
-	    this.indices.add(mark + i);
-	}
-	return this;
+        for (int i : indices) {
+            this.indices.add(mark + i);
+        }
+        return this;
+    }
+
+    public MeshBuilder<V> indices(List<Integer> indices) {
+        for (int i : indices) {
+            this.indices.add(mark + i);
+        }
+        return this;
     }
 
     public MeshBuilder<V> append(MeshBuilder<V> other) {
-	mark();
-	vertices.addAll(other.vertices);
-	for (int i : other.indices) {
-	    indices.add(mark + i);
-	}
-	return this;
+        mark();
+        vertices.addAll(other.vertices);
+        for (int i : other.indices) {
+            indices.add(mark + i);
+        }
+        return this;
     }
 
     public List<V> getVertices() {
-	return vertices;
+        return vertices;
     }
 
     public List<Integer> getIndices() {
-	return indices;
+        return indices;
     }
 
     public int getMark() {
-	return mark;
+        return mark;
     }
 }

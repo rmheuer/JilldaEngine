@@ -150,6 +150,12 @@ public final class Vector2f {
 	return dest;
     }
 
+    public Vector2f div(float f) {
+    	x /= f;
+    	y /= f;
+    	return this;
+	}
+
     public Vector2f div(float x, float y) {
 	this.x /= x;
 	this.y /= y;

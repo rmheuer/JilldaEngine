@@ -190,6 +190,13 @@ public final class Vector3f {
 	return dest;
     }
 
+    public Vector3f div(float f) {
+    	x /= f;
+    	y /= f;
+    	z /= f;
+    	return this;
+	}
+
     public Vector3f div(float x, float y, float z) {
 	this.x /= x;
 	this.y /= y;

@@ -77,16 +77,16 @@ public abstract class GLFWWindow implements Window {
             IntBuffer width = stack.mallocInt(1);
             IntBuffer height = stack.mallocInt(1);
             glfwGetWindowSize(window, width, height);
-            Game.get().postEvent(new WindowResizeEvent(this, width.get(0), height.get(0)));
+            Game.get().postGlobalEvent(new WindowResizeEvent(this, width.get(0), height.get(0)));
             glfwGetFramebufferSize(window, width, height);
-            Game.get().postEvent(new WindowFramebufferResizeEvent(this, width.get(0), height.get(0)));
+            Game.get().postGlobalEvent(new WindowFramebufferResizeEvent(this, width.get(0), height.get(0)));
 
             DoubleBuffer x = stack.mallocDouble(1);
             DoubleBuffer y = stack.mallocDouble(1);
             glfwGetCursorPos(window, x, y);
             cursorX = (float) x.get(0);
             cursorY = (float) y.get(0);
-            Game.get().postEvent(new MouseMoveEvent(cursorX, cursorY));
+            Game.get().postGlobalEvent(new MouseMoveEvent(cursorX, cursorY));
         }
 
         glfwShowWindow(window);
@@ -100,21 +100,21 @@ public abstract class GLFWWindow implements Window {
         if (window != this.window)
             return;
 
-        Game.get().postEvent(new WindowCloseEvent(this));
+        Game.get().postGlobalEvent(new WindowCloseEvent(this));
     }
 
     private void windowSizeCallback(long window, int width, int height) {
         if (window != this.window)
             return;
 
-        Game.get().postEvent(new WindowResizeEvent(this, width, height));
+        Game.get().postGlobalEvent(new WindowResizeEvent(this, width, height));
     }
 
     private void framebufferSizeCallback(long window, int width, int height) {
         if (window != this.window)
             return;
 
-        Game.get().postEvent(new WindowFramebufferResizeEvent(this, width, height));
+        Game.get().postGlobalEvent(new WindowFramebufferResizeEvent(this, width, height));
     }
 
     private void cursorPosCallback(long window, double x, double y) {
@@ -124,7 +124,7 @@ public abstract class GLFWWindow implements Window {
         cursorX = (float) x;
         cursorY = (float) y;
 
-        Game.get().postEvent(new MouseMoveEvent(cursorX, cursorY));
+        Game.get().postGlobalEvent(new MouseMoveEvent(cursorX, cursorY));
     }
 
     private void mouseButtonCallback(long window, int button, int action, int mods) {
@@ -134,9 +134,9 @@ public abstract class GLFWWindow implements Window {
         MouseButton mouseButton = GLFWMouse.getMouseButton(button);
 
         if (action == GLFW_PRESS) {
-            Game.get().postEvent(new MouseButtonPressEvent(cursorX, cursorY, mouseButton));
+            Game.get().postGlobalEvent(new MouseButtonPressEvent(cursorX, cursorY, mouseButton));
         } else if (action == GLFW_RELEASE) {
-            Game.get().postEvent(new MouseButtonReleaseEvent(cursorX, cursorY, mouseButton));
+            Game.get().postGlobalEvent(new MouseButtonReleaseEvent(cursorX, cursorY, mouseButton));
         }
     }
 
@@ -148,26 +148,26 @@ public abstract class GLFWWindow implements Window {
         if (window != this.window)
             return;
 
-        Game.get().postEvent(new MouseScrollEvent(cursorX, cursorY, (float) x, (float) y, convertScrollToPixels(x), convertScrollToPixels(y)));
+        Game.get().postGlobalEvent(new MouseScrollEvent(cursorX, cursorY, (float) x, (float) y, convertScrollToPixels(x), convertScrollToPixels(y)));
     }
 
     private void keyCallback(long window, int key, int scancode, int action, int mods) {
         Key k = GLFWKeyboard.getKey(key);
         switch (action) {
             case GLFW_PRESS:
-                Game.get().postEvent(new KeyPressEvent(k));
+                Game.get().postGlobalEvent(new KeyPressEvent(k));
                 break;
             case GLFW_REPEAT:
-                Game.get().postEvent(new KeyRepeatEvent(k));
+                Game.get().postGlobalEvent(new KeyRepeatEvent(k));
                 break;
             case GLFW_RELEASE:
-                Game.get().postEvent(new KeyReleaseEvent(k));
+                Game.get().postGlobalEvent(new KeyReleaseEvent(k));
                 break;
         }
     }
 
     private void charCallback(long window, int c) {
-        Game.get().postEvent(new CharTypeEvent((char) c));
+        Game.get().postGlobalEvent(new CharTypeEvent((char) c));
     }
 
     @Override

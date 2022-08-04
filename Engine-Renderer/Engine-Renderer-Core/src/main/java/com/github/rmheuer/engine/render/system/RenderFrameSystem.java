@@ -23,7 +23,7 @@ public final class RenderFrameSystem implements GameSystem {
             foundCamera[0] = true;
 
             RenderBackend.get().prepareFrame();
-            Game.get().postImmediateEvent(new RenderSceneEvent(camera, tx));
+            Game.get().postGlobalImmediateEvent(new RenderSceneEvent(camera, tx));
         });
 
         // There is required to be at least one camera
