@@ -4,7 +4,7 @@ import com.github.rmheuer.engine.core.util.StringUtils;
 
 import java.util.Objects;
 
-public final class SerialChar {
+public final class SerialChar extends TextualNode {
     private final char value;
 
     public SerialChar(char value) {
@@ -12,6 +12,16 @@ public final class SerialChar {
     }
 
     public char getValue() {
+        return value;
+    }
+
+    @Override
+    public String getString() {
+        return String.valueOf(value);
+    }
+
+    @Override
+    public char getChar() {
         return value;
     }
 

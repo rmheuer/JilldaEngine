@@ -2,7 +2,7 @@ package com.github.rmheuer.engine.core.serial2.node;
 
 import java.util.Objects;
 
-public final class SerialLong implements NumericNode {
+public final class SerialLong extends NumericNode {
     private final long value;
 
     public SerialLong(long value) {
@@ -41,6 +41,11 @@ public final class SerialLong implements NumericNode {
     @Override
     public double getDouble() {
         return value;
+    }
+
+    @Override
+    public boolean isWhole() {
+        return true;
     }
 
     @Override

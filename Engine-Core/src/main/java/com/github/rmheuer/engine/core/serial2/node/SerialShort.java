@@ -2,7 +2,7 @@ package com.github.rmheuer.engine.core.serial2.node;
 
 import java.util.Objects;
 
-public final class SerialShort implements NumericNode {
+public final class SerialShort extends NumericNode {
     private final short value;
 
     public SerialShort(short value) {
@@ -41,6 +41,11 @@ public final class SerialShort implements NumericNode {
     @Override
     public double getDouble() {
         return value;
+    }
+
+    @Override
+    public boolean isWhole() {
+        return true;
     }
 
     @Override

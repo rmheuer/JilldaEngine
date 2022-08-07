@@ -2,7 +2,7 @@ package com.github.rmheuer.engine.core.serial2.node;
 
 import java.util.Objects;
 
-public final class SerialFloat implements NumericNode {
+public final class SerialFloat extends NumericNode {
     private final float value;
 
     public SerialFloat(float value) {
@@ -41,6 +41,11 @@ public final class SerialFloat implements NumericNode {
     @Override
     public double getDouble() {
         return value;
+    }
+
+    @Override
+    public boolean isWhole() {
+        return false;
     }
 
     @Override

@@ -2,14 +2,7 @@ package com.github.rmheuer.engine.core.serial2.node;
 
 import java.util.Objects;
 
-public final class SerialBoolean {
-    public static final SerialBoolean TRUE = new SerialBoolean(true);
-    public static final SerialBoolean FALSE = new SerialBoolean(false);
-
-    public static SerialBoolean valueOf(boolean val) {
-        return val ? TRUE : FALSE;
-    }
-
+public final class SerialBoolean extends SerialNode {
     private final boolean value;
 
     public SerialBoolean(boolean value) {
