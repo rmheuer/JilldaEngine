@@ -10,7 +10,7 @@
     <module>Engine-Core</module>
     <module>Engine-Renderer</module>
     <module>Engine-Gui</module>
-    <module>Engine-Audio</module>
+    <!--<module>Engine-Audio</module>-->
 
     <module>BinTool</module>
     <module>Engine-Editor</module>
