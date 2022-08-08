@@ -1,33 +1,43 @@
 package com.github.rmheuer.engine.core.main;
 
 import com.github.rmheuer.engine.core.Time;
-import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
+import com.github.rmheuer.engine.core.ecs.system.SystemRegistry;
 import com.github.rmheuer.engine.core.event.Event;
-import com.github.rmheuer.engine.core.event.EventDispatcher;
 import com.github.rmheuer.engine.core.input.InputManager;
-import com.github.rmheuer.engine.core.nat.NativeObjectManager;
+import com.github.rmheuer.engine.core.layer.Layer;
+import com.github.rmheuer.engine.core.layer.LayerRegistry;
+import com.github.rmheuer.engine.core.module.CoreModule;
+import com.github.rmheuer.engine.core.module.GameModule;
+import com.github.rmheuer.engine.core.module.ModuleRegistry;
+import com.github.rmheuer.engine.core.resource.ResourceFile;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
-import com.github.rmheuer.engine.core.serial.codec.bin.BinarySerialCodec;
-import com.github.rmheuer.engine.core.serial.node.SerialNode;
-import com.github.rmheuer.engine.core.serial.obj.ObjectSerializer;
+import com.github.rmheuer.engine.core.serial2.json.JsonCodec;
+import com.github.rmheuer.engine.core.serial2.node.SerialArray;
+import com.github.rmheuer.engine.core.serial2.node.SerialNode;
+import com.github.rmheuer.engine.core.serial2.node.SerialObject;
+import com.github.rmheuer.engine.core.serial2.node.TextualNode;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class Game {
+    public static final ResourceFile CONFIG_FILE = new JarResourceFile("game.json");
+
     private static final Game INSTANCE = new Game();
 
     private float fixedUpdatesPerSecond;
     private int sleepInterval;
     private boolean running;
 
-    private World world;
+    private List<GameModule> modules;
+    private List<Layer> layers;
+
     private Queue<Event> eventQueue;
     private InputManager inputManager;
 
@@ -40,19 +50,56 @@ public final class Game {
         sleepInterval = 5;
     }
 
-    private Set<GameSystem> loadSystems() {
+    // TODO: Maybe deserialize as unique object instead of one instance per class
+    @SuppressWarnings("unchecked")
+    private void loadConfig() {
+        SerialObject config;
         try {
-            SerialNode node = BinarySerialCodec.get()
-                    .decode(new JarResourceFile("systems.bin").readAsStream());
-
-            System.out.println(node);
-            GameSystem[] systems = ObjectSerializer.get().deserialize(node, GameSystem[].class);
-            System.out.println(Arrays.toString(systems));
-
-            return new HashSet<>(Arrays.asList(systems));
+            config = (SerialObject) JsonCodec.get().decode(CONFIG_FILE.readAsStream());
         } catch (IOException e) {
-            e.printStackTrace();
-            return Collections.emptySet();
+            throw new RuntimeException("Failed to load configuration file", e);
+        }
+
+        if (config.containsKey("modules")) {
+            SerialArray modulesArr = config.getArray("modules");
+            for (SerialNode node : modulesArr) {
+                String className = ((TextualNode) node).getString();
+                Class<? extends GameModule> clazz;
+                try {
+                    Class<?> rawClass = Class.forName(className);
+                    if (!GameModule.class.isAssignableFrom(rawClass)) {
+                        System.err.println("Not a module: " + className);
+                        continue;
+                    }
+
+                    clazz = (Class<? extends GameModule>) rawClass;
+                } catch (ClassNotFoundException e) {
+                    System.err.println("Could not load module: " + className);
+                    continue;
+                }
+                modules.add(ModuleRegistry.getInstance(clazz));
+            }
+        }
+
+        if (config.containsKey("layers")) {
+            SerialArray systemsArr = config.getArray("layers");
+            for (SerialNode node : systemsArr) {
+                String className = ((TextualNode) node).getString();
+                Class<? extends Layer> clazz;
+                try {
+                    Class<?> rawClass = Class.forName(className);
+                    if (!Layer.class.isAssignableFrom(rawClass)) {
+                        System.err.println("Not a layer: " + className);
+                        continue;
+                    }
+
+                    clazz = (Class<? extends Layer>) rawClass;
+                } catch (ClassNotFoundException e) {
+                    System.err.println("Could not load layer: " + className);
+                    continue;
+                }
+                layers.add(LayerRegistry.getInstance(clazz));
+            }
         }
     }
 
@@ -60,22 +107,50 @@ public final class Game {
         eventQueue = new ConcurrentLinkedQueue<>();
         inputManager = new InputManager();
 
-        Set<GameSystem> systems = loadSystems();
-        world = new World(systems);
+        modules = new ArrayList<>();
+        layers = new ArrayList<>();
+        modules.add(ModuleRegistry.getInstance(CoreModule.class));
+        loadConfig();
 
-        world.init();
+        for (GameModule module : modules) {
+            module.init();
+        }
+
+        for (Layer layer : layers) {
+            layer.init();
+        }
     }
 
     private void update(float delta) {
-        world.update(delta);
+        for (GameModule module : modules)
+            module.preUpdate();
+
+        for (Layer layer : layers)
+            layer.update(delta);
+
+        for (GameModule module : modules)
+            module.postUpdate();
     }
 
     private void fixedUpdate() {
-        world.fixedUpdate();
+        for (GameModule module : modules)
+            module.preFixedUpdate();
+
+        for (Layer layer : layers)
+            layer.fixedUpdate();
+
+        for (GameModule module : modules)
+            module.postFixedUpdate();
     }
 
     private void close() {
-        world.close();
+        for (int i = layers.size() - 1; i >= 0; i--) {
+            layers.get(i).close();
+        }
+
+        for (GameModule module : modules) {
+            module.close();
+        }
     }
 
     public void run() {
@@ -124,8 +199,9 @@ public final class Game {
     }
 
     private void dispatchEvent(Event event) {
-        EventDispatcher dispatch = new EventDispatcher(event);
-        world.onEvent(dispatch);
+        for (int i = layers.size() - 1; i >= 0; i--) {
+            layers.get(i).onEvent(event);
+        }
     }
 
     // Dispatches an event immediately
@@ -155,5 +231,15 @@ public final class Game {
 
     public InputManager getInputManager() {
         return inputManager;
+    }
+
+    public Set<GameSystem> getAllSystems() {
+        Set<GameSystem> systems = new HashSet<>();
+        for (GameModule module : modules) {
+            for (Class<? extends GameSystem> clazz : module.getSystems()) {
+                systems.add(SystemRegistry.getInstance(clazz));
+            }
+        }
+        return systems;
     }
 }

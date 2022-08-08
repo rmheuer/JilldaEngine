@@ -3,19 +3,13 @@ package com.github.rmheuer.sandbox;
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.entity.Entity;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
-import com.github.rmheuer.engine.core.ecs.system.annotation.After;
-import com.github.rmheuer.engine.core.ecs.system.schedule.Stage;
 import com.github.rmheuer.engine.core.input.keyboard.Key;
 import com.github.rmheuer.engine.core.input.keyboard.Keyboard;
 import com.github.rmheuer.engine.core.main.Game;
-import com.github.rmheuer.engine.core.serial.codec.bin.BinarySerialCodec;
-import com.github.rmheuer.engine.core.serial.codec.json.JsonSerialCodec;
-import com.github.rmheuer.engine.core.serial.node.SerialNode;
 import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.math.Vector3f;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
 import com.github.rmheuer.engine.core.util.Pair;
-import com.github.rmheuer.engine.render.RenderBackend;
 import com.github.rmheuer.engine.render.camera.Camera;
 import com.github.rmheuer.engine.render.camera.PerspectiveProjection;
 import com.github.rmheuer.engine.render.mesh.Mesh;
@@ -24,7 +18,6 @@ import com.github.rmheuer.engine.render.mesh.PrimitiveType;
 import com.github.rmheuer.engine.render.shader.Shader;
 import com.github.rmheuer.engine.render.shader.ShaderProgram;
 import com.github.rmheuer.engine.render.shader.ShaderType;
-import com.github.rmheuer.engine.render.system.RenderContextSystem;
 import com.github.rmheuer.engine.render.texture.CubeMap;
 import com.github.rmheuer.engine.render.texture.Image;
 import com.github.rmheuer.engine.render3d.Primitives3D;
@@ -33,11 +26,9 @@ import com.github.rmheuer.engine.render3d.loader.DefaultVertex;
 import com.github.rmheuer.engine.render3d.loader.ObjLoader;
 import com.github.rmheuer.engine.render3d.material.Material;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-@After(stage = Stage.INIT, after = RenderContextSystem.class)
 public final class SandboxInitSystem implements GameSystem {
     @Override
     public void init(World world) {

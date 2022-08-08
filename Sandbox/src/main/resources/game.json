@@ -1,0 +1,9 @@
+{
+  "modules": [
+    "com.github.rmheuer.engine.render.system.RenderModule",
+    "com.github.rmheuer.engine.render3d.system.Render3DModule"
+  ],
+  "layers": [
+    "com.github.rmheuer.sandbox.SandboxLayer"
+  ]
+}
