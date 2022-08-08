@@ -170,7 +170,7 @@ public final class Image implements Texture {
     public void setPixel(int x, int y, Vector4f color) {
         checkBounds(x, y);
         rgbaData[x + y * width] = encodeColor(color);
-        dataDirty = true;
+        markDataDirty();
     }
 
     private void checkBounds(int x, int y) {
@@ -191,6 +191,9 @@ public final class Image implements Texture {
      */
     public void markDataDirty() {
         dataDirty = true;
+        for (Consumer<Image> listener : dataChangeListeners) {
+            listener.accept(this);
+        }
     }
 
     public void addDataChangeListener(Consumer<Image> listener) {
