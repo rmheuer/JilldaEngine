@@ -259,6 +259,22 @@ public final class Vector4f {
 	return dest;
     }
 
+    public Vector4f mul(float f) {
+    	x *= f;
+    	y *= f;
+    	z *= f;
+    	w *= f;
+    	return this;
+	}
+
+	public Vector4f mul(float f, Vector4f dest) {
+    	dest.x = x * f;
+    	dest.y = y * f;
+    	dest.z = z * f;
+    	dest.w = w * f;
+    	return dest;
+	}
+
     public Vector4f mul(Vector4f vec) {
 	x *= vec.x;
 	y *= vec.y;

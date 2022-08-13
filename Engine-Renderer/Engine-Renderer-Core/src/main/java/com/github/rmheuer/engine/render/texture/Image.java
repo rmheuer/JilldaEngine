@@ -30,21 +30,21 @@ import static org.lwjgl.stb.STBImage.stbi_load_from_memory;
  * @author rmheuer
  */
 public final class Image implements Texture {
-    public static final int RED_MASK   = 0x000000FF;
-    public static final int GREEN_MASK = 0x0000FF00;
-    public static final int BLUE_MASK  = 0x00FF0000;
-    public static final int ALPHA_MASK = 0xFF000000;
-
     public static final int RED_SHIFT   = 0;
     public static final int GREEN_SHIFT = 8;
     public static final int BLUE_SHIFT  = 16;
     public static final int ALPHA_SHIFT = 24;
 
+    public static final int RED_MASK   = 0xFF << RED_SHIFT;
+    public static final int GREEN_MASK = 0xFF << GREEN_SHIFT;
+    public static final int BLUE_MASK  = 0xFF << BLUE_SHIFT;
+    public static final int ALPHA_MASK = 0xFF << ALPHA_SHIFT;
+
     public static int encodeColor(Vector4f color) {
-        byte r = (byte) (color.x * 255);
-        byte g = (byte) (color.y * 255);
-        byte b = (byte) (color.z * 255);
-        byte a = (byte) (color.w * 255);
+        int r = (int) (color.x * 255);
+        int g = (int) (color.y * 255);
+        int b = (int) (color.z * 255);
+        int a = (int) (color.w * 255);
 
         return r << RED_SHIFT | g << GREEN_SHIFT | b << BLUE_SHIFT | a << ALPHA_SHIFT;
     }
@@ -104,7 +104,7 @@ public final class Image implements Texture {
     private final List<Consumer<Image>> dataChangeListeners;
 
     public Image(int width, int height) {
-        this(width, height, Colors.MAGENTA);
+        this(width, height, Colors.WHITE);
     }
 
     public Image(int width, int height, Vector4f fillColor) {
@@ -170,6 +170,18 @@ public final class Image implements Texture {
     public void setPixel(int x, int y, Vector4f color) {
         checkBounds(x, y);
         rgbaData[x + y * width] = encodeColor(color);
+        markDataDirty();
+    }
+
+    public void blit(Image img, int x, int y) {
+        checkBounds(x, y);
+        if (x + img.width > width || y + img.height > height)
+            throw new IndexOutOfBoundsException("Image extends out of bounds");
+
+        for (int row = 0; row < img.height; row++) {
+            System.arraycopy(img.rgbaData, row * img.width, rgbaData, x + (y + row) * width, img.width);
+        }
+
         markDataDirty();
     }
 

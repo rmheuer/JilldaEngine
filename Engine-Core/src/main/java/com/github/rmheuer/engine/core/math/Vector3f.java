@@ -341,6 +341,27 @@ public final class Vector3f {
 	return dest;
     }
 
+    public Vector3f cross(Vector3f rhs) {
+    	float nx = y * rhs.z - z * rhs.y;
+    	float ny = z * rhs.x - x * rhs.z;
+    	float nz = x * rhs.y - y * rhs.x;
+    	x = nx;
+    	y = ny;
+    	z = nz;
+    	return this;
+	}
+	
+	public Vector3f cross(Vector3f rhs, Vector3f dest) {
+		dest.x = y * rhs.z - z * rhs.y;
+		dest.y = z * rhs.x - x * rhs.z;
+		dest.z = x * rhs.y - y * rhs.x;
+		return dest;
+	}
+
+	public float dot(Vector3f o) {
+    	return x * o.x + y * o.y + z * o.z;
+	}
+
     public Vector3f negate() {
 	x = -x;
 	y = -y;
