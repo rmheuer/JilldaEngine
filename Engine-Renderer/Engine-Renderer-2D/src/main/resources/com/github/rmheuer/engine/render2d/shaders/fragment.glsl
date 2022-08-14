@@ -32,4 +32,8 @@ void main(void) {
         case 14: o_Color *= texture(u_Textures[14], v_TexCoord); break;
         case 15: o_Color *= texture(u_Textures[15], v_TexCoord); break;
     }
+
+    if (o_Color.a < 0.01) {
+        discard;
+    }
 }

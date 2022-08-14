@@ -1,5 +1,6 @@
 package com.github.rmheuer.engine.core.main;
 
+import com.github.rmheuer.engine.core.EngineVersion;
 import com.github.rmheuer.engine.core.Time;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
 import com.github.rmheuer.engine.core.ecs.system.SystemRegistry;
@@ -104,6 +105,8 @@ public final class Game {
     }
 
     private void init() {
+        System.out.println("Starting engine version " + EngineVersion.VERSION);
+
         eventQueue = new ConcurrentLinkedQueue<>();
         inputManager = new InputManager();
 

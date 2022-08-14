@@ -39,8 +39,15 @@ public final class CompositeDrawList2D extends DrawList2D {
         return super.getVertices();
     }
 
-    private void step() {
+    /**
+     * Call to manually advance depth
+     */
+    public void step() {
         depth += depthInterval;
+    }
+
+    public float getDepth() {
+        return depth;
     }
 
     public void drawText(String text, Vector2f pos, Vector2f align, Font font, Vector4f color) { drawText(text, pos.x, pos.y, align.x, align.y, font, color); }
@@ -163,4 +170,6 @@ public final class CompositeDrawList2D extends DrawList2D {
     public void drawImage(float x, float y, float w, float h, Image img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(x, y, w, h, img, tint, uv0.x, uv0.y, u1, v1); }
     public void drawImage(float x, float y, float w, float h, Image img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(x, y, w, h, img, tint, u0, v0, uv1.x, uv1.y); }
     public void drawImage(float x, float y, float w, float h, Image img, Vector4f tint, float u0, float v0, float u1, float v1) { step(); drawImage(depth, x, y, w, h, img, tint, u0, v0, u1, v1); }
+
+    public void drawImageQuad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, Image img, Vector4f tint, float u0, float v0, float u1, float v1, float u2, float v2, float u3, float v3) { step(); drawImageQuad(depth, x1, y1, x2, y2, x3, y3, x4, y4, img, tint, u0, v0, u1, v1, u2, v2, u3, v3); }
 }

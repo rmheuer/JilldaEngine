@@ -25,6 +25,8 @@ public abstract class RenderBackend {
     public abstract void setViewportSize(int width, int height);
     public abstract void prepareFrame();
 
+    public abstract void clear(BufferType... buffers);
+
     public abstract Window createWindow(WindowSettings settings);
 
     public abstract Image.Native createImageNative(int width, int height);

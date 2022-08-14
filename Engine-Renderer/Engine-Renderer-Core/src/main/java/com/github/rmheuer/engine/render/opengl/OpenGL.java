@@ -12,6 +12,7 @@ public abstract class OpenGL {
 
     public int COLOR_BUFFER_BIT;
     public int DEPTH_BUFFER_BIT;
+    public int STENCIL_BUFFER_BIT;
     public int DEPTH_TEST;
     public int BLEND;
     public int SRC_ALPHA;

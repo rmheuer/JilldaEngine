@@ -3,6 +3,7 @@ package com.github.rmheuer.engine.render.system;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
 import com.github.rmheuer.engine.core.module.GameModule;
 import com.github.rmheuer.engine.core.nat.NativeObjectManager;
+import com.github.rmheuer.engine.render.BufferType;
 import com.github.rmheuer.engine.render.RenderBackend;
 import com.github.rmheuer.engine.render.RenderConstants;
 import com.github.rmheuer.engine.render.Window;
@@ -37,6 +38,7 @@ public final class RenderModule implements GameModule {
     @Override
     public void preUpdate() {
         RenderBackend.get().prepareFrame();
+        RenderBackend.get().clear(BufferType.COLOR);
     }
 
     @Override

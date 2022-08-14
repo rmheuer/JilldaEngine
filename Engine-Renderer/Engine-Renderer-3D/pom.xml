@@ -18,5 +18,12 @@
             <artifactId>Engine-Renderer-Core</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- 2D rendering is supported within a 3D environment -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>Engine-Renderer-2D</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

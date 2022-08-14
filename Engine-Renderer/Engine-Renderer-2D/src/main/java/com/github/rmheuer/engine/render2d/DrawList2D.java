@@ -363,4 +363,19 @@ public class DrawList2D {
         indices.add(mark + 2);
         indices.add(mark + 3);
     }
+
+    public void drawImageQuad(float depth, float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, Image img, Vector4f tint, float u0, float v0, float u1, float v1, float u2, float v2, float u3, float v3) {
+        // TODO: Clip
+        int mark = vertices.size();
+        vertices.add(new DrawVertex(depth, x1, y1, u0, v0, tint, img));
+        vertices.add(new DrawVertex(depth, x2, y2, u1, v1, tint, img));
+        vertices.add(new DrawVertex(depth, x3, y3, u2, v2, tint, img));
+        vertices.add(new DrawVertex(depth, x4, y4, u3, v3, tint, img));
+        indices.add(mark);
+        indices.add(mark + 1);
+        indices.add(mark + 2);
+        indices.add(mark);
+        indices.add(mark + 2);
+        indices.add(mark + 3);
+    }
 }

@@ -1,5 +1,6 @@
 package com.github.rmheuer.engine.render.opengl;
 
+import com.github.rmheuer.engine.render.BufferType;
 import com.github.rmheuer.engine.render.mesh.MeshDataUsage;
 import com.github.rmheuer.engine.render.mesh.PrimitiveType;
 import com.github.rmheuer.engine.render.shader.ShaderType;
@@ -47,6 +48,16 @@ public final class GLEnumConversions {
             case STATIC: return gl.STATIC_DRAW;
             case DYNAMIC: return gl.DYNAMIC_DRAW;
             case STREAM: return gl.STREAM_DRAW;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
+    public static int getGlBufferType(OpenGL gl, BufferType type) {
+        switch (type) {
+            case COLOR: return gl.COLOR_BUFFER_BIT;
+            case DEPTH: return gl.DEPTH_BUFFER_BIT;
+            case STENCIL: return gl.STENCIL_BUFFER_BIT;
             default:
                 throw new IllegalArgumentException();
         }

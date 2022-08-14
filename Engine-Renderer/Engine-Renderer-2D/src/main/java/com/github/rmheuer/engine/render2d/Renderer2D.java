@@ -5,6 +5,7 @@ import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
 import com.github.rmheuer.engine.render.RenderConstants;
 import com.github.rmheuer.engine.render.camera.Camera;
+import com.github.rmheuer.engine.render.camera.Projection;
 import com.github.rmheuer.engine.render.mesh.Mesh;
 import com.github.rmheuer.engine.render.mesh.MeshDataUsage;
 import com.github.rmheuer.engine.render.mesh.PrimitiveType;
@@ -45,8 +46,8 @@ public final class Renderer2D {
         }
     }
 
-    public void setView(Camera camera, Transform cameraTx) {
-        shader.getUniform("u_Projection").setMatrix4f(camera.getProjection().getMatrix());
+    public void setView(Projection proj, Transform cameraTx) {
+        shader.getUniform("u_Projection").setMatrix4f(proj.getMatrix());
         shader.getUniform("u_View").setMatrix4f(cameraTx.getGlobalInverseMatrix());
     }
 

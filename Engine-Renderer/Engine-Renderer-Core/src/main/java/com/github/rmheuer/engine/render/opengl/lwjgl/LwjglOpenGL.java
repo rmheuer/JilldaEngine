@@ -17,6 +17,7 @@ public final class LwjglOpenGL extends OpenGL {
 
         COLOR_BUFFER_BIT = GL_COLOR_BUFFER_BIT;
         DEPTH_BUFFER_BIT = GL_DEPTH_BUFFER_BIT;
+        STENCIL_BUFFER_BIT = GL_STENCIL_BUFFER_BIT;
         DEPTH_TEST = GL_DEPTH_TEST;
         BLEND = GL_BLEND;
         SRC_ALPHA = GL_SRC_ALPHA;
