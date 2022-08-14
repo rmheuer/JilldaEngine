@@ -143,4 +143,43 @@ public final class World {
         }
         registry.flushChanges();
     }
+
+    public <A extends Component> void forEachEntity(Class<A> a, BiConsumer<Entity, A> fn) {
+        registry.queueChanges();
+        for (Entity entity : registry.getEntitiesWith(a)) {
+            fn.accept(
+                    entity,
+                    entity.getComponent(a)
+            );
+        }
+        registry.flushChanges();
+    }
+
+    public <A extends Component,
+            B extends Component> void forEachEntity(Class<A> a, Class<B> b, TriConsumer<Entity, A, B> fn) {
+        registry.queueChanges();
+        for (Entity entity : registry.getEntitiesWith(a)) {
+            fn.accept(
+                    entity,
+                    entity.getComponent(a),
+                    entity.getComponent(b)
+            );
+        }
+        registry.flushChanges();
+    }
+
+    public <A extends Component,
+            B extends Component,
+            C extends Component> void forEachEntity(Class<A> a, Class<B> b, Class<C> c, QuadConsumer<Entity, A, B, C> fn) {
+        registry.queueChanges();
+        for (Entity entity : registry.getEntitiesWith(a)) {
+            fn.accept(
+                    entity,
+                    entity.getComponent(a),
+                    entity.getComponent(b),
+                    entity.getComponent(c)
+            );
+        }
+        registry.flushChanges();
+    }
 }
