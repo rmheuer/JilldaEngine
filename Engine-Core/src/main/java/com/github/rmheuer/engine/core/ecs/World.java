@@ -95,24 +95,29 @@ public final class World {
     }
 
     public <A extends Component> void forEach(Class<A> a, Consumer<A> fn) {
+        registry.queueChanges();
         for (Entity entity : registry.getEntitiesWith(a)) {
             fn.accept(entity.getComponent(a));
         }
+        registry.flushChanges();
     }
 
     public <A extends Component,
             B extends Component> void forEach(Class<A> a, Class<B> b, BiConsumer<A, B> fn) {
+        registry.queueChanges();
         for (Entity entity : registry.getEntitiesWith(a, b)) {
             fn.accept(
                     entity.getComponent(a),
                     entity.getComponent(b)
             );
         }
+        registry.flushChanges();
     }
 
     public <A extends Component,
             B extends Component,
             C extends Component> void forEach(Class<A> a, Class<B> b, Class<C> c, TriConsumer<A, B, C> fn) {
+        registry.queueChanges();
         for (Entity entity : registry.getEntitiesWith(a, b, c)) {
             fn.accept(
                     entity.getComponent(a),
@@ -120,12 +125,14 @@ public final class World {
                     entity.getComponent(c)
             );
         }
+        registry.flushChanges();
     }
 
     public <A extends Component,
             B extends Component,
             C extends Component,
             D extends Component> void forEach(Class<A> a, Class<B> b, Class<C> c, Class<D> d, QuadConsumer<A, B, C, D> fn) {
+        registry.queueChanges();
         for (Entity entity : registry.getEntitiesWith(a, b, c, d)) {
             fn.accept(
                     entity.getComponent(a),
@@ -134,5 +141,6 @@ public final class World {
                     entity.getComponent(d)
             );
         }
+        registry.flushChanges();
     }
 }
