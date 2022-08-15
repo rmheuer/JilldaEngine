@@ -76,17 +76,17 @@ public final class EntityRegistry {
     }
 
     public void queueChanges() {
-        changeQueueCount++;
+//        changeQueueCount++;
     }
 
     public void flushChanges() {
-        changeQueueCount--;
-        if (changeQueueCount == 0) {
-            for (Runnable r : changeQueue) {
-                r.run();
-            }
-            changeQueue.clear();
-        }
+//        changeQueueCount--;
+//        if (changeQueueCount == 0) {
+//            for (Runnable r : changeQueue) {
+//                r.run();
+//            }
+//            changeQueue.clear();
+//        }
     }
 
     private boolean shouldQueue() {
@@ -157,6 +157,9 @@ public final class EntityRegistry {
         if (!entities.contains(e))
             return;
 
+        for (Entity child : e.getChildren()) {
+            doDelete(child);
+        }
         for (Map<Entity, Component> map : components.values()) {
             map.remove(e);
         }

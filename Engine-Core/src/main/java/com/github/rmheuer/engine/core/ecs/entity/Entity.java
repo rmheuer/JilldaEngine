@@ -100,7 +100,7 @@ public final class Entity {
 	}
 
 	public List<Entity> getChildren() {
-		return getComponent(Hierarchy.class).getChildren();
+		return new ArrayList<>(getComponent(Hierarchy.class).getChildren());
 	}
 
 	public String getName() {
