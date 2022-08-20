@@ -32,6 +32,7 @@ public final class Game {
 
     private static final Game INSTANCE = new Game();
 
+    private String[] commandLineArgs;
     private float fixedUpdatesPerSecond;
     private int sleepInterval;
     private boolean running;
@@ -156,7 +157,9 @@ public final class Game {
         }
     }
 
-    public void run() {
+    public void run(String[] args) {
+        commandLineArgs = args;
+
         running = true;
         init();
 
@@ -194,6 +197,10 @@ public final class Game {
         }
 
         close();
+    }
+
+    public String[] getCommandLineArgs() {
+        return commandLineArgs.clone();
     }
 
     // Queues an event to be dispatched next frame
