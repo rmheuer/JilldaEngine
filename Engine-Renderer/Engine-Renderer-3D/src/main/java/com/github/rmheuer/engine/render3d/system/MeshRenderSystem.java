@@ -35,6 +35,9 @@ public final class MeshRenderSystem implements GameSystem {
                 ShaderProgram shader = mat.getShader();
                 Mesh<?> mesh = m.getMesh();
 
+                if (!mesh.hasData())
+                    return;
+
                 NativeObjectManager nom = ModuleRegistry.getInstance(RenderModule.class).getNativeObjectManager();
                 ShaderProgram.Native nShader = shader.getNative(nom);
                 Mesh.Native nMesh = mesh.getNative(nom);
