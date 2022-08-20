@@ -48,7 +48,7 @@ public final class Game {
     }
 
     private Game() {
-        fixedUpdatesPerSecond = 60;
+        setFixedUpdatesPerSecond(60);
         sleepInterval = 5;
     }
 
@@ -178,7 +178,7 @@ public final class Game {
                 dispatchEvent(event);
             }
 
-            float secondsPerFixedUpdate = 1 / fixedUpdatesPerSecond;
+            float secondsPerFixedUpdate = Time.getFixedDelta();
             while (unprocessedTime > secondsPerFixedUpdate) {
                 fixedUpdate();
 
@@ -229,6 +229,7 @@ public final class Game {
 
     public void setFixedUpdatesPerSecond(float fixedUpdatesPerSecond) {
         this.fixedUpdatesPerSecond = fixedUpdatesPerSecond;
+        Time.setFixedDelta(1 / fixedUpdatesPerSecond);
     }
 
     public int getSleepInterval() {
