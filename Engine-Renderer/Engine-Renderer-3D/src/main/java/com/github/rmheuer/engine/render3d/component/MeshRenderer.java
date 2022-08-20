@@ -7,12 +7,14 @@ import com.github.rmheuer.engine.render3d.material.Material;
 public final class MeshRenderer implements Component {
     private Mesh<?> mesh;
     private Material material;
+    private boolean enabled;
 
     public MeshRenderer() {}
 
     public MeshRenderer(Mesh<?> mesh, Material material) {
         this.mesh = mesh;
         this.material = material;
+        enabled = true;
     }
 
     public Mesh<?> getMesh() {
@@ -29,5 +31,13 @@ public final class MeshRenderer implements Component {
 
     public void setMaterial(Material material) {
         this.material = material;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

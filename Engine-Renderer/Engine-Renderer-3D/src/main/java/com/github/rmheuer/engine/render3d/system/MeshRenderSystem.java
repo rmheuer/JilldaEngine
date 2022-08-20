@@ -31,6 +31,9 @@ public final class MeshRenderSystem implements GameSystem {
             RenderBackend.get().clear(BufferType.DEPTH);
 
             world.forEach(MeshRenderer.class, Transform.class, (m, tx) -> {
+                if (!m.isEnabled())
+                    return;
+
                 Material mat = m.getMaterial();
                 ShaderProgram shader = mat.getShader();
                 Mesh<?> mesh = m.getMesh();
