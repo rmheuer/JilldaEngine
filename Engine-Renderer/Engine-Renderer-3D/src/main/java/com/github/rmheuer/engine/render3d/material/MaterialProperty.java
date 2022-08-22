@@ -2,6 +2,7 @@ package com.github.rmheuer.engine.render3d.material;
 
 import com.github.rmheuer.engine.render.texture.CubeMap;
 import com.github.rmheuer.engine.render.texture.Image;
+import com.github.rmheuer.engine.render.texture.Texture;
 
 public final class MaterialProperty {
     private final String name;
@@ -15,7 +16,9 @@ public final class MaterialProperty {
         return name;
     }
 
-    public boolean isTexture2D() {
+    public boolean isTexture() { return value instanceof Texture; }
+
+    public boolean isImage() {
         return value instanceof Image;
     }
 
@@ -23,7 +26,9 @@ public final class MaterialProperty {
         return value instanceof CubeMap;
     }
 
-    public Image getTexture2D() {
+    public Texture getTexture() { return (Texture) value; }
+
+    public Image getImage() {
         return (Image) value;
     }
 
@@ -31,8 +36,8 @@ public final class MaterialProperty {
         return (CubeMap) value;
     }
 
-    public void setTexture2D(Image texture) {
-        value = texture;
+    public void setImage(Image image) {
+        value = image;
     }
 
     public void setCubeMap(CubeMap map) {

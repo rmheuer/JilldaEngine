@@ -51,12 +51,8 @@ public final class MeshRenderSystem implements GameSystem {
                 for (MaterialProperty prop : mat.getProperties()) {
                     ShaderUniform u = shader.getUniform(prop.getName());
 
-                    if (prop.isTexture2D()) {
-                        nTextures[slotIdx] = prop.getTexture2D().getNative(nom);
-                        u.setInt(slotIdx);
-                        slotIdx++;
-                    } else if (prop.isCubeMap()) {
-                        nTextures[slotIdx] = prop.getCubeMap().getNative(nom);
+                    if (prop.isTexture()) {
+                        nTextures[slotIdx] = prop.getTexture().getNative(nom);
                         u.setInt(slotIdx);
                         slotIdx++;
                     }
@@ -75,6 +71,7 @@ public final class MeshRenderSystem implements GameSystem {
                 }
 
                 nShader.updateUniformValues();
+                RenderBackend.get().setCullMode(m.getWindingOrder(), m.getCullMode());
                 nMesh.render();
                 nShader.unbind();
             });

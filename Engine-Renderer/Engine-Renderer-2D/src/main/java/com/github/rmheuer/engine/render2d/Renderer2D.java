@@ -3,7 +3,10 @@ package com.github.rmheuer.engine.render2d;
 import com.github.rmheuer.engine.core.nat.NativeObjectManager;
 import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
+import com.github.rmheuer.engine.render.CullMode;
+import com.github.rmheuer.engine.render.RenderBackend;
 import com.github.rmheuer.engine.render.RenderConstants;
+import com.github.rmheuer.engine.render.WindingOrder;
 import com.github.rmheuer.engine.render.camera.Camera;
 import com.github.rmheuer.engine.render.camera.Projection;
 import com.github.rmheuer.engine.render.mesh.Mesh;
@@ -80,6 +83,8 @@ public final class Renderer2D {
     }
 
     public void draw(DrawList2D list) {
+        RenderBackend.get().setCullMode(WindingOrder.CLOCKWISE, CullMode.NONE);
+
         List<VertexBatch> batches = VertexBatcher2D.batch(list.getVertices(), list.getIndices(), whiteTex);
         for (VertexBatch batch : batches) {
             drawBatch(batch);

@@ -1,6 +1,8 @@
 package com.github.rmheuer.engine.render.opengl;
 
 import com.github.rmheuer.engine.render.BufferType;
+import com.github.rmheuer.engine.render.CullMode;
+import com.github.rmheuer.engine.render.WindingOrder;
 import com.github.rmheuer.engine.render.mesh.MeshDataUsage;
 import com.github.rmheuer.engine.render.mesh.PrimitiveType;
 import com.github.rmheuer.engine.render.shader.ShaderType;
@@ -58,6 +60,25 @@ public final class GLEnumConversions {
             case COLOR: return gl.COLOR_BUFFER_BIT;
             case DEPTH: return gl.DEPTH_BUFFER_BIT;
             case STENCIL: return gl.STENCIL_BUFFER_BIT;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
+    public static int getGlWindingOrder(OpenGL gl, WindingOrder order) {
+        switch (order) {
+            case CLOCKWISE: return gl.CW;
+            case COUNTERCLOCKWISE: return gl.CCW;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
+    public static int getGlCullMode(OpenGL gl, CullMode mode) {
+        switch (mode) {
+            case FRONT: return gl.FRONT;
+            case BACK: return gl.BACK;
+            case FRONT_AND_BACK: return gl.FRONT_AND_BACK;
             default:
                 throw new IllegalArgumentException();
         }

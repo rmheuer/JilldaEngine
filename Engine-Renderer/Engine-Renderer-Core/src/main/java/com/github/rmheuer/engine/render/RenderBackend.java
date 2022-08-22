@@ -26,6 +26,7 @@ public abstract class RenderBackend {
     public abstract void prepareFrame();
 
     public abstract void clear(BufferType... buffers);
+    public abstract void setCullMode(WindingOrder windingOrder, CullMode mode);
 
     public abstract Window createWindow(WindowSettings settings);
 

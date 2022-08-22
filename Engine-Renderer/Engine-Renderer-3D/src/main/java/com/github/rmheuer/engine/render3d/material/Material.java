@@ -35,7 +35,7 @@ public final class Material {
     }
 
     public Image getTexture2D(String key) {
-        return getProperty(key).getTexture2D();
+        return getProperty(key).getImage();
     }
 
     public CubeMap getCubeMap(String key) { return getProperty(key).getCubeMap(); }
@@ -45,7 +45,7 @@ public final class Material {
     }
 
     public Material setTexture2D(String key, Image texture) {
-        getOrCreateProperty(key).setTexture2D(texture);
+        getOrCreateProperty(key).setImage(texture);
         return this;
     }
 

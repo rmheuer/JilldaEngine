@@ -1,7 +1,9 @@
 package com.github.rmheuer.engine.render.opengl;
 
 import com.github.rmheuer.engine.render.BufferType;
+import com.github.rmheuer.engine.render.CullMode;
 import com.github.rmheuer.engine.render.RenderBackend;
+import com.github.rmheuer.engine.render.WindingOrder;
 import com.github.rmheuer.engine.render.Window;
 import com.github.rmheuer.engine.render.WindowSettings;
 import com.github.rmheuer.engine.render.mesh.Mesh;
@@ -32,6 +34,7 @@ public final class OpenGLBackend extends RenderBackend {
         gl.enable(gl.DEPTH_TEST);
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.depthFunc(gl.LEQUAL);
     }
 
     @Override
@@ -43,6 +46,17 @@ public final class OpenGLBackend extends RenderBackend {
 
         if (bits != 0)
             gl.clear(bits);
+    }
+
+    @Override
+    public void setCullMode(WindingOrder windingOrder, CullMode mode) {
+        gl.frontFace(GLEnumConversions.getGlWindingOrder(gl, windingOrder));
+        if (mode == CullMode.NONE) {
+            gl.disable(gl.CULL_FACE);
+        } else {
+            gl.enable(gl.CULL_FACE);
+            gl.cullFace(GLEnumConversions.getGlCullMode(gl, mode));
+        }
     }
 
     @Override
