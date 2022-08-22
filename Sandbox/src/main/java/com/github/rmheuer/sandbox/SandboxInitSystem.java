@@ -60,7 +60,7 @@ public final class SandboxInitSystem implements GameSystem {
             throw new RuntimeException("Failed to load snowman assets", e);
         }
         Material mat = new Material(shader);
-        mat.setTexture2D("m_Texture", texture);
+        mat.setImage("m_Texture", texture);
 
         MeshRenderer r = new MeshRenderer();
         r.setMesh(mesh);

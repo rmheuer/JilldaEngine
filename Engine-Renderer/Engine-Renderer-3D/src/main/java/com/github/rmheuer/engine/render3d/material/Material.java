@@ -34,7 +34,7 @@ public final class Material {
         return properties.get(key);
     }
 
-    public Image getTexture2D(String key) {
+    public Image getImage(String key) {
         return getProperty(key).getImage();
     }
 
@@ -44,8 +44,8 @@ public final class Material {
         return properties.computeIfAbsent(key, MaterialProperty::new);
     }
 
-    public Material setTexture2D(String key, Image texture) {
-        getOrCreateProperty(key).setImage(texture);
+    public Material setImage(String key, Image image) {
+        getOrCreateProperty(key).setImage(image);
         return this;
     }
 
