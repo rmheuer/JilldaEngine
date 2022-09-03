@@ -26,6 +26,8 @@ public final class MaterialProperty {
         return value instanceof CubeMap;
     }
 
+    public boolean isFloat() { return value instanceof Float; }
+
     public Texture getTexture() { return (Texture) value; }
 
     public Image getImage() {
@@ -36,6 +38,8 @@ public final class MaterialProperty {
         return (CubeMap) value;
     }
 
+    public float getFloat() { return (float) value; }
+
     public void setImage(Image image) {
         value = image;
     }
@@ -43,4 +47,6 @@ public final class MaterialProperty {
     public void setCubeMap(CubeMap map) {
         value = map;
     }
+
+    public void setFloat(float f) { value = f; }
 }

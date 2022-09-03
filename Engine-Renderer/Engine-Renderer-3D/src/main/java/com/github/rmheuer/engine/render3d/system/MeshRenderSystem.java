@@ -55,6 +55,8 @@ public final class MeshRenderSystem implements GameSystem {
                         nTextures[slotIdx] = prop.getTexture().getNative(nom);
                         u.setInt(slotIdx);
                         slotIdx++;
+                    } else if (prop.isFloat()) {
+                        u.setFloat(prop.getFloat());
                     }
                 }
 

@@ -40,6 +40,8 @@ public final class Material {
 
     public CubeMap getCubeMap(String key) { return getProperty(key).getCubeMap(); }
 
+    public float getFloat(String key) { return getProperty(key).getFloat(); }
+
     private MaterialProperty getOrCreateProperty(String key) {
         return properties.computeIfAbsent(key, MaterialProperty::new);
     }
@@ -51,6 +53,11 @@ public final class Material {
 
     public Material setCubeMap(String key, CubeMap map) {
         getOrCreateProperty(key).setCubeMap(map);
+        return this;
+    }
+
+    public Material setFloat(String key, float f) {
+        getOrCreateProperty(key).setFloat(f);
         return this;
     }
 
