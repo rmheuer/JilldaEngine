@@ -10,12 +10,12 @@ public final class ImGui {
     // --- Context creation and access ---
 
     public static ImGuiContext createContext() { return createContext(null); }
-    public static ImGuiContext createContext(ImFontAtlas sharedFontAtlas) {
+    public static ImGuiContext createContext(ImFontAtlas/*ptr*/ sharedFontAtlas) {
         return null;
     }
 
     public static void destroyContext() { destroyContext(null); }
-    public static void destroyContext(ImGuiContext ctx) {
+    public static void destroyContext(ImGuiContext/*ptr*/ ctx) {
 
     }
 
@@ -23,17 +23,17 @@ public final class ImGui {
         return null;
     }
 
-    public static void setCurrentContext(ImGuiContext ctx) {
+    public static void setCurrentContext(ImGuiContext/*ptr*/ ctx) {
 
     }
 
     // --- Main ---
 
-    public static ImGuiIO getIO() {
+    public static ImGuiIO/*ref*/ getIO() {
         return null;
     }
 
-    public static ImGuiStyle getStyle() {
+    public static ImGuiStyle/*ref*/ getStyle() {
         return null;
     }
 
@@ -49,7 +49,7 @@ public final class ImGui {
 
     }
 
-    public static ImDrawData getDrawData() {
+    public static ImDrawData/*ptr*/ getDrawData() {
         return null;
     }
 
@@ -81,7 +81,7 @@ public final class ImGui {
     }
 
     public static void showStyleEditor() { showStyleEditor(null); }
-    public static void showStyleEditor(ImGuiStyle ref) {
+    public static void showStyleEditor(ImGuiStyle/*ptr*/ ref) {
 
     }
 
@@ -104,17 +104,17 @@ public final class ImGui {
     // --- Styles ---
 
     public static void styleColorsDark() { styleColorsDark(null); }
-    public static void styleColorsDark(ImGuiStyle dst) {
+    public static void styleColorsDark(ImGuiStyle/*ptr*/ dst) {
 
     }
 
     public static void styleColorsLight() { styleColorsLight(null); }
-    public static void styleColorsLight(ImGuiStyle dst) {
+    public static void styleColorsLight(ImGuiStyle/*ptr*/ dst) {
 
     }
 
     public static void styleColorsClassic() { styleColorsClassic(null); }
-    public static void styleColorsClassic(ImGuiStyle dst) {
+    public static void styleColorsClassic(ImGuiStyle/*ptr*/ dst) {
 
     }
 
@@ -135,14 +135,14 @@ public final class ImGui {
     public static boolean beginChild(String strId) { return beginChild(strId, new ImVec2(0, 0)); }
     public static boolean beginChild(String strId, ImVec2 size) { return beginChild(strId, size, false); }
     public static boolean beginChild(String strId, ImVec2 size, boolean border) { return beginChild(strId, size, border, 0); }
-    public static boolean beginChild(String strId, ImVec2 size, boolean border, int flags) {
+    public static boolean beginChild(String strId, ImVec2/*ref*/ size, boolean border, int flags) {
         return false;
     }
 
     public static boolean beginChild(int id) { return beginChild(id, new ImVec2(0, 0)); }
     public static boolean beginChild(int id, ImVec2 size) { return beginChild(id, size, false); }
     public static boolean beginChild(int id, ImVec2 size, boolean border) { return beginChild(id, size, border, 0); }
-    public static boolean beginChild(int id, ImVec2 size, boolean border, int flags) {
+    public static boolean beginChild(int id, ImVec2/*ref*/ size, boolean border, int flags) {
         return false;
     }
 
@@ -170,7 +170,7 @@ public final class ImGui {
         return false;
     }
 
-    public static ImDrawList getWindowDrawList() {
+    public static ImDrawList/*ptr*/ getWindowDrawList() {
         return null;
     }
 
@@ -194,7 +194,7 @@ public final class ImGui {
         return 0;
     }
 
-    public static ImGuiViewport getWindowViewport() {
+    public static ImGuiViewport/*ptr*/ getWindowViewport() {
         return null;
     }
 
@@ -202,22 +202,22 @@ public final class ImGui {
 
     public static void setNextWindowPos(ImVec2 pos) { setNextWindowPos(pos, 0); }
     public static void setNextWindowPos(ImVec2 pos, int cond) { setNextWindowPos(pos, cond, new ImVec2(0, 0)); }
-    public static void setNextWindowPos(ImVec2 pos, int cond, ImVec2 pivot) {
+    public static void setNextWindowPos(ImVec2/*ref*/ pos, int cond, ImVec2 pivot) {
 
     }
 
     public static void setNextWindowSize(ImVec2 size) { setNextWindowSize(size, 0); }
-    public static void setNextWindowSize(ImVec2 size, int cond) {
+    public static void setNextWindowSize(ImVec2/*ref*/ size, int cond) {
 
     }
 
     public static void setNextWindowSizeConstraints(ImVec2 sizeMin, ImVec2 sizeMax) { setNextWindowSizeConstraints(sizeMin, sizeMax, null); }
     public static void setNextWindowSizeConstraints(ImVec2 sizeMin, ImVec2 sizeMax, ImGuiSizeCallback customCallback) { setNextWindowSizeConstraints(sizeMin, sizeMax, customCallback, null); }
-    public static void setNextWindowSizeConstraints(ImVec2 sizeMin, ImVec2 sizeMax, ImGuiSizeCallback customCallback, Object customCallbackData) {
+    public static void setNextWindowSizeConstraints(ImVec2/*ref*/ sizeMin, ImVec2/*ref*/ sizeMax, ImGuiSizeCallback customCallback, Object customCallbackData) {
 
     }
 
-    public static void setNextWindowContentSize(ImVec2 size) {
+    public static void setNextWindowContentSize(ImVec2/*ref*/ size) {
 
     }
 
@@ -239,12 +239,12 @@ public final class ImGui {
     }
 
     public static void setWindowPos(ImVec2 pos) { setWindowPos(pos, 0); }
-    public static void setWindowPos(ImVec2 pos, int cond) {
+    public static void setWindowPos(ImVec2/*ref*/ pos, int cond) {
 
     }
 
     public static void setWindowSize(ImVec2 size) { setWindowSize(size, 0); }
-    public static void setWindowSize(ImVec2 size, int cond) {
+    public static void setWindowSize(ImVec2/*ref*/ size, int cond) {
 
     }
 
@@ -262,12 +262,12 @@ public final class ImGui {
     }
 
     public static void setWindowPos(String name, ImVec2 pos) { setWindowPos(name, pos, 0); }
-    public static void setWindowPos(String name, ImVec2 pos, int cond) {
+    public static void setWindowPos(String name, ImVec2/*ref*/ pos, int cond) {
 
     }
 
     public static void setWindowSize(String name, ImVec2 size) { setWindowSize(name, size, 0); }
-    public static void setWindowSize(String name, ImVec2 size, int cond) {
+    public static void setWindowSize(String name, ImVec2/*ref*/ size, int cond) {
 
     }
 
@@ -346,7 +346,7 @@ public final class ImGui {
 
     // --- Parameters stacks (shared) ---
 
-    public static void pushFont(ImFont font) {
+    public static void pushFont(ImFont/*ptr*/ font) {
 
     }
 
@@ -358,7 +358,7 @@ public final class ImGui {
 
     }
 
-    public static void pushStyleColor(int idx, ImVec4 col) {
+    public static void pushStyleColor(int idx, ImVec4/*ref*/ col) {
 
     }
 
@@ -371,7 +371,7 @@ public final class ImGui {
 
     }
 
-    public static void pushStyleVar(int idx, ImVec2 val) {
+    public static void pushStyleVar(int idx, ImVec2/*ref*/ val) {
 
     }
 
@@ -425,7 +425,7 @@ public final class ImGui {
 
     // --- Style read access ---
 
-    public static ImFont getFont() {
+    public static ImFont/*ptr*/ getFont() {
         return null;
     }
 
@@ -437,20 +437,20 @@ public final class ImGui {
         return null;
     }
 
-    public static int getColorU32Col(int idx) { return getColorU32Col(idx, 1.0f); }
-    public static int getColorU32Col(int idx, float alphaMul) {
+    public static int getColorU32_Col(int idx) { return getColorU32_Col(idx, 1.0f); }
+    public static int getColorU32_Col(int idx, float alphaMul) {
         return 0;
     }
 
-    public static int getColorU32Vec(ImVec4 col) {
+    public static int getColorU32_Vec(ImVec4 col) {
         return 0;
     }
 
-    public static int getColorU32U32(int col) {
+    public static int getColorU32_U32(int col) {
         return 0;
     }
 
-    public static ImVec4 getStyleColorVec4(int idx) {
+    public static ImVec4/*ref*/ getStyleColorVec4(int idx) {
         return null;
     }
 
@@ -474,7 +474,7 @@ public final class ImGui {
 
     }
 
-    public static void dummy(ImVec2 size) {
+    public static void dummy(ImVec2/*ref*/ size) {
 
     }
 
@@ -508,7 +508,7 @@ public final class ImGui {
         return 0;
     }
 
-    public static void setCursorPos(ImVec2 localPos) {
+    public static void setCursorPos(ImVec2/*ref*/ localPos) {
 
     }
 
@@ -528,7 +528,7 @@ public final class ImGui {
         return null;
     }
 
-    public static void setCursorScreenPos(ImVec2 pos) {
+    public static void setCursorScreenPos(ImVec2/*ref*/ pos) {
 
     }
 
@@ -588,7 +588,7 @@ public final class ImGui {
 
     }
 
-    public static void textColored(ImVec4 col, String fmt, Object... args) {
+    public static void textColored(ImVec4/*ref*/ col, String fmt, Object... args) {
 
     }
 
@@ -611,7 +611,7 @@ public final class ImGui {
     // --- Widgets: Main ---
 
     public static boolean button(String label) { return button(label, new ImVec2(0, 0)); }
-    public static boolean button(String label, ImVec2 size) {
+    public static boolean button(String label, ImVec2/*ref*/ size) {
         return false;
     }
 
@@ -620,7 +620,7 @@ public final class ImGui {
     }
 
     public static boolean invisibleButton(String strId, ImVec2 size) { return invisibleButton(strId, size, 0); }
-    public static boolean invisibleButton(String strId, ImVec2 size, int flags) {
+    public static boolean invisibleButton(String strId, ImVec2/*ref*/ size, int flags) {
         return false;
     }
 
@@ -632,7 +632,7 @@ public final class ImGui {
     public static void image(Object userTextureId, ImVec2 size, ImVec2 uv0) { image(userTextureId, size, uv0, new ImVec2(1, 1)); }
     public static void image(Object userTextureId, ImVec2 size, ImVec2 uv0, ImVec2 uv1) { image(userTextureId, size, uv0, uv1, new ImVec4(1, 1, 1, 1)); }
     public static void image(Object userTextureId, ImVec2 size, ImVec2 uv0, ImVec2 uv1, ImVec4 tintCol) { image(userTextureId, size, uv0, uv1, tintCol, new ImVec4(0, 0, 0, 0)); }
-    public static void image(Object userTextureId, ImVec2 size, ImVec2 uv0, ImVec2 uv1, ImVec4 tintCol, ImVec4 borderCol) {
+    public static void image(Object userTextureId, ImVec2/*ref*/ size, ImVec2/*ref*/ uv0, ImVec2/*ref*/ uv1, ImVec4/*ref*/ tintCol, ImVec4/*ref*/ borderCol) {
 
     }
 
@@ -641,7 +641,7 @@ public final class ImGui {
     public static boolean imageButton(Object userTextureId, ImVec2 size, ImVec2 uv0, ImVec2 uv1) { return imageButton(userTextureId, size, uv0, uv1, -1); }
     public static boolean imageButton(Object userTextureId, ImVec2 size, ImVec2 uv0, ImVec2 uv1, int framePadding) { return imageButton(userTextureId, size, uv0, uv1, framePadding, new ImVec4(0, 0, 0, 0)); }
     public static boolean imageButton(Object userTextureId, ImVec2 size, ImVec2 uv0, ImVec2 uv1, int framePadding, ImVec4 bgCol) { return imageButton(userTextureId, size, uv0, uv1, framePadding, bgCol, new ImVec4(1, 1, 1, 1)); }
-    public static boolean imageButton(Object userTextureId, ImVec2 size, ImVec2 uv0, ImVec2 uv1, int framePadding, ImVec4 bgCol, ImVec4 tintCol) {
+    public static boolean imageButton(Object userTextureId, ImVec2 size, ImVec2/*ref*/ uv0, ImVec2/*ref*/ uv1, int framePadding, ImVec4/*ref*/ bgCol, ImVec4/*ref*/ tintCol) {
         return false;
     }
 
@@ -663,7 +663,7 @@ public final class ImGui {
 
     public static void progressBar(float fraction) { progressBar(fraction, new ImVec2(-FLT_MIN, 0)); }
     public static void progressBar(float fraction, ImVec2 sizeArg) { progressBar(fraction, sizeArg, null); }
-    public static void progressBar(float fraction, ImVec2 sizeArg, String overlay) {
+    public static void progressBar(float fraction, ImVec2/*ref*/ sizeArg, String overlay) {
 
     }
 
@@ -876,19 +876,19 @@ public final class ImGui {
 
     public static boolean vSliderFloat(String label, ImVec2 size, float[] v, float vMin, float vMax) { return vSliderFloat(label, size, v, vMin, vMax, "%.3f"); }
     public static boolean vSliderFloat(String label, ImVec2 size, float[] v, float vMin, float vMax, String format) { return vSliderFloat(label, size, v, vMin, vMax, format, 0); }
-    public static boolean vSliderFloat(String label, ImVec2 size, float[] v, float vMin, float vMax, String format, int flags) {
+    public static boolean vSliderFloat(String label, ImVec2/*ref*/ size, float[] v, float vMin, float vMax, String format, int flags) {
         return false;
     }
 
     public static boolean vSliderInt(String label, ImVec2 size, int[] v, int vMin, int vMax) { return vSliderInt(label, size, v, vMin, vMax, "%d"); }
     public static boolean vSliderInt(String label, ImVec2 size, int[] v, int vMin, int vMax, String format) { return vSliderInt(label, size, v, vMin, vMax, format, 0); }
-    public static boolean vSliderInt(String label, ImVec2 size, int[] v, int vMin, int vMax, String format, int flags) {
+    public static boolean vSliderInt(String label, ImVec2/*ref*/ size, int[] v, int vMin, int vMax, String format, int flags) {
         return false;
     }
 
     public static boolean vSliderScalar(String label, ImVec2 size, int dataType, Object[] pData, Object pMin, Object pMax) { return vSliderScalar(label, size, dataType, pData, pMin, pMax, null); }
     public static boolean vSliderScalar(String label, ImVec2 size, int dataType, Object[] pData, Object pMin, Object pMax, String format) { return vSliderScalar(label, size, dataType, pData, pMin, pMax, format, 0); }
-    public static boolean vSliderScalar(String label, ImVec2 size, int dataType, Object[] pData, Object pMin, Object pMax, String format, int flags) {
+    public static boolean vSliderScalar(String label, ImVec2/*ref*/ size, int dataType, Object[] pData, Object pMin, Object pMax, String format, int flags) {
         return false;
     }
 
@@ -905,7 +905,7 @@ public final class ImGui {
     public static boolean inputTextMultiline(String label, char[] buf, ImVec2 size) { return inputTextMultiline(label, buf, size, 0); }
     public static boolean inputTextMultiline(String label, char[] buf, ImVec2 size, int flags) { return inputTextMultiline(label, buf, size, flags, null); }
     public static boolean inputTextMultiline(String label, char[] buf, ImVec2 size, int flags, ImGuiInputTextCallback callback) { return inputTextMultiline(label, buf, size, flags, callback, null); }
-    public static boolean inputTextMultiline(String label, char[] buf, ImVec2 size, int flags, ImGuiInputTextCallback callback, Object userData) {
+    public static boolean inputTextMultiline(String label, char[] buf, ImVec2/*ref*/ size, int flags, ImGuiInputTextCallback callback, Object userData) {
         return false;
     }
 
@@ -1013,7 +1013,7 @@ public final class ImGui {
 
     public static boolean colorButton(String descId, ImVec4 col) { return colorButton(descId, col, 0); }
     public static boolean colorButton(String descId, ImVec4 col, int flags) { return colorButton(descId, col, flags, new ImVec2(0, 0)); }
-    public static boolean colorButton(String descId, ImVec4 col, int flags, ImVec2 size) {
+    public static boolean colorButton(String descId, ImVec4/*ref*/ col, int flags, ImVec2/*ref*/ size) {
         return false;
     }
 
@@ -1085,20 +1085,20 @@ public final class ImGui {
     public static boolean selectable(String label) { return selectable(label, false); }
     public static boolean selectable(String label, boolean selected) { return selectable(label, selected, 0); }
     public static boolean selectable(String label, boolean selected, int flags) { return selectable(label, selected, flags, new ImVec2(0, 0)); }
-    public static boolean selectable(String label, boolean selected, int flags, ImVec2 size) {
+    public static boolean selectable(String label, boolean selected, int flags, ImVec2/*ref*/ size) {
         return false;
     }
 
     public static boolean selectable(String label, boolean[] pSelected) { return selectable(label, pSelected, 0); }
     public static boolean selectable(String label, boolean[] pSelected, int flags) { return selectable(label, pSelected, flags, new ImVec2(0, 0)); }
-    public static boolean selectable(String label, boolean[] pSelected, int flags, ImVec2 size) {
+    public static boolean selectable(String label, boolean[] pSelected, int flags, ImVec2/*ref*/ size) {
         return false;
     }
 
     // --- Widgets: List Boxes ---
 
     public static boolean beginListBox(String label) { return beginListBox(label, new ImVec2(0, 0)); }
-    public static boolean beginListBox(String label, ImVec2 size) {
+    public static boolean beginListBox(String label, ImVec2/*ref*/ size) {
         return false;
     }
 
@@ -1261,7 +1261,7 @@ public final class ImGui {
     public static boolean beginTable(String strId, int column) { return beginTable(strId, column, 0); }
     public static boolean beginTable(String strId, int column, int flags) { return beginTable(strId, column, flags, new ImVec2(0.0f, 0.0f)); }
     public static boolean beginTable(String strId, int column, int flags, ImVec2 outerSize) { return beginTable(strId, column, flags, outerSize, 0.0f); }
-    public static boolean beginTable(String strId, int column, int flags, ImVec2 outerSize, float innerWidth) {
+    public static boolean beginTable(String strId, int column, int flags, ImVec2/*ref*/ outerSize, float innerWidth) {
         return false;
     }
 
@@ -1306,7 +1306,7 @@ public final class ImGui {
 
     // --- Tables: Sorting & Miscellaneous functions ---
 
-    public static ImGuiTableSortSpecs tableGetSortSpecs() {
+    public static ImGuiTableSortSpecs/*ptr*/ tableGetSortSpecs() {
         return null;
     }
 
@@ -1415,13 +1415,13 @@ public final class ImGui {
     public static int dockSpace(int id) { return dockSpace(id, new ImVec2(0, 0)); }
     public static int dockSpace(int id, ImVec2 size) { return dockSpace(id, size, 0); }
     public static int dockSpace(int id, ImVec2 size, int flags) { return dockSpace(id, size, flags, null); }
-    public static int dockSpace(int id, ImVec2 size, int flags, ImGuiWindowClass windowClass) {
+    public static int dockSpace(int id, ImVec2/*ref*/ size, int flags, ImGuiWindowClass/*ptr*/ windowClass) {
         return 0;
     }
 
     public static int dockSpaceOverViewport(ImGuiViewport viewport) { return dockSpaceOverViewport(viewport, 0); }
     public static int dockSpaceOverViewport(ImGuiViewport viewport, int flags) { return dockSpaceOverViewport(viewport, flags, null); }
-    public static int dockSpaceOverViewport(ImGuiViewport viewport, int flags, ImGuiWindowClass windowClass) {
+    public static int dockSpaceOverViewport(ImGuiViewport/*ptr*/ viewport, int flags, ImGuiWindowClass/*ptr*/ windowClass) {
         return 0;
     }
 
@@ -1430,7 +1430,7 @@ public final class ImGui {
 
     }
 
-    public static void setNextWindowClass(ImGuiWindowClass windowClass) {
+    public static void setNextWindowClass(ImGuiWindowClass/*ptr*/ windowClass) {
 
     }
 
@@ -1493,7 +1493,7 @@ public final class ImGui {
     }
 
     public static ImGuiPayload acceptDragDropPayload(String type) { return acceptDragDropPayload(type, 0); }
-    public static ImGuiPayload acceptDragDropPayload(String type, int flags) {
+    public static ImGuiPayload/*ptr*/ acceptDragDropPayload(String type, int flags) {
         return null;
     }
 
@@ -1501,7 +1501,7 @@ public final class ImGui {
 
     }
 
-    public static ImGuiPayload getDragDropPayload() {
+    public static ImGuiPayload/*ptr*/ getDragDropPayload() {
         return null;
     }
 
@@ -1518,7 +1518,7 @@ public final class ImGui {
 
     // --- Clipping ---
 
-    public static void pushClipRect(ImVec2 clipRectMin, ImVec2 clipRectMax, boolean intersectWithCurrentClipRect) {
+    public static void pushClipRect(ImVec2/*ref*/ clipRectMin, ImVec2/*ref*/ clipRectMax, boolean intersectWithCurrentClipRect) {
 
     }
 
@@ -1611,35 +1611,35 @@ public final class ImGui {
 
     // --- Viewports ---
 
-    public static ImGuiViewport getMainViewport() {
+    public static ImGuiViewport/*ptr*/ getMainViewport() {
         return null;
     }
 
     // --- Background/Foreground Draw Lists ---
 
-    public static ImDrawList getBackgroundDrawList() {
+    public static ImDrawList/*ptr*/ getBackgroundDrawList() {
         return null;
     }
 
-    public static ImDrawList getForegroundDrawList() {
+    public static ImDrawList/*ptr*/ getForegroundDrawList() {
         return null;
     }
 
-    public static ImDrawList getBackgroundDrawList(ImGuiViewport viewport) {
+    public static ImDrawList/*ptr*/ getBackgroundDrawList(ImGuiViewport viewport) {
         return null;
     }
 
-    public static ImDrawList getForegroundDrawList(ImGuiViewport viewport) {
+    public static ImDrawList/*ptr*/ getForegroundDrawList(ImGuiViewport viewport) {
         return null;
     }
 
     // --- Miscellaneous Utilities ---
 
-    public static boolean isRectVisible(ImVec2 size) {
+    public static boolean isRectVisible(ImVec2/*ref*/ size) {
         return false;
     }
 
-    public static boolean isRectVisible(ImVec2 rectMin, ImVec2 rectMax) {
+    public static boolean isRectVisible(ImVec2/*ref*/ rectMin, ImVec2/*ref*/ rectMax) {
         return false;
     }
 
@@ -1651,7 +1651,7 @@ public final class ImGui {
         return 0;
     }
 
-    public static ImDrawListSharedData getDrawListSharedData() {
+    public static ImDrawListSharedData/*ptr*/ getDrawListSharedData() {
         return null;
     }
 
@@ -1659,16 +1659,16 @@ public final class ImGui {
         return null;
     }
 
-    public static void setStateStorage(ImGuiStorage storage) {
+    public static void setStateStorage(ImGuiStorage/*ptr*/ storage) {
 
     }
 
-    public static ImGuiStorage getStateStorage() {
+    public static ImGuiStorage/*ptr*/ getStateStorage() {
         return null;
     }
 
     public static boolean beginChildFrame(int id, ImVec2 size) { return beginChildFrame(id, size, 0); }
-    public static boolean beginChildFrame(int id, ImVec2 size, int flags) {
+    public static boolean beginChildFrame(int id, ImVec2/*ref*/ size, int flags) {
         return false;
     }
 
@@ -1690,7 +1690,7 @@ public final class ImGui {
         return null;
     }
 
-    public static int colorConvertFloat4ToU32(ImVec4 in) {
+    public static int colorConvertFloat4ToU32(ImVec4/*ref*/ in) {
         return 0;
     }
 
@@ -1753,12 +1753,12 @@ public final class ImGui {
     }
 
     public static boolean isMouseHoveringRect(ImVec2 rMin, ImVec2 rMax) { return isMouseHoveringRect(rMin, rMax, true); }
-    public static boolean isMouseHoveringRect(ImVec2 rMin, ImVec2 rMax, boolean clip) {
+    public static boolean isMouseHoveringRect(ImVec2/*ref*/ rMin, ImVec2/*ref*/ rMax, boolean clip) {
         return false;
     }
 
     public static boolean isMousePosValid() { return isMousePosValid(null); }
-    public static boolean isMousePosValid(ImVec2 mousePos) {
+    public static boolean isMousePosValid(ImVec2/*ptr*/ mousePos) {
         return false;
     }
 
@@ -1832,7 +1832,7 @@ public final class ImGui {
 
     // --- Platform/OS interface for multi-viewport support ---
 
-    public static ImGuiPlatformIO getPlatformIO() {
+    public static ImGuiPlatformIO/*ref*/ getPlatformIO() {
         return null;
     }
 
@@ -1850,11 +1850,11 @@ public final class ImGui {
 
     }
 
-    public static ImGuiViewport findViewportByID(int id) {
+    public static ImGuiViewport/*ptr*/ findViewportByID(int id) {
         return null;
     }
 
-    public static ImGuiViewport findViewportByPlatformHandle(Object platformHandle) {
+    public static ImGuiViewport/*ptr*/ findViewportByPlatformHandle(Object platformHandle) {
         return null;
     }
 

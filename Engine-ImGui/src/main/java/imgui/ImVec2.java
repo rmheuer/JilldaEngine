@@ -1,10 +1,9 @@
 package imgui;
 
-import java.util.Objects;
+import static imgui.ImGuiMacros.IM_ASSERT;
 
 public final class ImVec2 {
-    public float x;
-    public float y;
+    public float x, y;
 
     public ImVec2() {
         x = 0.0f;
@@ -16,34 +15,27 @@ public final class ImVec2 {
         this.y = y;
     }
 
-    public float get(int idx) {
-        switch (idx) {
-            case 0: return x;
-            case 1: return y;
-        }
-        throw new IndexOutOfBoundsException(String.valueOf(idx));
+    // Copy constructor
+    public ImVec2(ImVec2 o) {
+        x = o.x;
+        y = o.y;
     }
 
-    public void set(int idx, float val) {
-        switch (idx) {
-            case 0: x = val; break;
-            case 1: y = val; break;
-            default:
-                throw new IndexOutOfBoundsException(String.valueOf(idx));
-        }
+    public float getComp(int idx) {
+        IM_ASSERT(idx <= 1);
+
+        if (idx == 0)
+            return x;
+        else
+            return y;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ImVec2 imVec2 = (ImVec2) o;
-        return Float.compare(imVec2.x, x) == 0 &&
-                Float.compare(imVec2.y, y) == 0;
-    }
+    public void setComp(int idx, float v) {
+        IM_ASSERT(idx <= 1);
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(x, y);
+        if (idx == 0)
+            x = v;
+        else
+            y = v;
     }
 }

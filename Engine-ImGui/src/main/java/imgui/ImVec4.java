@@ -1,16 +1,13 @@
 package imgui;
 
 public final class ImVec4 {
-    public float x;
-    public float y;
-    public float z;
-    public float w;
+    public float x, y, z, w;
 
     public ImVec4() {
-        x = 0;
-        y = 0;
-        z = 0;
-        w = 0;
+        x = 0.0f;
+        y = 0.0f;
+        z = 0.0f;
+        w = 0.0f;
     }
 
     public ImVec4(float x, float y, float z, float w) {
