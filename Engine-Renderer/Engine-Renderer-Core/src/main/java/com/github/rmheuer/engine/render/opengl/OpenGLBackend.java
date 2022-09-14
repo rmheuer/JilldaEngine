@@ -12,8 +12,6 @@ import com.github.rmheuer.engine.render.shader.ShaderType;
 import com.github.rmheuer.engine.render.texture.CubeMap;
 import com.github.rmheuer.engine.render.texture.Image;
 
-import static org.lwjgl.opengl.GL33C.*;
-
 public final class OpenGLBackend extends RenderBackend {
     private final OpenGL gl;
 
