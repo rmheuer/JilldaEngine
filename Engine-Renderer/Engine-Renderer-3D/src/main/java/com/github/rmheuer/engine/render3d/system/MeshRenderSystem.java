@@ -31,9 +31,15 @@ public final class MeshRenderSystem implements GameSystem {
             RenderBackend.get().clear(BufferType.DEPTH);
 
             world.forEach(MeshRenderer.class, Transform.class, (m, tx) -> {
+                if (!m.isEnabled())
+                    return;
+
                 Material mat = m.getMaterial();
                 ShaderProgram shader = mat.getShader();
                 Mesh<?> mesh = m.getMesh();
+
+                if (!mesh.hasData())
+                    return;
 
                 NativeObjectManager nom = ModuleRegistry.getInstance(RenderModule.class).getNativeObjectManager();
                 ShaderProgram.Native nShader = shader.getNative(nom);
@@ -45,14 +51,12 @@ public final class MeshRenderSystem implements GameSystem {
                 for (MaterialProperty prop : mat.getProperties()) {
                     ShaderUniform u = shader.getUniform(prop.getName());
 
-                    if (prop.isTexture2D()) {
-                        nTextures[slotIdx] = prop.getTexture2D().getNative(nom);
+                    if (prop.isTexture()) {
+                        nTextures[slotIdx] = prop.getTexture().getNative(nom);
                         u.setInt(slotIdx);
                         slotIdx++;
-                    } else if (prop.isCubeMap()) {
-                        nTextures[slotIdx] = prop.getCubeMap().getNative(nom);
-                        u.setInt(slotIdx);
-                        slotIdx++;
+                    } else if (prop.isFloat()) {
+                        u.setFloat(prop.getFloat());
                     }
                 }
 
@@ -69,6 +73,7 @@ public final class MeshRenderSystem implements GameSystem {
                 }
 
                 nShader.updateUniformValues();
+                RenderBackend.get().setCullMode(m.getWindingOrder(), m.getCullMode());
                 nMesh.render();
                 nShader.unbind();
             });

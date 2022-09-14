@@ -17,6 +17,13 @@ public abstract class OpenGL {
     public int BLEND;
     public int SRC_ALPHA;
     public int ONE_MINUS_SRC_ALPHA;
+    public int LEQUAL;
+    public int CULL_FACE;
+    public int FRONT;
+    public int BACK;
+    public int FRONT_AND_BACK;
+    public int CW;
+    public int CCW;
 
     public int TEXTURE_2D;
     public int TEXTURE_CUBE_MAP;
@@ -61,7 +68,11 @@ public abstract class OpenGL {
     public abstract void clearColor(float r, float g, float b, float a);
     public abstract void clear(int flags);
     public abstract void enable(int op);
+    public abstract void disable(int op);
     public abstract void blendFunc(int src, int dst);
+    public abstract void depthFunc(int func);
+    public abstract void cullFace(int face);
+    public abstract void frontFace(int winding);
 
     public abstract int genTextures();
     public abstract void bindTexture(int target, int id);

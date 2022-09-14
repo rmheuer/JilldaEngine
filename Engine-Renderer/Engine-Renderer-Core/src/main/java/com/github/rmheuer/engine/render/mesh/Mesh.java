@@ -82,6 +82,10 @@ public final class Mesh<V extends Vertex> {
         dirty = true;
     }
 
+    public boolean hasData() {
+        return vertices != null;
+    }
+
     public interface Native extends NativeObject {
         void setData(List<? extends Vertex> vertices, List<Integer> indices, MeshDataUsage usage);
 
@@ -89,6 +93,9 @@ public final class Mesh<V extends Vertex> {
     }
 
     public Native getNative(NativeObjectManager mgr) {
+        if (!hasData())
+            throw new IllegalStateException("Cannot get native of mesh with no data");
+
         if (nat == null) {
             nat = RenderBackend.get().createMeshNative(primType);
             mgr.registerObject(nat);

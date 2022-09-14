@@ -115,4 +115,14 @@ public final class NativeObjectManager {
             obj.getFreeFn().free();
         }
     }
+
+    /**
+     * Gets the number of actively allocated native objects which are managed
+     * by this NativeObjectManager.
+     *
+     * @return active object count
+     */
+    public int getActiveObjects() {
+        return activeReferences.size();
+    }
 }

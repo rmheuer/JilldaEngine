@@ -34,23 +34,30 @@ public final class Material {
         return properties.get(key);
     }
 
-    public Image getTexture2D(String key) {
-        return getProperty(key).getTexture2D();
+    public Image getImage(String key) {
+        return getProperty(key).getImage();
     }
 
     public CubeMap getCubeMap(String key) { return getProperty(key).getCubeMap(); }
+
+    public float getFloat(String key) { return getProperty(key).getFloat(); }
 
     private MaterialProperty getOrCreateProperty(String key) {
         return properties.computeIfAbsent(key, MaterialProperty::new);
     }
 
-    public Material setTexture2D(String key, Image texture) {
-        getOrCreateProperty(key).setTexture2D(texture);
+    public Material setImage(String key, Image image) {
+        getOrCreateProperty(key).setImage(image);
         return this;
     }
 
     public Material setCubeMap(String key, CubeMap map) {
         getOrCreateProperty(key).setCubeMap(map);
+        return this;
+    }
+
+    public Material setFloat(String key, float f) {
+        getOrCreateProperty(key).setFloat(f);
         return this;
     }
 

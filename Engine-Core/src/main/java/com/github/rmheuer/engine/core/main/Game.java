@@ -32,6 +32,7 @@ public final class Game {
 
     private static final Game INSTANCE = new Game();
 
+    private String[] commandLineArgs;
     private float fixedUpdatesPerSecond;
     private int sleepInterval;
     private boolean running;
@@ -47,7 +48,7 @@ public final class Game {
     }
 
     private Game() {
-        fixedUpdatesPerSecond = 60;
+        setFixedUpdatesPerSecond(60);
         sleepInterval = 5;
     }
 
@@ -156,7 +157,9 @@ public final class Game {
         }
     }
 
-    public void run() {
+    public void run(String[] args) {
+        commandLineArgs = args;
+
         running = true;
         init();
 
@@ -175,7 +178,7 @@ public final class Game {
                 dispatchEvent(event);
             }
 
-            float secondsPerFixedUpdate = 1 / fixedUpdatesPerSecond;
+            float secondsPerFixedUpdate = Time.getFixedDelta();
             while (unprocessedTime > secondsPerFixedUpdate) {
                 fixedUpdate();
 
@@ -194,6 +197,10 @@ public final class Game {
         }
 
         close();
+    }
+
+    public String[] getCommandLineArgs() {
+        return commandLineArgs.clone();
     }
 
     // Queues an event to be dispatched next frame
@@ -222,6 +229,7 @@ public final class Game {
 
     public void setFixedUpdatesPerSecond(float fixedUpdatesPerSecond) {
         this.fixedUpdatesPerSecond = fixedUpdatesPerSecond;
+        Time.setFixedDelta(1 / fixedUpdatesPerSecond);
     }
 
     public int getSleepInterval() {

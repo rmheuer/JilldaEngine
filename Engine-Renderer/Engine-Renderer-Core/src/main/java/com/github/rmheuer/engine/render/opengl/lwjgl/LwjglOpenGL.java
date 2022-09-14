@@ -22,6 +22,13 @@ public final class LwjglOpenGL extends OpenGL {
         BLEND = GL_BLEND;
         SRC_ALPHA = GL_SRC_ALPHA;
         ONE_MINUS_SRC_ALPHA = GL_ONE_MINUS_SRC_ALPHA;
+        LEQUAL = GL_LEQUAL;
+        CULL_FACE = GL_CULL_FACE;
+        FRONT = GL_FRONT;
+        BACK = GL_BACK;
+        FRONT_AND_BACK = GL_FRONT_AND_BACK;
+        CW = GL_CW;
+        CCW = GL_CCW;
 
         TEXTURE_2D = GL_TEXTURE_2D;
         TEXTURE_CUBE_MAP = GL_TEXTURE_CUBE_MAP;
@@ -84,8 +91,28 @@ public final class LwjglOpenGL extends OpenGL {
     }
 
     @Override
+    public void disable(int op) {
+        glDisable(op);
+    }
+
+    @Override
     public void blendFunc(int src, int dst) {
         glBlendFunc(src, dst);
+    }
+
+    @Override
+    public void depthFunc(int func) {
+        glDepthFunc(func);
+    }
+
+    @Override
+    public void cullFace(int face) {
+        glCullFace(face);
+    }
+
+    @Override
+    public void frontFace(int winding) {
+        glFrontFace(winding);
     }
 
     @Override
