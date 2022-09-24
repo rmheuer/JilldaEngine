@@ -1,7 +1,7 @@
 package imgui.internal;
 
-public final class ImGuiInternal {
-    {
+import imgui.api.ImGuiContext;
 
-    }
+public final class ImGuiInternal {
+    public static ImGuiContext/*ptr*/ gImGui;
 }
