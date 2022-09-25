@@ -31,6 +31,12 @@ public final class ImGuiMacros {
         }
     }
 
+    public static void IM_ASSERT(boolean b, String msg) {
+        if (!b) {
+            throw new AssertionError(msg);
+        }
+    }
+
     public static int IM_COL32(int r, int g, int b, int a) {
         return (a << IM_COL32_A_SHIFT) | (b << IM_COL32_B_SHIFT) | (g << IM_COL32_G_SHIFT) | (r << IM_COL32_R_SHIFT);
     }

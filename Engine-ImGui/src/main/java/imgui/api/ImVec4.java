@@ -30,4 +30,31 @@ public final class ImVec4 {
         this.z = z;
         this.w = w;
     }
+
+    public ImVec4 add(ImVec4 rhs) {
+        return new ImVec4(
+                x + rhs.x,
+                y + rhs.y,
+                z + rhs.z,
+                w + rhs.w
+        );
+    }
+
+    public ImVec4 sub(ImVec4 rhs) {
+        return new ImVec4(
+                x - rhs.x,
+                y - rhs.y,
+                z - rhs.z,
+                w - rhs.w
+        );
+    }
+
+    public ImVec4 mul(ImVec4 rhs) {
+        return new ImVec4(
+                x * rhs.x,
+                y * rhs.y,
+                z * rhs.z,
+                w * rhs.w
+        );
+    }
 }

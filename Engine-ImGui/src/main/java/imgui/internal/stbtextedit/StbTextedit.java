@@ -770,8 +770,8 @@ public final class StbTextedit<StringType> {
 
     public static final class Builder<StringType> {
         // Required
-        private int undoStateCount;
-        private int undoCharCount;
+        private int undoStateCount = 99;
+        private int undoCharCount = 999;
         private StbTexteditStringLenFn<StringType> stringLen;
         private StbTexteditLayOutRowFn<StringType> layOutRow;
         private StbTexteditGetWidthFn<StringType> getWidth;

@@ -48,4 +48,64 @@ public final class ImVec2 {
         this.x = x;
         this.y = y;
     }
+
+    public ImVec2 mul(float rhs) {
+        return new ImVec2(x * rhs, y * rhs);
+    }
+
+    public ImVec2 div(float rhs) {
+        return new ImVec2(x / rhs, y / rhs);
+    }
+
+    public ImVec2 add(ImVec2/*ref*/ rhs) {
+        return new ImVec2(x + rhs.x, y + rhs.y);
+    }
+
+    public ImVec2 sub(ImVec2/*ref*/ rhs) {
+        return new ImVec2(x - rhs.x, y - rhs.y);
+    }
+
+    public ImVec2 mul(ImVec2/*ref*/ rhs) {
+        return new ImVec2(x * rhs.x, y * rhs.y);
+    }
+
+    public ImVec2 div(ImVec2/*ref*/ rhs) {
+        return new ImVec2(x / rhs.x, y / rhs.y);
+    }
+
+    public ImVec2 mulEq(float rhs) {
+        x *= rhs;
+        y *= rhs;
+        return this;
+    }
+
+    public ImVec2 divEq(float rhs) {
+        x /= rhs;
+        y /= rhs;
+        return this;
+    }
+
+    public ImVec2 addEq(ImVec2/*ref*/ rhs) {
+        x += rhs.x;
+        y += rhs.y;
+        return this;
+    }
+
+    public ImVec2 subEq(ImVec2/*ref*/ rhs) {
+        x -= rhs.x;
+        y -= rhs.y;
+        return this;
+    }
+
+    public ImVec2 mulEq(ImVec2/*ref*/ rhs) {
+        x *= rhs.x;
+        y *= rhs.y;
+        return this;
+    }
+
+    public ImVec2 divEq(ImVec2/*ref*/ rhs) {
+        x /= rhs.x;
+        y /= rhs.y;
+        return this;
+    }
 }
