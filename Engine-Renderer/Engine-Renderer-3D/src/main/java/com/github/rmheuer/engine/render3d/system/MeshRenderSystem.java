@@ -35,8 +35,13 @@ public final class MeshRenderSystem implements GameSystem {
                     return;
 
                 Material mat = m.getMaterial();
+                if (mat == null)
+                    return;
+
                 ShaderProgram shader = mat.getShader();
                 Mesh<?> mesh = m.getMesh();
+                if (mesh == null)
+                    return;
 
                 if (!mesh.hasData())
                     return;
