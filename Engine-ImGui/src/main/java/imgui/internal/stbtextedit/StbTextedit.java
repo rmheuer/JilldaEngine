@@ -997,8 +997,8 @@ public final class StbTextedit<StringType> {
     }
 
     // Required
-    final int undoStateCount;
-    final int undoCharCount;
+    public final int undoStateCount;
+    public final int undoCharCount;
     private final StbTexteditStringLenFn<StringType> stringLen;
     private final StbTexteditLayOutRowFn<StringType> layOutRow;
     private final StbTexteditGetWidthFn<StringType> getWidth;
@@ -1010,8 +1010,8 @@ public final class StbTextedit<StringType> {
 
     // Optional
     private final StbTexteditIsSpaceFn isSpace;
-    private final StbTexteditMoveWordLeftFn<StringType> moveWordLeft;
-    private final StbTexteditMoveWordRightFn<StringType> moveWordRight;
+    private StbTexteditMoveWordLeftFn<StringType> moveWordLeft;
+    private StbTexteditMoveWordRightFn<StringType> moveWordRight;
     private final Float getWidthNewLine;
 
     // Keys
@@ -1078,49 +1078,49 @@ public final class StbTextedit<StringType> {
 
         if (isSpace != null) {
             if (moveWordLeft == null)
-                moveWordLeft = this::defaultMoveToWordPrevious;
+                this.moveWordLeft = this::defaultMoveToWordPrevious;
             if (moveWordRight == null)
-                moveWordRight = this::defaultMoveToWordNext;
+                this.moveWordRight = this::defaultMoveToWordNext;
         }
     }
 
-    private int stringLen(StringType str) {
+    public int stringLen(StringType str) {
         return stringLen.get(str);
     }
 
-    private void layOutRow(StbTexteditRow r, StringType obj, int n) {
+    public void layOutRow(StbTexteditRow r, StringType obj, int n) {
         layOutRow.layOut(r, obj, n);
     }
 
-    private float getWidth(StringType obj, int n, int i) {
+    public float getWidth(StringType obj, int n, int i) {
         return getWidth.get(obj, n, i);
     }
 
-    private int keyToText(int key) {
+    public int keyToText(int key) {
         return keyToText.convert(key);
     }
 
-    private char getChar(StringType obj, int i) {
+    public char getChar(StringType obj, int i) {
         return getChar.get(obj, i);
     }
 
-    private void deleteChars(StringType obj, int i, int n) {
+    public void deleteChars(StringType obj, int i, int n) {
         deleteChars.delete(obj, i, n);
     }
 
-    private boolean insertChars(StringType obj, int i, String str) {
+    public boolean insertChars(StringType obj, int i, String str) {
         return insertChars.insert(obj, i, str);
     }
 
-    private boolean isSpace(char c) {
+    public boolean isSpace(char c) {
         return isSpace.check(c);
     }
 
-    private int moveWordLeft(StringType str, int c) {
+    public int moveWordLeft(StringType str, int c) {
         return moveWordLeft.move(str, c);
     }
 
-    private int moveWordRight(StringType str, int c) {
+    public int moveWordRight(StringType str, int c) {
         return moveWordRight.move(str, c);
     }
 }

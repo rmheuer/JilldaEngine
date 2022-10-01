@@ -1,6 +1,10 @@
 package imgui.internal;
 
 import static imgui.api.ImGuiMacros.IM_ASSERT;
+import static imgui.internal.ImGuiInternal.imClamp;
+import static imgui.internal.ImGuiInternal.imMax;
+import static imgui.internal.ImGuiInternal.imMin;
+import static imgui.internal.ImGuiInternal.imSaturate;
 
 public final class ImGuiMacrosInternal {
     public static final String IMGUI_PAYLOAD_TYPE_WINDOW = "_IMWINDOW";
@@ -29,7 +33,7 @@ public final class ImGuiMacrosInternal {
         return (int) (val * 255.0f + (val >= 0 ? 0.5f : -0.5f));
     }
     public static int IM_F32_TO_INT8_SAT(float val) {
-        return (int) (ImSaturate(val) * 255.0f + 0.5f);
+        return (int) (imSaturate(val) * 255.0f + 0.5f);
     }
     public static float IM_FLOOR(float val) {
         return (int) val;
@@ -82,6 +86,27 @@ public final class ImGuiMacrosInternal {
     public static float imCeil(float x) {
         return (float) Math.ceil(x);
     }
+
+    public static int IM_ROUNDUP_TO_EVEN(int v) {
+        return ((v + 1) / 2) * 2;
+    }
+
+    public static final int IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MIN = 4;
+    public static final int IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX = 512;
+    public static int IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(float rad, float maxError) {
+        return imClamp(IM_ROUNDUP_TO_EVEN((int) imCeil(IM_PI / imAcos(1 - imMin(maxError, rad) / rad))), IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MIN, IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX);
+    }
+
+    public static float IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_R(int n, float maxError) {
+        return maxError / (1 - imCos(IM_PI / imMax(n, IM_PI)));
+    }
+
+    public static float IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_ERROR(int n, float rad) {
+        return ((1 - imCos(IM_PI / imMax(n, IM_PI))) / rad);
+    }
+
+    public static final int IM_DRAWLIST_ARCFAST_TABLE_SIZE = 48;
+    public static final int IM_DRAWLIST_ARCFAST_SAMPLE_MAX = IM_DRAWLIST_ARCFAST_TABLE_SIZE;
 
     private ImGuiMacrosInternal() {
         throw new AssertionError();
