@@ -10,6 +10,7 @@ import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.math.Vector3f;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
 import com.github.rmheuer.engine.core.util.Pair;
+import com.github.rmheuer.engine.render.WindingOrder;
 import com.github.rmheuer.engine.render.camera.Camera;
 import com.github.rmheuer.engine.render.camera.PerspectiveProjection;
 import com.github.rmheuer.engine.render.mesh.Mesh;
@@ -102,6 +103,7 @@ public final class SandboxInitSystem implements GameSystem {
 
         MeshRenderer skyRenderer = new MeshRenderer();
         skyRenderer.setMesh(Primitives3D.CUBE);
+        skyRenderer.setWindingOrder(WindingOrder.CLOCKWISE);
         skyRenderer.setMaterial(skyMat);
 
         Entity skybox = world.getRoot().newChild();

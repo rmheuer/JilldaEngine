@@ -13,7 +13,9 @@ public final class MeshRenderer implements Component {
     private WindingOrder windingOrder;
     private boolean enabled;
 
-    public MeshRenderer() {}
+    public MeshRenderer() {
+        this(null, null);
+    }
 
     public MeshRenderer(Mesh<?> mesh, Material material) {
         this(mesh, material, CullMode.BACK);
@@ -51,8 +53,16 @@ public final class MeshRenderer implements Component {
         return cullMode;
     }
 
+    public void setCullMode(CullMode cullMode) {
+        this.cullMode = cullMode;
+    }
+
     public WindingOrder getWindingOrder() {
         return windingOrder;
+    }
+
+    public void setWindingOrder(WindingOrder windingOrder) {
+        this.windingOrder = windingOrder;
     }
 
     public boolean isEnabled() {
