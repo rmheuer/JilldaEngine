@@ -1,0 +1,10 @@
+{
+  "modules": [
+    "com.github.rmheuer.engine.render.system.RenderModule",
+    "com.github.rmheuer.engine.render2d.system.Render2DModule",
+    "com.github.rmheuer.engine.gui.system.GuiModule"
+  ],
+  "layers": [
+    "com.github.rmheuer.engine.editor.EditorLayer"
+  ]
+}

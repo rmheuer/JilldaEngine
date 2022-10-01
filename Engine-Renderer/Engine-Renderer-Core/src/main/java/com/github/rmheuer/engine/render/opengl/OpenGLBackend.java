@@ -1,11 +1,6 @@
 package com.github.rmheuer.engine.render.opengl;
 
-import com.github.rmheuer.engine.render.BufferType;
-import com.github.rmheuer.engine.render.CullMode;
-import com.github.rmheuer.engine.render.RenderBackend;
-import com.github.rmheuer.engine.render.WindingOrder;
-import com.github.rmheuer.engine.render.Window;
-import com.github.rmheuer.engine.render.WindowSettings;
+import com.github.rmheuer.engine.render.*;
 import com.github.rmheuer.engine.render.mesh.Mesh;
 import com.github.rmheuer.engine.render.mesh.PrimitiveType;
 import com.github.rmheuer.engine.render.shader.Shader;
@@ -54,6 +49,30 @@ public final class OpenGLBackend extends RenderBackend {
         } else {
             gl.enable(gl.CULL_FACE);
             gl.cullFace(GLEnumConversions.getGlCullMode(gl, mode));
+        }
+    }
+
+    @Override
+    public void setDepthMode(DepthMode mode) {
+        switch (mode) {
+            case DISABLED:
+                gl.disable(gl.DEPTH_TEST);
+                break;
+            case TEST_ONLY:
+                gl.enable(gl.DEPTH_TEST);
+                gl.depthFunc(gl.LEQUAL);
+                gl.depthMask(false);
+                break;
+            case WRITE_ONLY:
+                gl.enable(gl.DEPTH_TEST);
+                gl.depthFunc(gl.ALWAYS);
+                gl.depthMask(true);
+                break;
+            case TEST_AND_WRITE:
+                gl.enable(gl.DEPTH_TEST);
+                gl.depthMask(true);
+                gl.depthFunc(gl.LEQUAL);
+                break;
         }
     }
 

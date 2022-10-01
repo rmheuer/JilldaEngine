@@ -18,6 +18,7 @@ public abstract class OpenGL {
     public int SRC_ALPHA;
     public int ONE_MINUS_SRC_ALPHA;
     public int LEQUAL;
+    public int ALWAYS;
     public int CULL_FACE;
     public int FRONT;
     public int BACK;
@@ -71,6 +72,7 @@ public abstract class OpenGL {
     public abstract void disable(int op);
     public abstract void blendFunc(int src, int dst);
     public abstract void depthFunc(int func);
+    public abstract void depthMask(boolean mask);
     public abstract void cullFace(int face);
     public abstract void frontFace(int winding);
 

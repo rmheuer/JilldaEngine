@@ -23,6 +23,7 @@ public final class LwjglOpenGL extends OpenGL {
         SRC_ALPHA = GL_SRC_ALPHA;
         ONE_MINUS_SRC_ALPHA = GL_ONE_MINUS_SRC_ALPHA;
         LEQUAL = GL_LEQUAL;
+        ALWAYS = GL_ALWAYS;
         CULL_FACE = GL_CULL_FACE;
         FRONT = GL_FRONT;
         BACK = GL_BACK;
@@ -103,6 +104,11 @@ public final class LwjglOpenGL extends OpenGL {
     @Override
     public void depthFunc(int func) {
         glDepthFunc(func);
+    }
+
+    @Override
+    public void depthMask(boolean mask) {
+        glDepthMask(mask);
     }
 
     @Override
