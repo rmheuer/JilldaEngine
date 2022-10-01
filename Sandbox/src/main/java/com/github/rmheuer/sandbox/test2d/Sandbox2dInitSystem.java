@@ -25,22 +25,32 @@ public final class Sandbox2dInitSystem implements GameSystem {
             cameraEnt.addComponent(cameraTx);
         }
 
-        {
-            Image img = null;
-            try {
-                img = Image.decode(new JarResourceFile("snowman-tex.png"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        Image img = null;
+        try {
+            img = Image.decode(new JarResourceFile("snowman-tex.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        {
             SpriteRenderer sprite = new SpriteRenderer(img);
             Transform spriteTx = new Transform();
             spriteTx.setScale(new Vector3f(100, 100, 1));
-            spriteTx.setRotation(new Vector3f(0, 0, 1.0f));
 
             Entity spriteEnt = world.getRoot().newChild("Sprite");
             spriteEnt.addComponent(sprite);
             spriteEnt.addComponent(spriteTx);
+        }
+
+        {
+            SpriteRenderer floorSpr = new SpriteRenderer(img);
+            Transform floorTx = new Transform();
+            floorTx.setPosition(new Vector3f(0, 250, 0));
+            floorTx.setScale(new Vector3f(700, 50, 1));
+
+            Entity floorEnt = world.getRoot().newChild("Floor");
+            floorEnt.addComponent(floorSpr);
+            floorEnt.addComponent(floorTx);
         }
     }
 }
