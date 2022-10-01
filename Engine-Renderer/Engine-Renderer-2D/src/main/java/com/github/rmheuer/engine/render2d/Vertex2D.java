@@ -24,8 +24,8 @@ public final class Vertex2D implements Vertex {
     private final Vector4f color;
     private final int textureSlot;
 
-    public Vertex2D(float x, float y, float depth, float u, float v, Vector4f color, int textureSlot) {
-        this(new Vector3f(x, y, depth), new Vector2f(u, v), color, textureSlot);
+    public Vertex2D(Vector3f pos, float u, float v, Vector4f color, int textureSlot) {
+        this(pos, new Vector2f(u, v), color, textureSlot);
     }
 
     public Vertex2D(Vector3f position, Vector2f texCoord, Vector4f color, int textureSlot) {

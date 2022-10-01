@@ -8,7 +8,7 @@ import com.github.rmheuer.engine.core.math.Vector2f;
 import com.github.rmheuer.engine.core.math.Vector4f;
 import com.github.rmheuer.engine.core.serial.node.SerialObject;
 import com.github.rmheuer.engine.core.serial.obj.Transient;
-import com.github.rmheuer.engine.render2d.CompositeDrawList2D;
+import com.github.rmheuer.engine.render2d.DrawList2D;
 import com.github.rmheuer.engine.render2d.Rectangle;
 import com.github.rmheuer.engine.render.texture.Image;
 
@@ -66,7 +66,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
         private Vector2f prevSize;
         private Vector2f scroll;
         
-        private CompositeDrawList2D draw;
+        private DrawList2D draw;
 
         public WindowData(float x, float y) {
             bounds = Rectangle.fromXYSizes(x, y, 400, 400);
@@ -82,10 +82,10 @@ public final class GuiRenderer implements WorldLocalSingleton {
     private final GuiInput input;
     private GuiStyle style;
 
-    private final Deque<CompositeDrawList2D> drawStack;
-    private CompositeDrawList2D mainDraw;
-    private CompositeDrawList2D draw;
-    private CompositeDrawList2D foreground;
+    private final Deque<DrawList2D> drawStack;
+    private DrawList2D mainDraw;
+    private DrawList2D draw;
+    private DrawList2D foreground;
     private Rectangle displayBounds;
     private Pane pane;
 	private Rectangle widgetSizeOverride;
@@ -102,8 +102,8 @@ public final class GuiRenderer implements WorldLocalSingleton {
     // --- Frame control ---
 
     public void beginFrame(int width, int height) {
-        mainDraw = new CompositeDrawList2D();
-        foreground = new CompositeDrawList2D();
+        mainDraw = new DrawList2D();
+        foreground = new DrawList2D();
 
         float halfW = width / 2.0f;
         float halfH = height / 2.0f;
@@ -190,12 +190,12 @@ public final class GuiRenderer implements WorldLocalSingleton {
         input.endFrame();
     }
 
-    public CompositeDrawList2D getDrawList() {
+    public DrawList2D getDrawList() {
         return mainDraw;
     }
 
-    public void pushDraw() { pushDraw(new CompositeDrawList2D()); }
-    public void pushDraw(CompositeDrawList2D d) {
+    public void pushDraw() { pushDraw(new DrawList2D()); }
+    public void pushDraw(DrawList2D d) {
         if (draw != null)
             drawStack.push(draw);
         draw = d;
@@ -406,7 +406,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
             return win;
         });
         window.parent = prevWindow;
-        window.draw = new CompositeDrawList2D();
+        window.draw = new DrawList2D();
         pushDraw(window.draw);
         window.title = title;
         window.id = id;
@@ -449,7 +449,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
         draw.popClip();
         window.prevSize = pane.max.sub(pane.bounds.getMin()).add(window.scroll);
 
-        CompositeDrawList2D contentDraw = draw;
+        DrawList2D contentDraw = draw;
         popDraw();
 
         boolean focused = isWindowFocused();
@@ -620,11 +620,11 @@ public final class GuiRenderer implements WorldLocalSingleton {
         }
     }
 
-    public CompositeDrawList2D getWindowDrawList() {
+    public DrawList2D getWindowDrawList() {
         return window.draw;
     }
 
-    public CompositeDrawList2D getActiveDrawList() {
+    public DrawList2D getActiveDrawList() {
         return draw;
     }
 

@@ -1,4 +1,4 @@
-package com.github.rmheuer.sandbox;
+package com.github.rmheuer.sandbox.test3d;
 
 import com.github.rmheuer.engine.core.ecs.component.Component;
 import com.github.rmheuer.engine.core.transform.Transform;

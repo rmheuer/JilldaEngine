@@ -36,7 +36,7 @@ public final class VertexBatch {
         if (textureSlot == -1)
             return false;
 
-        data.vertex(new Vertex2D(v.getX(), v.getY(), v.getDepth(), v.getU(), v.getV(), v.getColor(), textureSlot));
+        data.vertex(new Vertex2D(v.getPos(), v.getU(), v.getV(), v.getColor(), textureSlot));
 
         return true;
     }

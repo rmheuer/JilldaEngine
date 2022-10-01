@@ -1,5 +1,6 @@
 package com.github.rmheuer.engine.render2d;
 
+import com.github.rmheuer.engine.core.math.Vector3f;
 import com.github.rmheuer.engine.core.math.Vector4f;
 import com.github.rmheuer.engine.render.texture.Image;
 
@@ -7,41 +8,21 @@ import com.github.rmheuer.engine.render.texture.Image;
 //       This is the intermediate representation of the vertices
 //       before being batched.
 public final class DrawVertex {
-    private float depth;
-    private final float x, y;
+    private final Vector3f pos;
     private final float u, v;
     private final Vector4f color;
     private final Image tex;
 
-    public DrawVertex(float depth, float x, float y, Vector4f color) {
-        this(depth, x, y, 0, 0, color, null);
-    }
-
-    public DrawVertex(float depth, float x, float y, float u, float v, Vector4f color, Image tex) {
-        this.depth = depth;
-        this.x = x;
-        this.y = y;
+    public DrawVertex(Vector3f pos, float u, float v, Vector4f color, Image tex) {
+        this.pos = pos;
         this.u = u;
         this.v = v;
         this.color = color;
         this.tex = tex;
     }
 
-    public float getDepth() {
-        return depth;
-    }
-
-    // Settable for CompositeDrawList2D join
-    public void setDepth(float depth) {
-        this.depth = depth;
-    }
-
-    public float getX() {
-        return x;
-    }
-
-    public float getY() {
-        return y;
+    public Vector3f getPos() {
+        return pos;
     }
 
     public float getU() {

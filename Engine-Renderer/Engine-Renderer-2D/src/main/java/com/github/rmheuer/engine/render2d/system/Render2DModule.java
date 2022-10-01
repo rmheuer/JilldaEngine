@@ -11,7 +11,9 @@ public final class Render2DModule implements GameModule {
     public Collection<Class<? extends GameSystem>> getSystems() {
         return Arrays.asList(
                 RenderContext2DSystem.class,
-                RenderBeginFrame2DSystem.class
+                RenderBeginFrame2DSystem.class,
+                RenderEndFrame2DSystem.class,
+                SpriteRenderSystem.class
         );
     }
 }

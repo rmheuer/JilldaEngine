@@ -11,7 +11,7 @@ import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
 import com.github.rmheuer.engine.gui.GuiInput;
 import com.github.rmheuer.engine.gui.GuiRenderer;
 import com.github.rmheuer.engine.gui.GuiStyle;
-import com.github.rmheuer.engine.render2d.CompositeDrawList2D;
+import com.github.rmheuer.engine.render2d.DrawList2D;
 import com.github.rmheuer.engine.render2d.Rectangle;
 import com.github.rmheuer.engine.render2d.font.Font;
 import com.github.rmheuer.engine.render2d.font.TrueTypeFont;
@@ -127,7 +127,7 @@ public final class TextFileEditor implements FileEditor {
 
         GuiStyle style = g.getStyle();
         GuiInput input = g.getInput();
-        CompositeDrawList2D draw = g.getActiveDrawList();
+        DrawList2D draw = g.getActiveDrawList();
 
         int lineCount = lines.size();
         if (lineCount == 0) {

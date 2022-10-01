@@ -8,7 +8,7 @@ public abstract class Font {
 
     protected abstract GlyphInfo getGlyph(char c);
 
-    public void draw(DrawList2D r, float depth, String text, float x, float y, Vector4f color) {
+    public void draw(DrawList2D r, String text, float x, float y, Vector4f color) {
         for (char c : text.toCharArray()) {
             GlyphInfo glyph = getGlyph(c);
             if (glyph == null) {
@@ -16,7 +16,6 @@ public abstract class Font {
             }
 
             r.drawImage(
-                    depth,
                     x + glyph.getOffset().x, y + glyph.getOffset().y,
                     glyph.getSize(),
                     glyph.getTexture(),

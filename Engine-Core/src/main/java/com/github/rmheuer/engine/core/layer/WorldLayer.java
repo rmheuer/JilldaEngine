@@ -15,8 +15,11 @@ public abstract class WorldLayer implements Layer {
 
     public WorldLayer() {
         Set<GameSystem> systems = Game.get().getAllSystems();
-        for (Class<? extends GameSystem> clazz : getAdditionalSystems()) {
-            systems.add(SystemRegistry.getInstance(clazz));
+        Collection<Class<? extends GameSystem>> additional = getAdditionalSystems();
+        if (additional != null) {
+            for (Class<? extends GameSystem> clazz : additional) {
+                systems.add(SystemRegistry.getInstance(clazz));
+            }
         }
         world = new World(systems);
     }
