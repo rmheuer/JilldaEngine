@@ -190,6 +190,13 @@ public final class Vector3f {
 	return dest;
     }
 
+    public Vector3f mulAdd(Vector3f vec, float scalar) {
+    	x += vec.x * scalar;
+    	y += vec.y * scalar;
+    	z *= vec.z * scalar;
+    	return this;
+	}
+
     public Vector3f div(float f) {
     	x /= f;
     	y /= f;

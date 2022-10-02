@@ -25,32 +25,44 @@ public final class Sandbox2dInitSystem implements GameSystem {
             cameraEnt.addComponent(cameraTx);
         }
 
-        Image img = null;
+        Image box = null, floor = null;
         try {
-            img = Image.decode(new JarResourceFile("snowman-tex.png"));
+            box = Image.decode(new JarResourceFile("box.png"));
+            floor = Image.decode(new JarResourceFile("floor.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+//        {
+//            Gravity grav = new Gravity();
+//            grav.setAcceleration(new Vector3f(0, 200, 0));
+//            world.getRoot().newChild("Gravity").addComponent(grav);
+//        }
+
         {
-            SpriteRenderer sprite = new SpriteRenderer(img);
+            SpriteRenderer sprite = new SpriteRenderer(box);
             Transform spriteTx = new Transform();
             spriteTx.setScale(new Vector3f(100, 100, 1));
+//            RigidBody spriteBd = new RigidBody();
 
             Entity spriteEnt = world.getRoot().newChild("Sprite");
             spriteEnt.addComponent(sprite);
             spriteEnt.addComponent(spriteTx);
+//            spriteEnt.addComponent(spriteBd);
         }
 
         {
-            SpriteRenderer floorSpr = new SpriteRenderer(img);
+            SpriteRenderer floorSpr = new SpriteRenderer(floor);
             Transform floorTx = new Transform();
             floorTx.setPosition(new Vector3f(0, 250, 0));
             floorTx.setScale(new Vector3f(700, 50, 1));
+//            RigidBody floorBd = new RigidBody();
+//            floorBd.setFixed(true);
 
             Entity floorEnt = world.getRoot().newChild("Floor");
             floorEnt.addComponent(floorSpr);
             floorEnt.addComponent(floorTx);
+//            floorEnt.addComponent(floorBd);
         }
     }
 }
