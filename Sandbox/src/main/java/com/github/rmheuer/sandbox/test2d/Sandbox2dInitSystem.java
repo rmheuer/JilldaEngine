@@ -3,9 +3,14 @@ package com.github.rmheuer.sandbox.test2d;
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.entity.Entity;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
+import com.github.rmheuer.engine.core.math.MathUtils;
+import com.github.rmheuer.engine.core.math.Vector2f;
 import com.github.rmheuer.engine.core.math.Vector3f;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
 import com.github.rmheuer.engine.core.transform.Transform;
+import com.github.rmheuer.engine.physics2d.component.BoxCollider2D;
+import com.github.rmheuer.engine.physics2d.component.Gravity2D;
+import com.github.rmheuer.engine.physics2d.component.RigidBody2D;
 import com.github.rmheuer.engine.render.camera.Camera;
 import com.github.rmheuer.engine.render.camera.OrthographicProjection;
 import com.github.rmheuer.engine.render.texture.Image;
@@ -33,22 +38,30 @@ public final class Sandbox2dInitSystem implements GameSystem {
             e.printStackTrace();
         }
 
-//        {
-//            Gravity grav = new Gravity();
-//            grav.setAcceleration(new Vector3f(0, 200, 0));
-//            world.getRoot().newChild("Gravity").addComponent(grav);
-//        }
-
         {
+            Gravity2D grav = new Gravity2D();
+            grav.setAcceleration(new Vector2f(0, 500));
+            world.getRoot().newChild("Gravity").addComponent(grav);
+        }
+
+        int count = 25;
+        int sqrtCount = (int) Math.sqrt(count);
+        for (int i = 0; i < count; i++) {
             SpriteRenderer sprite = new SpriteRenderer(box);
             Transform spriteTx = new Transform();
-            spriteTx.setScale(new Vector3f(100, 100, 1));
-//            RigidBody spriteBd = new RigidBody();
+            spriteTx.setPosition(new Vector3f(MathUtils.map(i % sqrtCount, 0, sqrtCount - 1, -225, 225), MathUtils.map(i / sqrtCount, 0, count / sqrtCount - 1, -200, 200), 0));
+            spriteTx.setScale(new Vector3f(50, 50, 1));
+            spriteTx.setRotation(new Vector3f(0, 0, 0.75f + i * 0.2f));
+            RigidBody2D spriteBd = new RigidBody2D();
+            spriteBd.setType(RigidBody2D.Type.DYNAMIC);
+            BoxCollider2D spriteBox = new BoxCollider2D();
+            spriteBox.setRestitution(1.1f);
 
-            Entity spriteEnt = world.getRoot().newChild("Sprite");
+            Entity spriteEnt = world.getRoot().newChild("Sprite " + i);
             spriteEnt.addComponent(sprite);
             spriteEnt.addComponent(spriteTx);
-//            spriteEnt.addComponent(spriteBd);
+            spriteEnt.addComponent(spriteBd);
+            spriteEnt.addComponent(spriteBox);
         }
 
         {
@@ -56,13 +69,65 @@ public final class Sandbox2dInitSystem implements GameSystem {
             Transform floorTx = new Transform();
             floorTx.setPosition(new Vector3f(0, 250, 0));
             floorTx.setScale(new Vector3f(700, 50, 1));
-//            RigidBody floorBd = new RigidBody();
-//            floorBd.setFixed(true);
+            RigidBody2D floorBd = new RigidBody2D();
+            floorBd.setType(RigidBody2D.Type.STATIC);
+            BoxCollider2D floorBox = new BoxCollider2D();
 
             Entity floorEnt = world.getRoot().newChild("Floor");
             floorEnt.addComponent(floorSpr);
             floorEnt.addComponent(floorTx);
-//            floorEnt.addComponent(floorBd);
+            floorEnt.addComponent(floorBd);
+            floorEnt.addComponent(floorBox);
+        }
+
+        {
+            SpriteRenderer floorSpr = new SpriteRenderer(floor);
+            Transform floorTx = new Transform();
+            floorTx.setPosition(new Vector3f(0, -250, 0));
+            floorTx.setScale(new Vector3f(700, 50, 1));
+            RigidBody2D floorBd = new RigidBody2D();
+            floorBd.setType(RigidBody2D.Type.STATIC);
+            BoxCollider2D floorBox = new BoxCollider2D();
+
+            Entity floorEnt = world.getRoot().newChild("Ceiling");
+            floorEnt.addComponent(floorSpr);
+            floorEnt.addComponent(floorTx);
+            floorEnt.addComponent(floorBd);
+            floorEnt.addComponent(floorBox);
+        }
+
+        {
+            SpriteRenderer floorSpr = new SpriteRenderer(floor);
+            Transform floorTx = new Transform();
+            floorTx.setPosition(new Vector3f(300, 0, 0));
+            floorTx.setRotation(new Vector3f(0, 0, (float) Math.PI / 2));
+            floorTx.setScale(new Vector3f(700, 50, 1));
+            RigidBody2D floorBd = new RigidBody2D();
+            floorBd.setType(RigidBody2D.Type.STATIC);
+            BoxCollider2D floorBox = new BoxCollider2D();
+
+            Entity floorEnt = world.getRoot().newChild("Wall 1");
+            floorEnt.addComponent(floorSpr);
+            floorEnt.addComponent(floorTx);
+            floorEnt.addComponent(floorBd);
+            floorEnt.addComponent(floorBox);
+        }
+
+        {
+            SpriteRenderer floorSpr = new SpriteRenderer(floor);
+            Transform floorTx = new Transform();
+            floorTx.setPosition(new Vector3f(-300, 0, 0));
+            floorTx.setRotation(new Vector3f(0, 0, (float) Math.PI / 2));
+            floorTx.setScale(new Vector3f(700, 50, 1));
+            RigidBody2D floorBd = new RigidBody2D();
+            floorBd.setType(RigidBody2D.Type.STATIC);
+            BoxCollider2D floorBox = new BoxCollider2D();
+
+            Entity floorEnt = world.getRoot().newChild("Wall 2");
+            floorEnt.addComponent(floorSpr);
+            floorEnt.addComponent(floorTx);
+            floorEnt.addComponent(floorBd);
+            floorEnt.addComponent(floorBox);
         }
     }
 }

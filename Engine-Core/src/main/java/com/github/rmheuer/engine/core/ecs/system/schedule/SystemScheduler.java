@@ -86,7 +86,7 @@ public final class SystemScheduler {
     }
 
     public void fixedUpdate(World world) {
-        update.forEach((sys) -> {
+        fixedUpdate.forEach((sys) -> {
             sys.fixedUpdate(world);
         });
     }

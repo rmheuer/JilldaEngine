@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>Engine-Physics-2D</artifactId>
+
     <dependencies>
         <dependency>
             <groupId>com.github.rmheuer.engine</groupId>
@@ -17,7 +18,11 @@
             <version>1.0</version>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.jbox2d</groupId>
+            <artifactId>jbox2d-library</artifactId>
+            <version>2.2.1.1</version>
+        </dependency>
     </dependencies>
-
-
 </project>
