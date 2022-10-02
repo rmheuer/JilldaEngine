@@ -3,6 +3,7 @@ package com.github.rmheuer.engine.editor;
 import com.github.rmheuer.engine.core.ecs.entity.Entity;
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
+import com.github.rmheuer.engine.core.ecs.system.annotation.OnEvent;
 import com.github.rmheuer.engine.core.event.EventDispatcher;
 import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.resource.ResourceFile;
@@ -47,25 +48,25 @@ public final class EditorSetupSceneSystem implements GameSystem {
         gui.addComponent(new GuiWindow(r));
     }
 
-    @Override
-    public void onEvent(World world, EventDispatcher d) {
-        d.dispatch(FileTreeSelectionChangeEvent.class, (e) -> {
-            if (e.getSelection() == null || e.getSelection().isFile()) {
-                try {
-                    if (e.isShouldSavePrevious()) editor.save();
-                    editor.open((ResourceFile) e.getSelection());
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+    @OnEvent
+    public void onFileTreeSelectionChange(World world, FileTreeSelectionChangeEvent e) {
+        if (e.getSelection() == null || e.getSelection().isFile()) {
+            try {
+                if (e.isShouldSavePrevious()) editor.save();
+                editor.open((ResourceFile) e.getSelection());
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
-        });
-        d.dispatch(FileDeleteEvent.class, (e) -> {
-            if (e.getFile().equals(editor.getCurrentFile())) {
-                try {
-                    editor.open(null);
-                } catch (IOException ex) {}
-            }
-        });
+        }
+    }
+
+    @OnEvent
+    public void onFileDelete(World world, FileDeleteEvent e) {
+        if (e.getFile().equals(editor.getCurrentFile())) {
+            try {
+                editor.open(null);
+            } catch (IOException ex) {}
+        }
     }
 
     @Override

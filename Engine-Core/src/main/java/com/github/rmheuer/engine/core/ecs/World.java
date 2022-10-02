@@ -5,7 +5,6 @@ import com.github.rmheuer.engine.core.ecs.component.WorldLocalSingleton;
 import com.github.rmheuer.engine.core.ecs.entity.Entity;
 import com.github.rmheuer.engine.core.ecs.entity.EntityRegistry;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
-import com.github.rmheuer.engine.core.ecs.system.schedule.Stage;
 import com.github.rmheuer.engine.core.ecs.system.schedule.SystemScheduler;
 import com.github.rmheuer.engine.core.event.Event;
 import com.github.rmheuer.engine.core.event.EventDispatcher;
@@ -26,23 +25,27 @@ public final class World {
     private final transient SystemScheduler scheduler;
     private final Queue<Event> eventQueue;
 
-    public World(Set<GameSystem> systems) {
+    public World(Set<Class<? extends GameSystem>> systems) {
         registry = new EntityRegistry();
+
         root = registry.newEntity("Root");
         singletons = registry.newEntity("Singletons");
-        scheduler = new SystemScheduler(systems);
+        scheduler = new SystemScheduler();
+        scheduler.setSystems(systems);
         eventQueue = new ConcurrentLinkedQueue<>();
 
         root.addComponent(new Transform());
+
+        registry.setComponentAddListener((c) -> {
+            scheduler.onComponentAdd(this, c);
+        });
+        registry.setComponentRemoveListener((c) -> {
+            scheduler.onComponentRemove(this, c);
+        });
     }
 
     public void init() {
-        scheduler.doStage(Stage.INIT, (sys) -> sys.init(this), false);
-    }
-
-    private void dispatchEvent(Event event) {
-        EventDispatcher dispatcher = new EventDispatcher(event);
-        onEvent(dispatcher);
+        scheduler.init(this);
     }
 
     public void postEvent(Event event) {
@@ -50,28 +53,28 @@ public final class World {
     }
 
     public void postImmediateEvent(Event event) {
-        dispatchEvent(event);
+        onEvent(event);
     }
 
     public void update(float delta) {
         Event event;
         while ((event = eventQueue.poll()) != null) {
-            dispatchEvent(event);
+            onEvent(event);
         }
 
-        scheduler.doStage(Stage.UPDATE, (sys) -> sys.update(this, delta), true);
+        scheduler.update(this, delta);
     }
 
     public void fixedUpdate() {
-        scheduler.doStage(Stage.FIXED_UPDATE, (sys) -> sys.fixedUpdate(this), true);
+        scheduler.fixedUpdate(this);
     }
 
     public void close() {
-        scheduler.doStage(Stage.CLOSE, (sys) -> sys.close(this), false);
+        scheduler.close(this);
     }
 
-    public void onEvent(EventDispatcher dispatch) {
-        scheduler.doStage(Stage.EVENT, (sys) -> sys.onEvent(this, dispatch), true);
+    private void onEvent(Event event) {
+        scheduler.onEvent(this, event);
     }
 
     public Entity getRoot() {
@@ -95,29 +98,24 @@ public final class World {
     }
 
     public <A extends Component> void forEach(Class<A> a, Consumer<A> fn) {
-        registry.queueChanges();
         for (Entity entity : registry.getEntitiesWith(a)) {
             fn.accept(entity.getComponent(a));
         }
-        registry.flushChanges();
     }
 
     public <A extends Component,
             B extends Component> void forEach(Class<A> a, Class<B> b, BiConsumer<A, B> fn) {
-        registry.queueChanges();
         for (Entity entity : registry.getEntitiesWith(a, b)) {
             fn.accept(
                     entity.getComponent(a),
                     entity.getComponent(b)
             );
         }
-        registry.flushChanges();
     }
 
     public <A extends Component,
             B extends Component,
             C extends Component> void forEach(Class<A> a, Class<B> b, Class<C> c, TriConsumer<A, B, C> fn) {
-        registry.queueChanges();
         for (Entity entity : registry.getEntitiesWith(a, b, c)) {
             fn.accept(
                     entity.getComponent(a),
@@ -125,14 +123,12 @@ public final class World {
                     entity.getComponent(c)
             );
         }
-        registry.flushChanges();
     }
 
     public <A extends Component,
             B extends Component,
             C extends Component,
             D extends Component> void forEach(Class<A> a, Class<B> b, Class<C> c, Class<D> d, QuadConsumer<A, B, C, D> fn) {
-        registry.queueChanges();
         for (Entity entity : registry.getEntitiesWith(a, b, c, d)) {
             fn.accept(
                     entity.getComponent(a),
@@ -141,23 +137,19 @@ public final class World {
                     entity.getComponent(d)
             );
         }
-        registry.flushChanges();
     }
 
     public <A extends Component> void forEachEntity(Class<A> a, BiConsumer<Entity, A> fn) {
-        registry.queueChanges();
         for (Entity entity : registry.getEntitiesWith(a)) {
             fn.accept(
                     entity,
                     entity.getComponent(a)
             );
         }
-        registry.flushChanges();
     }
 
     public <A extends Component,
             B extends Component> void forEachEntity(Class<A> a, Class<B> b, TriConsumer<Entity, A, B> fn) {
-        registry.queueChanges();
         for (Entity entity : registry.getEntitiesWith(a)) {
             fn.accept(
                     entity,
@@ -165,13 +157,11 @@ public final class World {
                     entity.getComponent(b)
             );
         }
-        registry.flushChanges();
     }
 
     public <A extends Component,
             B extends Component,
             C extends Component> void forEachEntity(Class<A> a, Class<B> b, Class<C> c, QuadConsumer<Entity, A, B, C> fn) {
-        registry.queueChanges();
         for (Entity entity : registry.getEntitiesWith(a)) {
             fn.accept(
                     entity,
@@ -180,6 +170,5 @@ public final class World {
                     entity.getComponent(c)
             );
         }
-        registry.flushChanges();
     }
 }

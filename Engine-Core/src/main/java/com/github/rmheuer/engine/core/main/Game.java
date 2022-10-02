@@ -244,12 +244,10 @@ public final class Game {
         return inputManager;
     }
 
-    public Set<GameSystem> getAllSystems() {
-        Set<GameSystem> systems = new HashSet<>();
+    public Set<Class<? extends GameSystem>> getAllSystems() {
+        Set<Class<? extends GameSystem>> systems = new HashSet<>();
         for (GameModule module : modules) {
-            for (Class<? extends GameSystem> clazz : module.getSystems()) {
-                systems.add(SystemRegistry.getInstance(clazz));
-            }
+            systems.addAll(module.getSystems());
         }
         return systems;
     }

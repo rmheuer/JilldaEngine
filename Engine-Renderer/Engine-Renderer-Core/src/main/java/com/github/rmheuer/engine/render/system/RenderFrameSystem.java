@@ -3,6 +3,7 @@ package com.github.rmheuer.engine.render.system;
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
 import com.github.rmheuer.engine.core.ecs.system.annotation.After;
+import com.github.rmheuer.engine.core.ecs.system.annotation.OnEvent;
 import com.github.rmheuer.engine.core.event.EventDispatcher;
 import com.github.rmheuer.engine.core.main.Game;
 import com.github.rmheuer.engine.core.transform.PropagateTransformSystem;
@@ -14,9 +15,9 @@ import com.github.rmheuer.engine.render.event.WindowCloseEvent;
 import com.github.rmheuer.engine.render.event.WindowFramebufferResizeEvent;
 import com.github.rmheuer.engine.render.event.WindowResizeEvent;
 
-@After(after = PropagateTransformSystem.class)
 public final class RenderFrameSystem implements GameSystem {
     @Override
+    @After(PropagateTransformSystem.class)
     public void update(World world, float delta) {
         boolean[] foundCamera = {false};
         world.forEach(Camera.class, Transform.class, (camera, tx) -> {
@@ -30,16 +31,20 @@ public final class RenderFrameSystem implements GameSystem {
             throw new IllegalStateException("No camera in scene, or camera has no transform");
     }
 
-    @Override
-    public void onEvent(World world, EventDispatcher d) {
-        d.dispatch(WindowCloseEvent.class, (event) -> Game.get().stop());
-        d.dispatch(WindowFramebufferResizeEvent.class, (event) -> {
-            RenderBackend.get().setViewportSize(event.getWidth(), event.getHeight());
-        });
-        d.dispatch(WindowResizeEvent.class, (event) -> {
-            world.forEach(Camera.class, (camera) -> {
-                camera.getProjection().resize(event.getWidth(), event.getHeight());
-            });
+    @OnEvent
+    public void onWindowClose(World world, WindowCloseEvent event) {
+        Game.get().stop();
+    }
+
+    @OnEvent
+    public void onWindowFramebufferResize(World world, WindowFramebufferResizeEvent event) {
+        RenderBackend.get().setViewportSize(event.getWidth(), event.getHeight());
+    }
+
+    @OnEvent
+    public void onWindowResize(World world, WindowResizeEvent event) {
+        world.forEach(Camera.class, (camera) -> {
+            camera.getProjection().resize(event.getWidth(), event.getHeight());
         });
     }
 }

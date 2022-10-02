@@ -8,13 +8,12 @@ import com.github.rmheuer.engine.core.serial.obj.SerializationContext;
 import com.github.rmheuer.engine.core.serial.obj.SerializeWith;
 import com.github.rmheuer.engine.core.serial.obj.TypeCodec;
 
-import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
+import java.util.function.Consumer;
 
 @SerializeWith(EntityRegistry.Serializer.class)
 public final class EntityRegistry {
@@ -46,14 +45,22 @@ public final class EntityRegistry {
     private final Map<Class<? extends Component>, Map<Entity, Component>> components;
     private final Set<Entity> entities;
 
-    private int changeQueueCount;
-    private final Queue<Runnable> changeQueue;
+    private Consumer<Component> componentAddListener, componentRemoveListener;
 
     public EntityRegistry() {
         components = new HashMap<>();
         entities = new HashSet<>();
-        changeQueueCount = 0;
-        changeQueue = new ArrayDeque<>();
+
+        componentAddListener = (c) -> {};
+        componentRemoveListener = (c) -> {};
+    }
+
+    public void setComponentAddListener(Consumer<Component> componentAddListener) {
+        this.componentAddListener = componentAddListener;
+    }
+
+    public void setComponentRemoveListener(Consumer<Component> componentRemoveListener) {
+        this.componentRemoveListener = componentRemoveListener;
     }
 
     public Entity newEntity() {
@@ -75,33 +82,15 @@ public final class EntityRegistry {
         return new HashSet<>(entities);
     }
 
-    public void queueChanges() {
-//        changeQueueCount++;
-    }
-
-    public void flushChanges() {
-//        changeQueueCount--;
-//        if (changeQueueCount == 0) {
-//            for (Runnable r : changeQueue) {
-//                r.run();
-//            }
-//            changeQueue.clear();
-//        }
-    }
-
-    private boolean shouldQueue() {
-        return changeQueueCount != 0;
-    }
-
     private void doAddComponent(Entity e, Component c) {
         Map<Entity, Component> map = components.computeIfAbsent(c.getClass(), (k) -> new HashMap<>());
-        map.put(e, c);
+        Component prev = map.put(e, c);
+        if (prev != null)
+            componentRemoveListener.accept(prev);
+        componentAddListener.accept(c);
     }
 
     public void addComponent(Entity e, Component c) {
-        if (shouldQueue())
-            changeQueue.add(() -> doAddComponent(e, c));
-        else
             doAddComponent(e, c);
     }
 
@@ -121,13 +110,12 @@ public final class EntityRegistry {
         if (map == null)
             return;
 
-        map.remove(e);
+        Component removed = map.remove(e);
+        if (removed != null)
+            componentRemoveListener.accept(removed);
     }
 
     public void removeComponent(Entity e, Class<? extends Component> type) {
-        if (shouldQueue())
-            changeQueue.add(() -> doRemoveComponent(e, type));
-        else
             doRemoveComponent(e, type);
     }
 
@@ -161,15 +149,14 @@ public final class EntityRegistry {
             doDelete(child);
         }
         for (Map<Entity, Component> map : components.values()) {
-            map.remove(e);
+            Component removed = map.remove(e);
+            if (removed != null)
+                componentRemoveListener.accept(removed);
         }
         entities.remove(e);
     }
 
     public void delete(Entity e) {
-        if (shouldQueue())
-            changeQueue.add(() -> doDelete(e));
-        else
             doDelete(e);
     }
 

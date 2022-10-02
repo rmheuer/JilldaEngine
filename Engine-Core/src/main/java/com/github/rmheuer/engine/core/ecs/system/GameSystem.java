@@ -10,7 +10,5 @@ public interface GameSystem extends SystemNode {
 
     default void fixedUpdate(World world) {}
 
-    default void onEvent(World world, EventDispatcher event) {}
-
     default void close(World world) {}
 }

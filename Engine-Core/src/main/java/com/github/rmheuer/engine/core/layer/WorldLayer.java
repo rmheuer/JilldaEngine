@@ -14,12 +14,10 @@ public abstract class WorldLayer implements Layer {
     private final World world;
 
     public WorldLayer() {
-        Set<GameSystem> systems = Game.get().getAllSystems();
+        Set<Class<? extends GameSystem>> systems = Game.get().getAllSystems();
         Collection<Class<? extends GameSystem>> additional = getAdditionalSystems();
         if (additional != null) {
-            for (Class<? extends GameSystem> clazz : additional) {
-                systems.add(SystemRegistry.getInstance(clazz));
-            }
+            systems.addAll(additional);
         }
         world = new World(systems);
     }
@@ -43,7 +41,7 @@ public abstract class WorldLayer implements Layer {
 
     @Override
     public void onEvent(Event event) {
-        world.onEvent(new EventDispatcher(event));
+        world.postImmediateEvent(event);
     }
 
     @Override
