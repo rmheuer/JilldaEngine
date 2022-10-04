@@ -34,6 +34,7 @@ public final class Game {
 
     private String[] commandLineArgs;
     private float fixedUpdatesPerSecond;
+    private float maxFixedUpdateBacklog;
     private int sleepInterval;
     private boolean running;
 
@@ -50,6 +51,7 @@ public final class Game {
     private Game() {
         setFixedUpdatesPerSecond(60);
         sleepInterval = 5;
+        maxFixedUpdateBacklog = 1;
     }
 
     // TODO: Maybe deserialize as unique object instead of one instance per class
@@ -172,6 +174,10 @@ public final class Game {
             unprocessedTime += delta;
             previousTime = currentTime;
             Time.setDelta(delta);
+
+            if (unprocessedTime > maxFixedUpdateBacklog) {
+                unprocessedTime = maxFixedUpdateBacklog;
+            }
 
             Event event;
             while ((event = eventQueue.poll()) != null) {
