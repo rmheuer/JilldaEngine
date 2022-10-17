@@ -13,7 +13,7 @@ import com.github.rmheuer.engine.render.event.RenderSceneEvent;
 import com.github.rmheuer.engine.render.system.RenderModule;
 import com.github.rmheuer.engine.render2d.DrawList2D;
 import com.github.rmheuer.engine.render2d.RenderContext2D;
-import com.github.rmheuer.engine.render2d.system.RenderBeginFrame2DSystem;
+import com.github.rmheuer.engine.render2d.system.RenderEndFrame2DSystem;
 
 public final class GuiRenderSystem implements GameSystem {
     @Override
@@ -22,7 +22,7 @@ public final class GuiRenderSystem implements GameSystem {
     }
 
     @OnEvent
-    @After(RenderBeginFrame2DSystem.class)
+    @After(RenderEndFrame2DSystem.class)
     public void onRenderScene(World world, RenderSceneEvent e) {
         RenderContext2D ctx2d = world.getLocalSingleton(RenderContext2D.class);
         GuiRenderer gui = world.getLocalSingleton(GuiRenderer.class);

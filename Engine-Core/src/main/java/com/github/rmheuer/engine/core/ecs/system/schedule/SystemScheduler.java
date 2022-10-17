@@ -92,7 +92,7 @@ public final class SystemScheduler {
     }
 
     public void close(World world) {
-        update.forEach((sys) -> {
+        close.forEach((sys) -> {
             sys.close(world);
         });
     }
@@ -110,6 +110,13 @@ public final class SystemScheduler {
             // Repeat with the next class up for superclass handlers
             type = type.getSuperclass();
         } while (Event.class.isAssignableFrom(type));
+
+        StageScheduler<RepeatableNodeOrderingInfo> rawStage = this.event.get(Event.class);
+        if (rawStage == null)
+            return;
+        rawStage.forEach((info) -> {
+            info.invoke(world, event);
+        });
     }
 
     public void onComponentAdd(World world, Component c) {

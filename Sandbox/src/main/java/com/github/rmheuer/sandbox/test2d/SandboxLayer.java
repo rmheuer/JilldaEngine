@@ -10,7 +10,8 @@ public final class SandboxLayer extends WorldLayer {
     @Override
     protected Collection<Class<? extends GameSystem>> getAdditionalSystems() {
         return Arrays.asList(
-                Sandbox2dInitSystem.class
+                Sandbox2dInitSystem.class,
+                KeyboardControlSystem.class
         );
     }
 }

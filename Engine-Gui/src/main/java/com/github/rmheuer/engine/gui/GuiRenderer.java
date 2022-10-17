@@ -181,7 +181,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
             WindowData win = windows.get(title);
             if (win == null)
                 invalid.add(title);
-            else
+            else if (win.draw != null)
                 mainDraw.join(win.draw);
         }
         windowOrder.removeAll(invalid);

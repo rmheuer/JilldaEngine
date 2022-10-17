@@ -8,11 +8,13 @@ import com.github.rmheuer.engine.core.math.Vector2f;
 import com.github.rmheuer.engine.core.math.Vector3f;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
 import com.github.rmheuer.engine.core.transform.Transform;
+import com.github.rmheuer.engine.gui.component.GuiWindow;
 import com.github.rmheuer.engine.physics2d.component.BoxCollider2D;
 import com.github.rmheuer.engine.physics2d.component.Gravity2D;
 import com.github.rmheuer.engine.physics2d.component.RigidBody2D;
 import com.github.rmheuer.engine.render.camera.Camera;
 import com.github.rmheuer.engine.render.camera.OrthographicProjection;
+import com.github.rmheuer.engine.render.camera.PerspectiveProjection;
 import com.github.rmheuer.engine.render.texture.Image;
 import com.github.rmheuer.engine.render2d.component.SpriteRenderer;
 
@@ -22,12 +24,14 @@ public final class Sandbox2dInitSystem implements GameSystem {
     @Override
     public void init(World world) {
         {
-            Camera camera = new Camera(new OrthographicProjection());
+            Camera camera = new Camera(new PerspectiveProjection());
             Transform cameraTx = new Transform();
+            cameraTx.getPosition().z = 800;
 
             Entity cameraEnt = world.getRoot().newChild("Camera");
             cameraEnt.addComponent(camera);
             cameraEnt.addComponent(cameraTx);
+            cameraEnt.addComponent(new KeyboardControl(200, MathUtils.fPI));
         }
 
         Image box = null, floor = null;
@@ -44,6 +48,10 @@ public final class Sandbox2dInitSystem implements GameSystem {
             world.getRoot().newChild("Gravity").addComponent(grav);
         }
 
+        Entity canvas = world.getRoot().newChild("Canvas");
+        canvas.addComponent(new Transform());
+        canvas.addComponent(new KeyboardControl(200, 3.14f));
+
         int count = 25;
         int sqrtCount = (int) Math.sqrt(count);
         for (int i = 0; i < count; i++) {
@@ -57,7 +65,7 @@ public final class Sandbox2dInitSystem implements GameSystem {
             BoxCollider2D spriteBox = new BoxCollider2D();
             spriteBox.setRestitution(1.1f);
 
-            Entity spriteEnt = world.getRoot().newChild("Sprite " + i);
+            Entity spriteEnt = canvas.newChild("Sprite " + i);
             spriteEnt.addComponent(sprite);
             spriteEnt.addComponent(spriteTx);
             spriteEnt.addComponent(spriteBd);
@@ -73,7 +81,7 @@ public final class Sandbox2dInitSystem implements GameSystem {
             floorBd.setType(RigidBody2D.Type.STATIC);
             BoxCollider2D floorBox = new BoxCollider2D();
 
-            Entity floorEnt = world.getRoot().newChild("Floor");
+            Entity floorEnt = canvas.newChild("Floor");
             floorEnt.addComponent(floorSpr);
             floorEnt.addComponent(floorTx);
             floorEnt.addComponent(floorBd);
@@ -89,7 +97,7 @@ public final class Sandbox2dInitSystem implements GameSystem {
             floorBd.setType(RigidBody2D.Type.STATIC);
             BoxCollider2D floorBox = new BoxCollider2D();
 
-            Entity floorEnt = world.getRoot().newChild("Ceiling");
+            Entity floorEnt = canvas.newChild("Ceiling");
             floorEnt.addComponent(floorSpr);
             floorEnt.addComponent(floorTx);
             floorEnt.addComponent(floorBd);
@@ -106,7 +114,7 @@ public final class Sandbox2dInitSystem implements GameSystem {
             floorBd.setType(RigidBody2D.Type.STATIC);
             BoxCollider2D floorBox = new BoxCollider2D();
 
-            Entity floorEnt = world.getRoot().newChild("Wall 1");
+            Entity floorEnt = canvas.newChild("Wall 1");
             floorEnt.addComponent(floorSpr);
             floorEnt.addComponent(floorTx);
             floorEnt.addComponent(floorBd);
@@ -123,11 +131,17 @@ public final class Sandbox2dInitSystem implements GameSystem {
             floorBd.setType(RigidBody2D.Type.STATIC);
             BoxCollider2D floorBox = new BoxCollider2D();
 
-            Entity floorEnt = world.getRoot().newChild("Wall 2");
+            Entity floorEnt = canvas.newChild("Wall 2");
             floorEnt.addComponent(floorSpr);
             floorEnt.addComponent(floorTx);
             floorEnt.addComponent(floorBd);
             floorEnt.addComponent(floorBox);
         }
+
+        world.getRoot().newChild("Gui").addComponent(new GuiWindow(
+                (g) -> {
+                   g.text("Hello");
+                }
+        ));
     }
 }
