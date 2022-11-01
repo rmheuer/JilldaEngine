@@ -80,6 +80,7 @@ public final class MeshRenderSystem implements GameSystem {
 
             nShader.updateUniformValues();
             RenderBackend.get().setCullMode(m.getWindingOrder(), m.getCullMode());
+            RenderBackend.get().setPolygonMode(m.getPolygonMode());
             nMesh.render();
             nShader.unbind();
         });

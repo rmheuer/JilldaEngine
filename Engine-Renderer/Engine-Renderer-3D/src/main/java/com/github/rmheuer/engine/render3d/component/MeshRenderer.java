@@ -2,6 +2,7 @@ package com.github.rmheuer.engine.render3d.component;
 
 import com.github.rmheuer.engine.core.ecs.component.Component;
 import com.github.rmheuer.engine.render.CullMode;
+import com.github.rmheuer.engine.render.PolygonMode;
 import com.github.rmheuer.engine.render.WindingOrder;
 import com.github.rmheuer.engine.render.mesh.Mesh;
 import com.github.rmheuer.engine.render3d.material.Material;
@@ -11,6 +12,7 @@ public final class MeshRenderer implements Component {
     private Material material;
     private CullMode cullMode;
     private WindingOrder windingOrder;
+    private PolygonMode polygonMode;
     private boolean enabled;
 
     public MeshRenderer() {
@@ -30,6 +32,7 @@ public final class MeshRenderer implements Component {
         this.material = material;
         this.cullMode = cullMode;
         this.windingOrder = windingOrder;
+        this.polygonMode = PolygonMode.FILL;
         enabled = true;
     }
 
@@ -71,5 +74,13 @@ public final class MeshRenderer implements Component {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public PolygonMode getPolygonMode() {
+        return polygonMode;
+    }
+
+    public void setPolygonMode(PolygonMode polygonMode) {
+        this.polygonMode = polygonMode;
     }
 }

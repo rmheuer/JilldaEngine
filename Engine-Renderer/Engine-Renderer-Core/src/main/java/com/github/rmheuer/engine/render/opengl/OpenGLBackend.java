@@ -77,6 +77,14 @@ public final class OpenGLBackend extends RenderBackend {
     }
 
     @Override
+    public void setPolygonMode(PolygonMode mode) {
+        if (mode == PolygonMode.FILL)
+            gl.polygonMode(gl.FRONT_AND_BACK, gl.FILL);
+        else
+            gl.polygonMode(gl.FRONT_AND_BACK, gl.LINE);
+    }
+
+    @Override
     public Window createWindow(WindowSettings settings) {
         return new OpenGLWindow(settings);
     }

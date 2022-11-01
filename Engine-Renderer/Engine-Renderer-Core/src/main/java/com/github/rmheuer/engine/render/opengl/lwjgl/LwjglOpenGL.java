@@ -31,6 +31,9 @@ public final class LwjglOpenGL extends OpenGL {
         CW = GL_CW;
         CCW = GL_CCW;
 
+        LINE = GL_LINE;
+        FILL = GL_FILL;
+
         TEXTURE_2D = GL_TEXTURE_2D;
         TEXTURE_CUBE_MAP = GL_TEXTURE_CUBE_MAP;
         TEXTURE_CUBE_MAP_POSITIVE_X = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
@@ -119,6 +122,11 @@ public final class LwjglOpenGL extends OpenGL {
     @Override
     public void frontFace(int winding) {
         glFrontFace(winding);
+    }
+
+    @Override
+    public void polygonMode(int faces, int mode) {
+        glPolygonMode(faces, mode);
     }
 
     @Override

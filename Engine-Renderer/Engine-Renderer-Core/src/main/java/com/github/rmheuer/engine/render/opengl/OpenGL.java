@@ -56,6 +56,9 @@ public abstract class OpenGL {
     public int TRIANGLE_FAN;
     public int TRIANGLES;
 
+    public int LINE;
+    public int FILL;
+
     public int ARRAY_BUFFER;
     public int ELEMENT_ARRAY_BUFFER;
     public int STATIC_DRAW;
@@ -75,6 +78,7 @@ public abstract class OpenGL {
     public abstract void depthMask(boolean mask);
     public abstract void cullFace(int face);
     public abstract void frontFace(int winding);
+    public abstract void polygonMode(int faces, int mode);
 
     public abstract int genTextures();
     public abstract void bindTexture(int target, int id);

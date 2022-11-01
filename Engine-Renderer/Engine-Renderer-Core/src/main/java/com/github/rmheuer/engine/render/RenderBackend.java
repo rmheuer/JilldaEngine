@@ -28,6 +28,7 @@ public abstract class RenderBackend {
     public abstract void clear(BufferType... buffers);
     public abstract void setCullMode(WindingOrder windingOrder, CullMode mode);
     public abstract void setDepthMode(DepthMode mode);
+    public abstract void setPolygonMode(PolygonMode mode);
 
     public abstract Window createWindow(WindowSettings settings);
 
