@@ -9,7 +9,7 @@ import com.github.rmheuer.engine.render2d.RenderContext2D;
 
 public final class RenderEndFrame2DSystem implements GameSystem {
     @OnEvent
-    @After(RenderBeginFrame2DSystem.class)
+    @After(Render2DGroup.class)
     public void onRenderScene(World world, RenderSceneEvent e) {
         RenderContext2D ctx = world.getLocalSingleton(RenderContext2D.class);
         ctx.getRenderer().draw(ctx.getDrawList());

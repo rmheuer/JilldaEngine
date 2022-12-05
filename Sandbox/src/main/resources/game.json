@@ -6,6 +6,6 @@
     "com.github.rmheuer.engine.physics2d.Physics2DModule"
   ],
   "layers": [
-    "com.github.rmheuer.sandbox.test3d.SandboxLayer"
+    "com.github.rmheuer.sandbox.test2d.SandboxLayer"
   ]
 }

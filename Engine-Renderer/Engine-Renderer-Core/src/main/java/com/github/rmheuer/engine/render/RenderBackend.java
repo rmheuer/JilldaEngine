@@ -30,6 +30,10 @@ public abstract class RenderBackend {
     public abstract void setDepthMode(DepthMode mode);
     public abstract void setPolygonMode(PolygonMode mode);
 
+    public abstract void setStencilEnabled(boolean enabled);
+    public abstract void setStencilFunc(StencilFunc func, int reference, int mask);
+    public abstract void setStencilOp(StencilOp stencilFail, StencilOp depthFail, StencilOp pass);
+
     public abstract Window createWindow(WindowSettings settings);
 
     public abstract Image.Native createImageNative(int width, int height);

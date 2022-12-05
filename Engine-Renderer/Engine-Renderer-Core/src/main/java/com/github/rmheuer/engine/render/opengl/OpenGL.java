@@ -17,7 +17,13 @@ public abstract class OpenGL {
     public int BLEND;
     public int SRC_ALPHA;
     public int ONE_MINUS_SRC_ALPHA;
+    public int NEVER;
+    public int LESS;
+    public int GREATER;
     public int LEQUAL;
+    public int GEQUAL;
+    public int EQUAL;
+    public int NOTEQUAL;
     public int ALWAYS;
     public int CULL_FACE;
     public int FRONT;
@@ -25,6 +31,16 @@ public abstract class OpenGL {
     public int FRONT_AND_BACK;
     public int CW;
     public int CCW;
+
+    public int STENCIL_TEST;
+    public int KEEP;
+    public int ZERO;
+    public int REPLACE;
+    public int INCR;
+    public int INCR_WRAP;
+    public int DECR;
+    public int DECR_WRAP;
+    public int INVERT;
 
     public int TEXTURE_2D;
     public int TEXTURE_CUBE_MAP;
@@ -79,6 +95,8 @@ public abstract class OpenGL {
     public abstract void cullFace(int face);
     public abstract void frontFace(int winding);
     public abstract void polygonMode(int faces, int mode);
+    public abstract void stencilFunc(int func, int ref, int mask);
+    public abstract void stencilOp(int stencilFail, int depthFail, int pass);
 
     public abstract int genTextures();
     public abstract void bindTexture(int target, int id);

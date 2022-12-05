@@ -1,8 +1,6 @@
 package com.github.rmheuer.engine.render.opengl;
 
-import com.github.rmheuer.engine.render.BufferType;
-import com.github.rmheuer.engine.render.CullMode;
-import com.github.rmheuer.engine.render.WindingOrder;
+import com.github.rmheuer.engine.render.*;
 import com.github.rmheuer.engine.render.mesh.MeshDataUsage;
 import com.github.rmheuer.engine.render.mesh.PrimitiveType;
 import com.github.rmheuer.engine.render.shader.ShaderType;
@@ -79,6 +77,36 @@ public final class GLEnumConversions {
             case FRONT: return gl.FRONT;
             case BACK: return gl.BACK;
             case FRONT_AND_BACK: return gl.FRONT_AND_BACK;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
+    public static int getGlStencilFunc(OpenGL gl, StencilFunc func) {
+        switch (func) {
+            case NEVER: return gl.NEVER;
+            case LESS: return gl.LESS;
+            case GREATER: return gl.GREATER;
+            case LEQUAL: return gl.LEQUAL;
+            case GEQUAL: return gl.GEQUAL;
+            case EQUAL: return gl.EQUAL;
+            case NOTEQUAL: return gl.NOTEQUAL;
+            case ALWAYS: return gl.ALWAYS;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
+    public static int getGlStencilOp(OpenGL gl, StencilOp op) {
+        switch (op) {
+            case KEEP: return gl.KEEP;
+            case ZERO: return gl.ZERO;
+            case REPLACE: return gl.REPLACE;
+            case INCREMENT: return gl.INCR;
+            case INCREMENT_WRAP: return gl.INCR_WRAP;
+            case DECREMENT: return gl.DECR;
+            case DECREMENT_WRAP: return gl.DECR_WRAP;
+            case INVERT: return gl.INVERT;
             default:
                 throw new IllegalArgumentException();
         }

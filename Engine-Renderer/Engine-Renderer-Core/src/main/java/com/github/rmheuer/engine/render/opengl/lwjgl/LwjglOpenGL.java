@@ -22,7 +22,13 @@ public final class LwjglOpenGL extends OpenGL {
         BLEND = GL_BLEND;
         SRC_ALPHA = GL_SRC_ALPHA;
         ONE_MINUS_SRC_ALPHA = GL_ONE_MINUS_SRC_ALPHA;
+        NEVER = GL_NEVER;
+        LESS = GL_LESS;
+        GREATER = GL_GREATER;
         LEQUAL = GL_LEQUAL;
+        GEQUAL = GL_GEQUAL;
+        EQUAL = GL_EQUAL;
+        NOTEQUAL = GL_NOTEQUAL;
         ALWAYS = GL_ALWAYS;
         CULL_FACE = GL_CULL_FACE;
         FRONT = GL_FRONT;
@@ -30,6 +36,16 @@ public final class LwjglOpenGL extends OpenGL {
         FRONT_AND_BACK = GL_FRONT_AND_BACK;
         CW = GL_CW;
         CCW = GL_CCW;
+
+        STENCIL_TEST = GL_STENCIL_TEST;
+        KEEP = GL_KEEP;
+        ZERO = GL_ZERO;
+        REPLACE = GL_REPLACE;
+        INCR = GL_INCR;
+        INCR_WRAP = GL_INCR_WRAP;
+        DECR = GL_DECR;
+        DECR_WRAP = GL_DECR_WRAP;
+        INVERT = GL_INVERT;
 
         LINE = GL_LINE;
         FILL = GL_FILL;
@@ -127,6 +143,16 @@ public final class LwjglOpenGL extends OpenGL {
     @Override
     public void polygonMode(int faces, int mode) {
         glPolygonMode(faces, mode);
+    }
+
+    @Override
+    public void stencilFunc(int func, int ref, int mask) {
+        glStencilFunc(func, ref, mask);
+    }
+
+    @Override
+    public void stencilOp(int stencilFail, int depthFail, int pass) {
+        glStencilOp(stencilFail, depthFail, pass);
     }
 
     @Override

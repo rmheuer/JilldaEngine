@@ -85,6 +85,28 @@ public final class OpenGLBackend extends RenderBackend {
     }
 
     @Override
+    public void setStencilEnabled(boolean enabled) {
+        if (enabled)
+            gl.enable(gl.STENCIL_TEST);
+        else
+            gl.disable(gl.STENCIL_TEST);
+    }
+
+    @Override
+    public void setStencilFunc(StencilFunc func, int reference, int mask) {
+        gl.stencilFunc(GLEnumConversions.getGlStencilFunc(gl, func), reference, mask);
+    }
+
+    @Override
+    public void setStencilOp(StencilOp stencilFail, StencilOp depthFail, StencilOp pass) {
+        gl.stencilOp(
+                GLEnumConversions.getGlStencilOp(gl, stencilFail),
+                GLEnumConversions.getGlStencilOp(gl, depthFail),
+                GLEnumConversions.getGlStencilOp(gl, pass)
+        );
+    }
+
+    @Override
     public Window createWindow(WindowSettings settings) {
         return new OpenGLWindow(settings);
     }
