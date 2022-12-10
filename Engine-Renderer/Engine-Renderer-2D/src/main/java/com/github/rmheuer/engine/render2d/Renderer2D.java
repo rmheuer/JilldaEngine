@@ -1,5 +1,6 @@
 package com.github.rmheuer.engine.render2d;
 
+import com.github.rmheuer.engine.core.math.Matrix4f;
 import com.github.rmheuer.engine.core.nat.NativeObjectManager;
 import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
@@ -49,9 +50,9 @@ public final class Renderer2D {
         }
     }
 
-    public void setView(Projection proj, Transform cameraTx) {
-        shader.getUniform("u_Projection").setMatrix4f(proj.getMatrix());
-        shader.getUniform("u_View").setMatrix4f(cameraTx.getGlobalInverseMatrix());
+    public void setView(Matrix4f projectionMatrix, Matrix4f viewMatrix) {
+        shader.getUniform("u_Projection").setMatrix4f(projectionMatrix);
+        shader.getUniform("u_View").setMatrix4f(viewMatrix);
     }
 
     private void drawBatch(VertexBatch batch) {
@@ -83,7 +84,13 @@ public final class Renderer2D {
     }
 
     public void draw(DrawList2D list) {
+        draw(list, new Transform());
+    }
+
+    public void draw(DrawList2D list, Transform transform) {
         RenderBackend.get().setCullMode(WindingOrder.CLOCKWISE, CullMode.NONE);
+
+        shader.getUniform("u_Transform").setMatrix4f(transform.getGlobalMatrix());
 
         List<VertexBatch> batches = VertexBatcher2D.batch(list.getVertices(), list.getIndices(), whiteTex);
         for (VertexBatch batch : batches) {

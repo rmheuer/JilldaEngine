@@ -389,4 +389,9 @@ public final class Vector3f {
 	z = 0;
 	return this;
     }
+
+    @Override
+    public String toString() {
+    	return String.format("(%.3f, %.3f, %.3f)", x, y, z);
+	}
 }

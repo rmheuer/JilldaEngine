@@ -3,6 +3,8 @@ package com.github.rmheuer.engine.core.transform;
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.entity.Entity;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
+import com.github.rmheuer.engine.core.ecs.system.annotation.RunInGroup;
+import com.github.rmheuer.engine.core.ecs.system.group.PostSimulationGroup;
 import com.github.rmheuer.engine.core.math.Matrix4f;
 
 public final class PropagateTransformSystem implements GameSystem {
@@ -19,6 +21,7 @@ public final class PropagateTransformSystem implements GameSystem {
     }
 
     @Override
+    @RunInGroup(PostSimulationGroup.class)
     public void update(World world, float delta) {
         recursivePropagate(world.getRoot(), new Matrix4f());
     }

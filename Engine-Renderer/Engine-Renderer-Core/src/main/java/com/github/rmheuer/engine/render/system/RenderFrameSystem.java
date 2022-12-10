@@ -2,33 +2,32 @@ package com.github.rmheuer.engine.render.system;
 
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
-import com.github.rmheuer.engine.core.ecs.system.annotation.After;
 import com.github.rmheuer.engine.core.ecs.system.annotation.OnEvent;
-import com.github.rmheuer.engine.core.event.EventDispatcher;
+import com.github.rmheuer.engine.core.ecs.system.annotation.RunInGroup;
+import com.github.rmheuer.engine.core.ecs.system.group.PresentationGroup;
 import com.github.rmheuer.engine.core.main.Game;
-import com.github.rmheuer.engine.core.transform.PropagateTransformSystem;
 import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.render.RenderBackend;
 import com.github.rmheuer.engine.render.camera.Camera;
-import com.github.rmheuer.engine.render.event.RenderSceneEvent;
-import com.github.rmheuer.engine.render.event.WindowCloseEvent;
-import com.github.rmheuer.engine.render.event.WindowFramebufferResizeEvent;
-import com.github.rmheuer.engine.render.event.WindowResizeEvent;
+import com.github.rmheuer.engine.render.camera.PrimaryCamera;
+import com.github.rmheuer.engine.render.event.*;
 
 public final class RenderFrameSystem implements GameSystem {
     @Override
-    @After(PropagateTransformSystem.class)
+    public void init(World world) {
+        world.setLocalSingleton(new RenderContext());
+    }
+
+    @Override
+    @RunInGroup(PresentationGroup.class)
     public void update(World world, float delta) {
-        boolean[] foundCamera = {false};
+        RenderContext ctx = world.getLocalSingleton(RenderContext.class);
+
         world.forEach(Camera.class, Transform.class, (camera, tx) -> {
-            foundCamera[0] = true;
+            ctx.setPrimaryCamera(new PrimaryCamera(camera, tx));
 
             world.postEvent(new RenderSceneEvent(camera, tx));
         });
-
-        // There is required to be at least one camera
-        if (!foundCamera[0])
-            throw new IllegalStateException("No camera in scene, or camera has no transform");
     }
 
     @OnEvent

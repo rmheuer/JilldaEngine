@@ -25,7 +25,7 @@
       <groupId>org.lwjgl</groupId>
       <artifactId>lwjgl-glfw</artifactId>
       <classifier>natives-linux</classifier>
-    </dependency>
+    </dependency><!--
     <dependency>
       <groupId>org.lwjgl</groupId>
       <artifactId>lwjgl-glfw</artifactId>
@@ -60,7 +60,7 @@
       <groupId>org.lwjgl</groupId>
       <artifactId>lwjgl-glfw</artifactId>
       <classifier>natives-windows-arm64</classifier>
-    </dependency>
+    </dependency>-->
 
     <dependency>
       <groupId>org.lwjgl</groupId>
@@ -71,7 +71,7 @@
       <artifactId>lwjgl-opengl</artifactId>
       <classifier>natives-linux</classifier>
     </dependency>
-    <dependency>
+    <!--<dependency>
       <groupId>org.lwjgl</groupId>
       <artifactId>lwjgl-opengl</artifactId>
       <classifier>natives-linux-arm64</classifier>
@@ -105,7 +105,7 @@
       <groupId>org.lwjgl</groupId>
       <artifactId>lwjgl-opengl</artifactId>
       <classifier>natives-windows-arm64</classifier>
-    </dependency>
+    </dependency>-->
 
     <dependency>
       <groupId>org.lwjgl</groupId>
@@ -116,7 +116,7 @@
       <artifactId>lwjgl-stb</artifactId>
       <classifier>natives-linux</classifier>
     </dependency>
-    <dependency>
+    <!--<dependency>
       <groupId>org.lwjgl</groupId>
       <artifactId>lwjgl-stb</artifactId>
       <classifier>natives-linux-arm64</classifier>
@@ -150,7 +150,7 @@
       <groupId>org.lwjgl</groupId>
       <artifactId>lwjgl-stb</artifactId>
       <classifier>natives-windows-arm64</classifier>
-    </dependency>
+    </dependency>-->
   </dependencies>
     <modules>
         <module>Engine-Renderer-Core</module>

@@ -21,7 +21,6 @@ public final class RenderSceneEvent implements Event {
         return cameraTransform;
     }
 
-
     @Override
     public String toString() {
         return "RenderSceneEvent{" +

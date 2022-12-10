@@ -85,6 +85,6 @@ public final class Transform implements Component {
     }
 
     public Vector3f transform(Vector3f vec) {
-        return getMatrix().transformPosition(vec);
+        return getGlobalMatrix().transformPosition(vec);
     }
 }

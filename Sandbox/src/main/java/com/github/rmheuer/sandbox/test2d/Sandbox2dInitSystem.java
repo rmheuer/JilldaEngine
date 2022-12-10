@@ -8,7 +8,8 @@ import com.github.rmheuer.engine.core.math.Vector2f;
 import com.github.rmheuer.engine.core.math.Vector3f;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
 import com.github.rmheuer.engine.core.transform.Transform;
-import com.github.rmheuer.engine.gui.component.GuiWindow;
+import com.github.rmheuer.engine.gui.GuiWindow;
+import com.github.rmheuer.engine.gui.component.GuiCanvas;
 import com.github.rmheuer.engine.physics2d.component.BoxCollider2D;
 import com.github.rmheuer.engine.physics2d.component.Gravity2D;
 import com.github.rmheuer.engine.physics2d.component.RigidBody2D;
@@ -16,6 +17,7 @@ import com.github.rmheuer.engine.render.camera.Camera;
 import com.github.rmheuer.engine.render.camera.OrthographicProjection;
 import com.github.rmheuer.engine.render.camera.PerspectiveProjection;
 import com.github.rmheuer.engine.render.texture.Image;
+import com.github.rmheuer.engine.render2d.component.Canvas2D;
 import com.github.rmheuer.engine.render2d.component.SpriteRenderer;
 
 import java.io.IOException;
@@ -50,10 +52,11 @@ public final class Sandbox2dInitSystem implements GameSystem {
 
         Entity canvas = world.getRoot().newChild("Canvas");
         canvas.addComponent(new Transform());
-        canvas.addComponent(new KeyboardControl(200, 3.14f));
+//        canvas.addComponent(new KeyboardControl(200, 3.14f));
 
         int count = 25;
         int sqrtCount = (int) Math.sqrt(count);
+        Entity spriteEnt = null;
         for (int i = 0; i < count; i++) {
             SpriteRenderer sprite = new SpriteRenderer(box);
             Transform spriteTx = new Transform();
@@ -65,7 +68,7 @@ public final class Sandbox2dInitSystem implements GameSystem {
             BoxCollider2D spriteBox = new BoxCollider2D();
             spriteBox.setRestitution(1.1f);
 
-            Entity spriteEnt = canvas.newChild("Sprite " + i);
+            spriteEnt = canvas.newChild("Sprite " + i);
             spriteEnt.addComponent(sprite);
             spriteEnt.addComponent(spriteTx);
             spriteEnt.addComponent(spriteBd);
@@ -107,7 +110,7 @@ public final class Sandbox2dInitSystem implements GameSystem {
         {
             SpriteRenderer floorSpr = new SpriteRenderer(floor);
             Transform floorTx = new Transform();
-            floorTx.setPosition(new Vector3f(300, 0, 0));
+            floorTx.setPosition(new Vector3f(300, 0, 1));
             floorTx.setRotation(new Vector3f(0, 0, (float) Math.PI / 2));
             floorTx.setScale(new Vector3f(700, 50, 1));
             RigidBody2D floorBd = new RigidBody2D();
@@ -124,7 +127,7 @@ public final class Sandbox2dInitSystem implements GameSystem {
         {
             SpriteRenderer floorSpr = new SpriteRenderer(floor);
             Transform floorTx = new Transform();
-            floorTx.setPosition(new Vector3f(-300, 0, 0));
+            floorTx.setPosition(new Vector3f(-300, 0, 1));
             floorTx.setRotation(new Vector3f(0, 0, (float) Math.PI / 2));
             floorTx.setScale(new Vector3f(700, 50, 1));
             RigidBody2D floorBd = new RigidBody2D();
@@ -138,10 +141,28 @@ public final class Sandbox2dInitSystem implements GameSystem {
             floorEnt.addComponent(floorBox);
         }
 
-        world.getRoot().newChild("Gui").addComponent(new GuiWindow(
-                (g) -> {
-                   g.text("Hello");
+        Canvas2D guiCanvas2D = new Canvas2D(true);
+        GuiCanvas gui = new GuiCanvas();
+        StringBuilder textBox = new StringBuilder("Text box");
+        gui.addWindow(new GuiWindow("Gui", (g) -> {
+            g.text("Hello");
+            g.separator();
+            g.text("Text edit box:");
+            g.editString(textBox);
+
+            if (g.pushTree("Lots of text")) {
+                for (int i = 0; i < 50; i++) {
+                    g.text("Text: " + i);
                 }
-        ));
+                g.popTree();
+            }
+        }));
+
+        Entity guiCanvasE = world.getRoot().newChild("Gui Canvas");
+        Transform guiTx = new Transform();
+//        guiTx.setPosition(new Vector3f(0, 0, 2f));
+        guiCanvasE.addComponent(guiCanvas2D);
+        guiCanvasE.addComponent(gui);
+        guiCanvasE.addComponent(guiTx);
     }
 }

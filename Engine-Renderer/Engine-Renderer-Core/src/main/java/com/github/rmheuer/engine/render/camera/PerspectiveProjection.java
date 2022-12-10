@@ -1,7 +1,6 @@
 package com.github.rmheuer.engine.render.camera;
 
-import com.github.rmheuer.engine.core.math.MathUtils;
-import com.github.rmheuer.engine.core.math.Matrix4f;
+import com.github.rmheuer.engine.core.math.*;
 
 public final class PerspectiveProjection implements Projection {
     private final Matrix4f matrix;
@@ -10,6 +9,8 @@ public final class PerspectiveProjection implements Projection {
     private float fov;
     private float near;
     private float far;
+
+    private int screenWidth, screenHeight;
 
     public PerspectiveProjection() {
         this(MathUtils.fPI / 2, 0.1f, 1000f);
@@ -38,8 +39,20 @@ public final class PerspectiveProjection implements Projection {
 
     @Override
     public void resize(int width, int height) {
+        screenWidth = width;
+        screenHeight = height;
+
         aspect = width / (float) height;
         matrixDirty = true;
+    }
+
+    @Override
+    public Ray3f pixelToRay(float pixelX, float pixelY) {
+        float x = (2.0f * pixelX) / screenWidth - 1.0f;
+        float y = 1.0f - (2.0f * pixelY) / screenHeight;
+        Vector4f clipSpace = new Vector4f(x, y, -1, 1);
+        Vector4f eyeSpace = new Matrix4f(matrix).invert().mul(clipSpace);
+        return new Ray3f(new Vector3f(0, 0, 0), new Vector3f(eyeSpace.x, eyeSpace.y, -1).normalize());
     }
 
     public float getFov() {

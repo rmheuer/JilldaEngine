@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Transient
-public final class GuiRenderer implements WorldLocalSingleton {
+public final class GuiRenderer {
     private static final class Pane {
         private Pane parent;
 
@@ -86,7 +86,6 @@ public final class GuiRenderer implements WorldLocalSingleton {
     private DrawList2D mainDraw;
     private DrawList2D draw;
     private DrawList2D foreground;
-    private Rectangle displayBounds;
     private Pane pane;
 	private Rectangle widgetSizeOverride;
 	private WindowData window;
@@ -101,17 +100,14 @@ public final class GuiRenderer implements WorldLocalSingleton {
 
     // --- Frame control ---
 
-    public void beginFrame(int width, int height) {
+    public void beginFrame() {
         mainDraw = new DrawList2D();
         foreground = new DrawList2D();
 
-        float halfW = width / 2.0f;
-        float halfH = height / 2.0f;
-        displayBounds = new Rectangle(-halfW, -halfH, halfW, halfH);
         pane = null;
-        beginPane(new Rectangle(displayBounds), false, false, true, true, false);
+//        beginPane(new Rectangle(displayBounds), false, false, true, true, false);
 
-        input.beginFrame(width, height);
+        input.beginFrame();
 
         if (input.isAnyMouseButtonPressed()) {
             Object hoveredWindow = getHoveredWindow();
@@ -284,7 +280,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
         pane.bounds = pane.contentBounds.expand(pane.enablePaddingX ? style.padding * 2 : 0, pane.enablePaddingY ? style.padding * 2 : 0);
 
 //        r.outlineQuad(bounds.getMin().x, bounds.getMin().y, bounds.getWidth(), bounds.getHeight(), 1, new Vector4f(0, 1, 1, 1));
-
+//
 //        r.outlineQuad(pane.bounds.getMin().x, pane.bounds.getMin().y, pane.bounds.getWidth(), pane.bounds.getHeight(), 1, new Vector4f(0, 1, 0, 1));
 //        r.outlineQuad(pane.contentBounds.getMin().x, pane.contentBounds.getMin().y, pane.contentBounds.getWidth(), pane.contentBounds.getHeight(), 1, new Vector4f(0, 1, 1, 1));
     }
@@ -398,8 +394,7 @@ public final class GuiRenderer implements WorldLocalSingleton {
         WindowData prevWindow = window;
         window = windows.get(id, () -> {
             WindowData win = new WindowData(
-                    displayBounds.getMin().x + displayBounds.getWidth() * (float) Math.random(),
-                    displayBounds.getMin().y + displayBounds.getHeight() * (float) Math.random()
+                    0, 0
             );
 
             windowOrder.add(title);

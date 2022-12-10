@@ -30,6 +30,7 @@ public final class MeshRenderSystem implements GameSystem {
     public void onRenderScene(World world, RenderSceneEvent event) {
         RenderBackend.get().clear(BufferType.DEPTH);
         RenderBackend.get().setDepthMode(DepthMode.TEST_AND_WRITE);
+        RenderBackend.get().setStencilEnabled(false);
 
         world.forEach(MeshRenderer.class, Transform.class, (m, tx) -> {
             if (!m.isEnabled())

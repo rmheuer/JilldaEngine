@@ -50,6 +50,10 @@ public class DrawList2D {
         }
     }
 
+    public boolean isEmpty() {
+        return vertices.isEmpty() && indices.isEmpty();
+    }
+
     public List<DrawVertex> getVertices() {
         return vertices;
     }
