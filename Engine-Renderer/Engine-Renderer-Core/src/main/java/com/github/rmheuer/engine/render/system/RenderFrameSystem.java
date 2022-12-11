@@ -26,7 +26,7 @@ public final class RenderFrameSystem implements GameSystem {
         world.forEach(Camera.class, Transform.class, (camera, tx) -> {
             ctx.setPrimaryCamera(new PrimaryCamera(camera, tx));
 
-            world.postEvent(new RenderSceneEvent(camera, tx));
+            world.postImmediateEvent(new RenderSceneEvent(camera, tx));
         });
     }
 

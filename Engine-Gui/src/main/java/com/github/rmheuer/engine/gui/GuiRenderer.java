@@ -1123,7 +1123,7 @@ public final class GuiRenderer {
                 float x = pane.tableRowOrigin.x;
                 for (int i = 0; i < pane.tableColumnWidths.length; i++) {
                     float width = pane.tableColumnWidths[i];
-                    draw.drawQuad(x, pane.tableRowOrigin.y, width, pane.rowMaxY - pane.tableRowOrigin.y, 1, new Vector4f(1, 1, 1, 1));
+                    draw.drawQuad(x, pane.tableRowOrigin.y, width, pane.rowMaxY - pane.tableRowOrigin.y, 1, style.tableBorderColor);
                     x += width;
                 }
             }

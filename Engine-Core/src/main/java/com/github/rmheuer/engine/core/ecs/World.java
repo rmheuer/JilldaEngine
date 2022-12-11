@@ -8,6 +8,9 @@ import com.github.rmheuer.engine.core.ecs.system.GameSystem;
 import com.github.rmheuer.engine.core.ecs.system.schedule.SystemScheduler;
 import com.github.rmheuer.engine.core.event.Event;
 import com.github.rmheuer.engine.core.event.EventDispatcher;
+import com.github.rmheuer.engine.core.main.Game;
+import com.github.rmheuer.engine.core.profile.ProfileNode;
+import com.github.rmheuer.engine.core.profile.Profiler;
 import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.util.QuadConsumer;
 import com.github.rmheuer.engine.core.util.TriConsumer;
@@ -53,13 +56,13 @@ public final class World {
     }
 
     public void postImmediateEvent(Event event) {
-        onEvent(event);
+        onEvent(event, true);
     }
 
     public void update(float delta) {
         Event event;
         while ((event = eventQueue.poll()) != null) {
-            onEvent(event);
+            onEvent(event, false);
         }
 
         scheduler.update(this, delta);
@@ -73,8 +76,12 @@ public final class World {
         scheduler.close(this);
     }
 
-    private void onEvent(Event event) {
+    private void onEvent(Event event, boolean immediate) {
+        Profiler profiler = Game.get().getProfiler();
+        String prefix = immediate ? "Imm. world event: " : "World event: ";
+        profiler.push(prefix + event.getClass().getSimpleName());
         scheduler.onEvent(this, event);
+        profiler.pop();
     }
 
     public Entity getRoot() {

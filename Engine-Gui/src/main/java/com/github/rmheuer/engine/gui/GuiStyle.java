@@ -43,6 +43,7 @@ public final class GuiStyle {
     public Vector4f treeHoverColor;
     public Vector4f treePressColor;
     public Vector4f treeSelectionColor;
+    public Vector4f tableBorderColor;
     public Vector4f tooltipBackgroundColor;
     public Vector4f tooltipBorderColor;
     public Vector4f popupBackgroundColor;
@@ -138,6 +139,7 @@ public final class GuiStyle {
         treeHoverColor         = rgba( 20,  60, 100, 255);
         treePressColor         = rgba( 15,  50,  85, 255);
         treeSelectionColor     = rgba( 28,  80, 140, 255);
+        tableBorderColor       = rgba( 51,  64,  74, 255);
         tooltipBackgroundColor = rgba(  0,   0,   0, 255);
         tooltipBorderColor     = rgba(242, 245, 250, 255);
         popupBackgroundColor   = rgba(  0,   0,   0, 255);
@@ -174,6 +176,7 @@ public final class GuiStyle {
         treeHoverColor         = invrgba( 20,  60, 100, 255);
         treePressColor         = invrgba( 15,  50,  85, 255);
         treeSelectionColor     = invrgba( 28,  80, 140, 255);
+        tableBorderColor       = invrgba( 51,  64,  74, 255);
         tooltipBackgroundColor = invrgba(  0,   0,   0, 255);
         tooltipBorderColor     = invrgba(242, 245, 250, 255);
         popupBackgroundColor   = invrgba(  0,   0,   0, 255);

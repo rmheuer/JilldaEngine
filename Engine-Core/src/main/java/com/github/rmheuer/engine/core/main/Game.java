@@ -3,7 +3,6 @@ package com.github.rmheuer.engine.core.main;
 import com.github.rmheuer.engine.core.EngineVersion;
 import com.github.rmheuer.engine.core.Time;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
-import com.github.rmheuer.engine.core.ecs.system.SystemRegistry;
 import com.github.rmheuer.engine.core.event.Event;
 import com.github.rmheuer.engine.core.input.InputManager;
 import com.github.rmheuer.engine.core.layer.Layer;
@@ -11,6 +10,9 @@ import com.github.rmheuer.engine.core.layer.LayerRegistry;
 import com.github.rmheuer.engine.core.module.CoreModule;
 import com.github.rmheuer.engine.core.module.GameModule;
 import com.github.rmheuer.engine.core.module.ModuleRegistry;
+import com.github.rmheuer.engine.core.profile.FixedProfileStage;
+import com.github.rmheuer.engine.core.profile.ProfileNode;
+import com.github.rmheuer.engine.core.profile.Profiler;
 import com.github.rmheuer.engine.core.resource.ResourceFile;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
 import com.github.rmheuer.engine.core.serial2.json.JsonCodec;
@@ -20,17 +22,17 @@ import com.github.rmheuer.engine.core.serial2.node.SerialObject;
 import com.github.rmheuer.engine.core.serial2.node.TextualNode;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class Game {
     public static final ResourceFile CONFIG_FILE = new JarResourceFile("game.json");
 
     private static final Game INSTANCE = new Game();
+
+    private final Map<FixedProfileStage, ProfileNode> stageProfileData;
+    private final Map<Class<? extends Event>, ProfileNode> eventProfileData;
+    private Profiler profiler;
 
     private String[] commandLineArgs;
     private float fixedUpdatesPerSecond;
@@ -52,6 +54,9 @@ public final class Game {
         setFixedUpdatesPerSecond(60);
         sleepInterval = 5;
         maxFixedUpdateBacklog = 1;
+
+        stageProfileData = new EnumMap<>(FixedProfileStage.class);
+        eventProfileData = new HashMap<>();
     }
 
     // TODO: Maybe deserialize as unique object instead of one instance per class
@@ -116,40 +121,106 @@ public final class Game {
         modules = new ArrayList<>();
         layers = new ArrayList<>();
         modules.add(ModuleRegistry.getInstance(CoreModule.class));
+
+        Profiler temp = profiler;
+        profiler = new Profiler();
+
+        profiler.begin("Init");
+        profiler.push("Load configuration");
         loadConfig();
+        profiler.pop();
 
+        profiler.push("Initialize modules");
         for (GameModule module : modules) {
+            profiler.push(module.getClass().getSimpleName());
             module.init();
+            profiler.pop();
         }
+        profiler.pop();
 
+        profiler.push("Initialize layers");
         for (Layer layer : layers) {
+            profiler.push(layer.getClass().getSimpleName());
             layer.init();
+            profiler.pop();
         }
+        profiler.pop();
+        profiler.end();
+        stageProfileData.put(FixedProfileStage.INIT, profiler.getData());
+
+        profiler = temp;
     }
 
     private void update(float delta) {
-        for (GameModule module : modules)
+        Profiler temp = profiler;
+        profiler = new Profiler();
+        profiler.begin("Update");
+
+        profiler.push("Pre-update modules");
+        for (GameModule module : modules) {
+            profiler.push(module.getClass().getSimpleName());
             module.preUpdate();
+            profiler.pop();
+        }
+        profiler.pop();
 
-        for (Layer layer : layers)
+        profiler.push("Update layers");
+        for (Layer layer : layers) {
+            profiler.push(layer.getClass().getSimpleName());
             layer.update(delta);
+            profiler.pop();
+        }
+        profiler.pop();
 
-        for (GameModule module : modules)
+        profiler.push("Post-update modules");
+        for (GameModule module : modules) {
+            profiler.push(module.getClass().getSimpleName());
             module.postUpdate();
+            profiler.pop();
+        }
+        profiler.pop();
+        profiler.end();
+
+        stageProfileData.put(FixedProfileStage.UPDATE, profiler.getData());
+        profiler = temp;
     }
 
     private void fixedUpdate() {
-        for (GameModule module : modules)
+        Profiler temp = profiler;
+        profiler = new Profiler();
+        profiler.begin("Fixed update");
+
+        profiler.push("Pre-fixed-update modules");
+        for (GameModule module : modules) {
+            profiler.push(module.getClass().getSimpleName());
             module.preFixedUpdate();
+            profiler.pop();
+        }
+        profiler.pop();
 
-        for (Layer layer : layers)
+        profiler.push("Fixed-update layers");
+        for (Layer layer : layers) {
+            profiler.push(layer.getClass().getSimpleName());
             layer.fixedUpdate();
+            profiler.pop();
+        }
+        profiler.pop();
 
-        for (GameModule module : modules)
+        profiler.push("Post-fixed-update modules");
+        for (GameModule module : modules) {
+            profiler.push(module.getClass().getSimpleName());
             module.postFixedUpdate();
+            profiler.pop();
+        }
+        profiler.pop();
+        profiler.end();
+        stageProfileData.put(FixedProfileStage.FIXED_UPDATE, profiler.getData());
+        profiler = temp;
     }
 
     private void close() {
+        // Not worth profiling here - nothing will be running to read
+        // the results at this point!
         for (int i = layers.size() - 1; i >= 0; i--) {
             layers.get(i).close();
         }
@@ -168,6 +239,9 @@ public final class Game {
         long previousTime = System.nanoTime();
         float unprocessedTime = 0;
         while (running) {
+            profiler = new Profiler();
+            profiler.begin("Main");
+
             long currentTime = System.nanoTime();
             long passedTime = currentTime - previousTime;
             float delta = passedTime / 1_000_000_000.0f;
@@ -179,20 +253,27 @@ public final class Game {
                 unprocessedTime = maxFixedUpdateBacklog;
             }
 
+            profiler.push("Dispatch queued events");
             Event event;
             while ((event = eventQueue.poll()) != null) {
                 dispatchEvent(event);
             }
+            profiler.pop();
 
+            profiler.push("Fixed update");
             float secondsPerFixedUpdate = Time.getFixedDelta();
             while (unprocessedTime > secondsPerFixedUpdate) {
                 fixedUpdate();
 
                 unprocessedTime -= secondsPerFixedUpdate;
             }
+            profiler.pop();
 
+            profiler.push("Update");
             update(delta);
+            profiler.pop();
 
+            profiler.push("Sleep");
             if (sleepInterval != 0) {
                 try {
                     Thread.sleep(sleepInterval);
@@ -200,6 +281,9 @@ public final class Game {
                     running = false;
                 }
             }
+            profiler.pop();
+            profiler.end();
+            stageProfileData.put(FixedProfileStage.MAIN_LOOP, profiler.getData());
         }
 
         close();
@@ -215,9 +299,18 @@ public final class Game {
     }
 
     private void dispatchEvent(Event event) {
+        Profiler temp = profiler;
+        profiler = new Profiler();
+        profiler.begin(event.getClass().getSimpleName());
         for (int i = layers.size() - 1; i >= 0; i--) {
-            layers.get(i).onEvent(event);
+            Layer layer = layers.get(i);
+            profiler.push(layer.getClass().getSimpleName());
+            layer.onEvent(event);
+            profiler.pop();
         }
+        profiler.end();
+        eventProfileData.put(event.getClass(), profiler.getData());
+        profiler = temp;
     }
 
     // Dispatches an event immediately
@@ -227,6 +320,18 @@ public final class Game {
 
     public void stop() {
         running = false;
+    }
+
+    public Profiler getProfiler() {
+        return profiler;
+    }
+
+    public Map<FixedProfileStage, ProfileNode> getStageProfileData() {
+        return new EnumMap<>(stageProfileData);
+    }
+
+    public Map<Class<? extends Event>, ProfileNode> getEventProfileData() {
+        return new HashMap<>(eventProfileData);
     }
 
     public float getFixedUpdatesPerSecond() {
@@ -244,6 +349,14 @@ public final class Game {
 
     public void setSleepInterval(int sleepInterval) {
         this.sleepInterval = sleepInterval;
+    }
+
+    public float getMaxFixedUpdateBacklog() {
+        return maxFixedUpdateBacklog;
+    }
+
+    public void setMaxFixedUpdateBacklog(float maxFixedUpdateBacklog) {
+        this.maxFixedUpdateBacklog = maxFixedUpdateBacklog;
     }
 
     public InputManager getInputManager() {
