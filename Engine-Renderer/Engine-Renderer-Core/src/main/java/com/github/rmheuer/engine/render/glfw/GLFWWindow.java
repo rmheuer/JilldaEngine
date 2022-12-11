@@ -90,6 +90,9 @@ public abstract class GLFWWindow implements Window {
             Game.get().postGlobalEvent(new MouseMoveEvent(cursorX, cursorY));
         }
 
+        if (settings.isForceAspectRatio()) {
+            glfwSetWindowAspectRatio(window, settings.getWidth(), settings.getHeight());
+        }
         glfwShowWindow(window);
     }
 

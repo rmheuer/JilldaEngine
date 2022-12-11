@@ -36,7 +36,7 @@ public final class Sandbox2dInitSystem implements GameSystem {
     @Override
     public void init(World world) {
         {
-            Camera camera = new Camera(new PerspectiveProjection());
+            Camera camera = new Camera(new OrthographicProjection(OrthographicProjection.ResizeRule.MAINTAIN_FIXED_HEIGHT));
             Transform cameraTx = new Transform();
             cameraTx.getPosition().z = 800;
 
