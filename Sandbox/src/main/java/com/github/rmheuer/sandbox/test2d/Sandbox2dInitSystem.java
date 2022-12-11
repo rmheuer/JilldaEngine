@@ -155,7 +155,7 @@ public final class Sandbox2dInitSystem implements GameSystem {
         GuiCanvas gui = new GuiCanvas();
         StringBuilder textBox = new StringBuilder("Text box");
         gui.addWindow(new GuiWindow("Profiler", this::showProfileTool));
-
+//
         Entity guiCanvasE = world.getRoot().newChild("Gui Canvas");
         Transform guiTx = new Transform();
 //        guiTx.setPosition(new Vector3f(0, 0, 2f));

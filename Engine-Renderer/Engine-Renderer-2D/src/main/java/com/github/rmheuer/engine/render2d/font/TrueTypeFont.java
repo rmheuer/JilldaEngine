@@ -43,8 +43,8 @@ public final class TrueTypeFont extends Font {
         int bitmapHeight = 512;
         int pixelCount = bitmapWidth * bitmapHeight;
 
-        STBTTFontinfo fontInfo = STBTTFontinfo.create();
-        STBTTPackedchar.Buffer cdata = STBTTPackedchar.create(CHAR_COUNT);
+        STBTTFontinfo fontInfo = STBTTFontinfo.malloc();
+        STBTTPackedchar.Buffer cdata = STBTTPackedchar.malloc(CHAR_COUNT);
 
         stbtt_InitFont(fontInfo, ttf);
         float scale = stbtt_ScaleForMappingEmToPixels(fontInfo, heightPx);

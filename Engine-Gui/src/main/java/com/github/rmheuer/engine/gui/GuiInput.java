@@ -1,18 +1,7 @@
 package com.github.rmheuer.engine.gui;
 
-import com.github.rmheuer.engine.core.event.EventDispatcher;
-import com.github.rmheuer.engine.core.input.keyboard.CharTypeEvent;
 import com.github.rmheuer.engine.core.input.keyboard.Key;
-import com.github.rmheuer.engine.core.input.keyboard.KeyEvent;
-import com.github.rmheuer.engine.core.input.keyboard.KeyPressEvent;
-import com.github.rmheuer.engine.core.input.keyboard.KeyReleaseEvent;
-import com.github.rmheuer.engine.core.input.keyboard.KeyRepeatEvent;
 import com.github.rmheuer.engine.core.input.mouse.MouseButton;
-import com.github.rmheuer.engine.core.input.mouse.MouseButtonPressEvent;
-import com.github.rmheuer.engine.core.input.mouse.MouseButtonReleaseEvent;
-import com.github.rmheuer.engine.core.input.mouse.MouseEvent;
-import com.github.rmheuer.engine.core.input.mouse.MouseMoveEvent;
-import com.github.rmheuer.engine.core.input.mouse.MouseScrollEvent;
 import com.github.rmheuer.engine.core.math.Vector2f;
 import com.github.rmheuer.engine.core.util.Pair;
 import com.github.rmheuer.engine.render2d.Rectangle;
@@ -22,8 +11,6 @@ import java.util.Deque;
 import java.util.EnumSet;
 import java.util.Set;
 
-// TODO: Properly take camera transform and projection into account when finding cursor pos for
-//       world-space windows
 public final class GuiInput {
     private final Deque<Pair<Boolean, Boolean>> enableStack;
     private final Set<MouseButton> pressedButtons;
@@ -182,40 +169,6 @@ public final class GuiInput {
         textInput += c;
     }
 
-
-//    private void onMouseButtonPress(MouseButtonPressEvent event) {
-//        pressedButtons.add(event.getButton());
-//        heldButtons.add(event.getButton());
-//        onMouse(event);
-//    }
-//
-//    private void onMouseButtonRelease(MouseButtonReleaseEvent event) {
-//        heldButtons.remove(event.getButton());
-//        onMouse(event);
-//    }
-//
-//    private void onMouseScroll(MouseScrollEvent event) {
-//        scroll.add(event.getScrollPixelsX(), event.getScrollPixelsY());
-//        onMouse(event);
-//    }
-//
-//    private void onMouse(MouseEvent event) {
-//        cursorPos.set(event.getX(), event.getY()).add(cursorOffset);
-//    }
-//
-//    private void onKeyPressOrRepeat(KeyEvent event) {
-//        pressedKeys.add(event.getKey());
-//        heldKeys.add(event.getKey());
-//    }
-//
-//    private void onKeyRelease(KeyReleaseEvent event) {
-//        heldKeys.remove(event.getKey());
-//    }
-//
-//    private void onCharType(CharTypeEvent event) {
-//        textInput += event.getChar();
-//    }
-
     public void beginFrame() {
 //        cursorOffset.set(-width / 2.0f, -height / 2.0f);
         cursorOffset.set(0, 0);
@@ -229,16 +182,4 @@ public final class GuiInput {
         scroll.set(0, 0);
         textInput = "";
     }
-
-//    public void onEvent(EventDispatcher d) {
-//        d.dispatch(MouseButtonPressEvent.class, this::onMouseButtonPress);
-//        d.dispatch(MouseButtonReleaseEvent.class, this::onMouseButtonRelease);
-//        d.dispatch(MouseScrollEvent.class, this::onMouseScroll);
-//        d.dispatch(MouseMoveEvent.class, this::onMouse);
-//
-//        d.dispatch(KeyPressEvent.class, this::onKeyPressOrRepeat);
-//        d.dispatch(KeyRepeatEvent.class, this::onKeyPressOrRepeat);
-//        d.dispatch(KeyReleaseEvent.class, this::onKeyRelease);
-//        d.dispatch(CharTypeEvent.class, this::onCharType);
-//    }
 }

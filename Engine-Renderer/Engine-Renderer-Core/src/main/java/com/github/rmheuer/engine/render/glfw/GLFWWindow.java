@@ -21,6 +21,7 @@ import com.github.rmheuer.engine.render.event.WindowCloseEvent;
 import com.github.rmheuer.engine.render.event.WindowFramebufferResizeEvent;
 import com.github.rmheuer.engine.render.event.WindowResizeEvent;
 
+import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.DoubleBuffer;
@@ -198,6 +199,7 @@ public abstract class GLFWWindow implements Window {
 
     @Override
     public void close() {
+        Callbacks.glfwFreeCallbacks(window);
         glfwDestroyWindow(window);
         GLFWManager.release();
     }
