@@ -1,4 +1,0 @@
-#!/bin/bash
-
-jarPath="$(dirname $0)/BinTool.jar"
-java -jar $jarPath "$@"

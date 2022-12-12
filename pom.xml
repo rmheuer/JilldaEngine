@@ -8,15 +8,12 @@
 
   <modules>
     <module>Engine-Core</module>
-    <module>Engine-Renderer</module>
-    <module>Engine-Gui</module>
-    <!--<module>Engine-Audio</module>-->
-
-    <module>BinTool</module>
     <module>Engine-Editor</module>
-      <module>VulkanTest</module>
-      <module>Sandbox</module>
-      <module>Engine-Physics</module>
+    <module>Engine-Gui</module>
+    <module>Engine-Physics</module>
+    <module>Engine-Renderer</module>
+    <module>Sandbox</module>
+    <module>VulkanTest</module>
   </modules>
 
   <properties>
