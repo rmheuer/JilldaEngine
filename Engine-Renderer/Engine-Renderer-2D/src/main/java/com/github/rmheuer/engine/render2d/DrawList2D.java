@@ -87,7 +87,7 @@ public class DrawList2D {
     private void vertex(float x, float y, Vector4f color) { vertex(x, y, 0, 0, color, null); }
     private void vertex(float x, float y, float u, float v, Vector4f tint, Image tex) {
         Vector3f pos = new Vector3f(x, y, 0);
-        pos = transform.transform(pos);
+        pos = transform.transformGlobal(pos);
 
         vertices.add(new DrawVertex(pos, u, v, tint, tex));
     }
