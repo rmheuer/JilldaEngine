@@ -9,7 +9,13 @@ import com.github.rmheuer.engine.core.resource.ResourceFile;
 import java.util.Collection;
 
 public final class AudioSource implements Component {
+    public enum Mode {
+        SOURCE_2D,
+        SOURCE_3D
+    }
+
     private ResourceFile file;
+    private Mode mode;
     private boolean looping;
     private float gain = 1.0f;
     private float pitch = 1.0f;
@@ -24,6 +30,14 @@ public final class AudioSource implements Component {
 
     public ResourceFile getFile() {
         return file;
+    }
+
+    public Mode getMode() {
+        return mode;
+    }
+
+    public void setMode(Mode mode) {
+        this.mode = mode;
     }
 
     public boolean isLooping() {
@@ -62,11 +76,13 @@ public final class AudioSource implements Component {
         private final NativeAudioSource source;
         private final Collection<NativeAudioBuffer> ownedBuffers;
         private final StreamLooper looper;
+        private boolean playStarted;
 
         public Runtime(NativeAudioSource source, Collection<NativeAudioBuffer> ownedBuffers, StreamLooper looper) {
             this.source = source;
             this.ownedBuffers = ownedBuffers;
             this.looper = looper;
+            playStarted = false;
         }
 
         public NativeAudioSource getSource() {
@@ -79,6 +95,14 @@ public final class AudioSource implements Component {
 
         public StreamLooper getLooper() {
             return looper;
+        }
+
+        public boolean isPlayStarted() {
+            return playStarted;
+        }
+
+        public void setPlayStarted(boolean playStarted) {
+            this.playStarted = playStarted;
         }
     }
 }

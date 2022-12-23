@@ -18,7 +18,8 @@ public final class AudioModule implements GameModule {
                 AudioUpdateSourcePositionSystem.class,
                 AudioQueueStreamingBuffersSystem.class,
                 AudioSourceLifetimeSystem.class,
-                AudioSourceUpdatePropertiesSystem.class
+                AudioSourceUpdatePropertiesSystem.class,
+                AudioBeginPlaySystem.class
         );
     }
 

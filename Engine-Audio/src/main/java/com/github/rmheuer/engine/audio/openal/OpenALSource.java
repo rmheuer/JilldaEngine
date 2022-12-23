@@ -21,7 +21,14 @@ public final class OpenALSource implements NativeAudioSource {
     }
 
     @Override
-    public void setPosition(Vector3f pos) {
+    public void setGlobalPosition(Vector3f pos) {
+        alSourcei(id, AL_SOURCE_RELATIVE, AL_FALSE);
+        alSource3f(id, AL_POSITION, pos.x, pos.y, pos.z);
+    }
+
+    @Override
+    public void setListenerRelativePosition(Vector3f pos) {
+        alSourcei(id, AL_SOURCE_RELATIVE, AL_TRUE);
         alSource3f(id, AL_POSITION, pos.x, pos.y, pos.z);
     }
 

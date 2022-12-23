@@ -3,7 +3,9 @@ package com.github.rmheuer.engine.audio;
 import com.github.rmheuer.engine.core.math.Vector3f;
 
 public interface NativeAudioSource {
-    void setPosition(Vector3f pos);
+    void setGlobalPosition(Vector3f pos);
+
+    void setListenerRelativePosition(Vector3f pos);
 
     void setVelocity(Vector3f vel);
 

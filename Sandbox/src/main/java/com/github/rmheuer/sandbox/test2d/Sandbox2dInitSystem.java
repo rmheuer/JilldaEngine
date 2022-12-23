@@ -1,5 +1,6 @@
 package com.github.rmheuer.sandbox.test2d;
 
+import com.github.rmheuer.engine.audio.component.AudioListener;
 import com.github.rmheuer.engine.audio.component.AudioSource;
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.entity.Entity;
@@ -45,6 +46,7 @@ public final class Sandbox2dInitSystem implements GameSystem {
             cameraEnt.addComponent(camera);
             cameraEnt.addComponent(cameraTx);
             cameraEnt.addComponent(new KeyboardControl(200, MathUtils.fPI));
+            cameraEnt.addComponent(new AudioListener());
         }
 
         Image box = null, floor = null;
@@ -169,6 +171,7 @@ public final class Sandbox2dInitSystem implements GameSystem {
         source.addComponent(new Transform());
         AudioSource s = new AudioSource(file);
         s.setLooping(true);
+        s.setMode(AudioSource.Mode.SOURCE_2D);
         source.addComponent(s);
     }
 

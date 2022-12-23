@@ -7,14 +7,13 @@ import com.github.rmheuer.engine.core.ecs.system.GameSystem;
 import com.github.rmheuer.engine.core.ecs.system.annotation.After;
 import com.github.rmheuer.engine.core.ecs.system.annotation.RunInGroup;
 import com.github.rmheuer.engine.core.ecs.system.group.PostSimulationGroup;
-import com.github.rmheuer.engine.core.math.Vector3f;
-import com.github.rmheuer.engine.core.transform.PropagateTransformSystem;
 import com.github.rmheuer.engine.core.transform.Transform;
 
-public final class AudioUpdateSourcePositionSystem implements GameSystem {
+public final class AudioBeginPlaySystem implements GameSystem {
     @Override
     @RunInGroup(PostSimulationGroup.class)
-    @After(PropagateTransformSystem.class)
+    @After(AudioUpdateSourcePositionSystem.class)
+    @After(AudioUpdateListenerSystem.class)
     public void update(World world, float delta) {
         world.forEach(AudioSource.class, Transform.class, (source, tx) -> {
             AudioSource.Runtime runtime = source.getRuntime();
@@ -22,12 +21,10 @@ public final class AudioUpdateSourcePositionSystem implements GameSystem {
                 return;
 
             NativeAudioSource nat = runtime.getSource();
-            if (source.getMode() == AudioSource.Mode.SOURCE_3D)
-                // Put the source where the object is
-                nat.setGlobalPosition(tx.getGlobalPosition());
-            else
-                // Put the source directly at the listener
-                nat.setListenerRelativePosition(new Vector3f());
+            if (!runtime.isPlayStarted()) {
+                nat.play();
+                runtime.setPlayStarted(true);
+            }
         });
     }
 }

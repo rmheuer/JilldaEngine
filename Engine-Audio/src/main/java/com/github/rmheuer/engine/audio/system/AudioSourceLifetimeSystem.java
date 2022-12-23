@@ -40,7 +40,6 @@ public final class AudioSourceLifetimeSystem implements GameSystem {
 
         s.setGain(source.getGain());
         s.setPitch(source.getPitch());
-        s.play();
 
         source.setRuntime(new AudioSource.Runtime(s, buffers, looper));
     }
@@ -80,7 +79,7 @@ public final class AudioSourceLifetimeSystem implements GameSystem {
                 return;
 
             NativeAudioSource nat = runtime.getSource();
-            if (!nat.isPlaying()) {
+            if (runtime.isPlayStarted() && !nat.isPlaying()) {
                 // Cleanup will be handled by remove listener
                 entity.removeComponent(AudioSource.class);
             }
