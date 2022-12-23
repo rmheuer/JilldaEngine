@@ -4,7 +4,8 @@
     "com.github.rmheuer.engine.render2d.system.Render2DModule",
     "com.github.rmheuer.engine.render3d.system.Render3DModule",
     "com.github.rmheuer.engine.physics2d.Physics2DModule",
-    "com.github.rmheuer.engine.gui.system.GuiModule"
+    "com.github.rmheuer.engine.gui.system.GuiModule",
+    "com.github.rmheuer.engine.audio.system.AudioModule"
   ],
   "layers": [
     "com.github.rmheuer.sandbox.test2d.SandboxLayer"

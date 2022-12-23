@@ -9,22 +9,7 @@ public interface NativeAudioSource {
 
     void setGain(float gain);
 
-    /**
-     * Sets this source to loop the buffer it is playing.
-     * This is only applicable when playing a static buffer set
-     * using {@link #setStaticBuffer(NativeAudioBuffer)}.
-     *
-     * @param looping whether to loop
-     */
-    void setLooping(boolean looping);
-
-    /**
-     * Sets this source to play one static buffer. This buffer
-     * can be automatically looped using {@link #setLooping(boolean)}.
-     *
-     * @param buffer buffer to play
-     */
-    void setStaticBuffer(NativeAudioBuffer buffer);
+    void setPitch(float pitch);
 
     /**
      * Adds a buffer to the streaming queue.
@@ -47,4 +32,6 @@ public interface NativeAudioSource {
     void stop();
 
     void release();
+
+    boolean isPlaying();
 }

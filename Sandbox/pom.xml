@@ -43,6 +43,11 @@
             <artifactId>Engine-Gui</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>Engine-Audio</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

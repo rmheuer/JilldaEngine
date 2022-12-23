@@ -1,5 +1,6 @@
 package com.github.rmheuer.sandbox.test2d;
 
+import com.github.rmheuer.engine.audio.component.AudioSource;
 import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.entity.Entity;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
@@ -10,6 +11,7 @@ import com.github.rmheuer.engine.core.math.Vector2f;
 import com.github.rmheuer.engine.core.math.Vector3f;
 import com.github.rmheuer.engine.core.profile.FixedProfileStage;
 import com.github.rmheuer.engine.core.profile.ProfileNode;
+import com.github.rmheuer.engine.core.resource.ResourceFile;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
 import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.gui.GuiRenderer;
@@ -22,7 +24,6 @@ import com.github.rmheuer.engine.physics2d.component.Gravity2D;
 import com.github.rmheuer.engine.physics2d.component.RigidBody2D;
 import com.github.rmheuer.engine.render.camera.Camera;
 import com.github.rmheuer.engine.render.camera.OrthographicProjection;
-import com.github.rmheuer.engine.render.camera.PerspectiveProjection;
 import com.github.rmheuer.engine.render.texture.Image;
 import com.github.rmheuer.engine.render2d.component.Canvas2D;
 import com.github.rmheuer.engine.render2d.component.SpriteRenderer;
@@ -162,6 +163,13 @@ public final class Sandbox2dInitSystem implements GameSystem {
         guiCanvasE.addComponent(guiCanvas2D);
         guiCanvasE.addComponent(gui);
         guiCanvasE.addComponent(guiTx);
+
+        ResourceFile file = new JarResourceFile("testsong.ogg");
+        Entity source = world.getRoot().newChild("Audio source");
+        source.addComponent(new Transform());
+        AudioSource s = new AudioSource(file);
+        s.setLooping(true);
+        source.addComponent(s);
     }
 
     private void showProfileNode(GuiRenderer g, ProfileNode node) {
