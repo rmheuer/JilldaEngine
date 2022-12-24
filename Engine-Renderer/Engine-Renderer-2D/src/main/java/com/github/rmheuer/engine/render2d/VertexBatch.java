@@ -3,6 +3,7 @@ package com.github.rmheuer.engine.render2d;
 import com.github.rmheuer.engine.render.RenderConstants;
 import com.github.rmheuer.engine.render.mesh.MeshBuilder;
 import com.github.rmheuer.engine.render.texture.Image;
+import com.github.rmheuer.engine.render.texture.Subimage;
 
 import java.util.List;
 
@@ -16,9 +17,12 @@ public final class VertexBatch {
     }
 
     public boolean addVertex(DrawVertex v, Image defaultTexture) {
-        Image tex = v.getTex();
-        if (tex == null)
+        Subimage texSub = v.getTex();
+        Image tex;
+        if (texSub == null)
             tex = defaultTexture;
+        else
+            tex = texSub.getSourceImage();
 
         int textureSlot = -1;
         for (int i = 0; i < RenderConstants.MAX_TEXTURE_SLOTS; i++) {

@@ -29,7 +29,7 @@ import static org.lwjgl.stb.STBImage.stbi_load_from_memory;
  *
  * @author rmheuer
  */
-public final class Image implements Texture {
+public final class Image extends Subimage implements Texture {
     public static final int RED_SHIFT   = 0;
     public static final int GREEN_SHIFT = 8;
     public static final int BLUE_SHIFT  = 16;
@@ -115,6 +115,9 @@ public final class Image implements Texture {
     }
 
     public Image(int width, int height, int[] rgbaData) {
+        super(null, 0, 0, width, height);
+        src = this;
+
         this.width = width;
         this.height = height;
         this.rgbaData = rgbaData;

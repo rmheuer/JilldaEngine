@@ -5,7 +5,7 @@ import com.github.rmheuer.engine.core.math.Vector3f;
 import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.math.Vector2f;
 import com.github.rmheuer.engine.core.math.Vector4f;
-import com.github.rmheuer.engine.render.texture.Image;
+import com.github.rmheuer.engine.render.texture.Subimage;
 import com.github.rmheuer.engine.render2d.font.Font;
 
 import java.util.ArrayDeque;
@@ -85,9 +85,17 @@ public class DrawList2D {
     }
     
     private void vertex(float x, float y, Vector4f color) { vertex(x, y, 0, 0, color, null); }
-    private void vertex(float x, float y, float u, float v, Vector4f tint, Image tex) {
+    private void vertex(float x, float y, float u, float v, Vector4f tint, Subimage tex) {
         Vector3f pos = new Vector3f(x, y, 0);
         pos = transform.transformGlobal(pos);
+
+        if (tex != null) {
+            Vector2f uvMin = tex.getRegionMinUV();
+            Vector2f uvMax = tex.getRegionMaxUV();
+
+            u = MathUtils.lerp(uvMin.x, uvMax.x, u);
+            v = MathUtils.lerp(uvMin.y, uvMax.y, v);
+        }
 
         vertices.add(new DrawVertex(pos, u, v, tint, tex));
     }
@@ -302,56 +310,56 @@ public class DrawList2D {
         }, color);
     }
 
-    public void drawImage(Rectangle r, Image img, Rectangle uvs) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(Rectangle r, Image img, Vector2f uv0, Vector2f uv1) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(Rectangle r, Image img, Vector2f uv0, float u1, float v1) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(Rectangle r, Image img, float u0, float v0, Vector2f uv1) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(Rectangle r, Image img, float u0, float v0, float u1, float v1) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, u0, v0, u1, v1); }
-    public void drawImage(Vector2f pos, Vector2f size, Image img, Rectangle uvs) { drawImage(pos.x, pos.y, size.x, size.y, img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(Vector2f pos, float w, float h, Image img, Rectangle uvs) { drawImage(pos.x, pos.y, w, h, img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(float x, float y, Vector2f size, Image img, Rectangle uvs) { drawImage(x, y, size.x, size.y, img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(float x, float y, float w, float h, Image img, Rectangle uvs) { drawImage(x, y, w, h, img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(Vector2f pos, Vector2f size, Image img, Vector2f uv0, Vector2f uv1) { drawImage(pos.x, pos.y, size.x, size.y, img, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(Vector2f pos, Vector2f size, Image img, Vector2f uv0, float u1, float v1) { drawImage(pos.x, pos.y, size.x, size.y, img, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(Vector2f pos, Vector2f size, Image img, float u0, float v0, Vector2f uv1) { drawImage(pos.x, pos.y, size.x, size.y, img, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(Vector2f pos, Vector2f size, Image img, float u0, float v0, float u1, float v1) { drawImage(pos.x, pos.y, size.x, size.y, img, u0, v0, u1, v1); }
-    public void drawImage(Vector2f pos, float w, float h, Image img, Vector2f uv0, Vector2f uv1) { drawImage(pos.x, pos.y, w, h, img, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(Vector2f pos, float w, float h, Image img, Vector2f uv0, float u1, float v1) { drawImage(pos.x, pos.y, w, h, img, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(Vector2f pos, float w, float h, Image img, float u0, float v0, Vector2f uv1) { drawImage(pos.x, pos.y, w, h, img, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(Vector2f pos, float w, float h, Image img, float u0, float v0, float u1, float v1) { drawImage(pos.x, pos.y, w, h, img, u0, v0, u1, v1); }
-    public void drawImage(float x, float y, Vector2f size, Image img, Vector2f uv0, Vector2f uv1) { drawImage(x, y, size.x, size.y, img, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(float x, float y, Vector2f size, Image img, Vector2f uv0, float u1, float v1) { drawImage(x, y, size.x, size.y, img, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(float x, float y, Vector2f size, Image img, float u0, float v0, Vector2f uv1) { drawImage(x, y, size.x, size.y, img, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(float x, float y, Vector2f size, Image img, float u0, float v0, float u1, float v1) { drawImage(x, y, size.x, size.y, img, u0, v0, u1, v1); }
-    public void drawImage(float x, float y, float w, float h, Image img, Vector2f uv0, Vector2f uv1) { drawImage(x, y, w, h, img, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(float x, float y, float w, float h, Image img, Vector2f uv0, float u1, float v1) { drawImage(x, y, w, h, img, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(float x, float y, float w, float h, Image img, float u0, float v0, Vector2f uv1) { drawImage(x, y, w, h, img, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(float x, float y, float w, float h, Image img, float u0, float v0, float u1, float v1) { drawImage(x, y, w, h, img, new Vector4f(1, 1, 1, 1), u0, v0, u1, v1); }
-    public void drawImage(Rectangle r, Image img, Vector4f tint, Rectangle uvs) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(Rectangle r, Image img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(Rectangle r, Image img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(Rectangle r, Image img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(Rectangle r, Image img, Vector4f tint, float u0, float v0, float u1, float v1) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, u0, v0, u1, v1); }
-    public void drawImage(Vector2f pos, Vector2f size, Image img, Vector4f tint, Rectangle uvs) { drawImage(pos.x, pos.y, size.x, size.y, img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(Vector2f pos, float w, float h, Image img, Vector4f tint, Rectangle uvs) { drawImage(pos.x, pos.y, w, h, img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(float x, float y, Vector2f size, Image img, Vector4f tint, Rectangle uvs) { drawImage(x, y, size.x, size.y, img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(float x, float y, float w, float h, Image img, Vector4f tint, Rectangle uvs) { drawImage(x, y, w, h, img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
-    public void drawImage(Vector2f pos, Vector2f size, Image img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(pos.x, pos.y, size.x, size.y, img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(Vector2f pos, Vector2f size, Image img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(pos.x, pos.y, size.x, size.y, img, tint, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(Vector2f pos, Vector2f size, Image img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(pos.x, pos.y, size.x, size.y, img, tint, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(Vector2f pos, Vector2f size, Image img, Vector4f tint, float u0, float v0, float u1, float v1) { drawImage(pos.x, pos.y, size.x, size.y, img, tint, u0, v0, u1, v1); }
-    public void drawImage(Vector2f pos, float w, float h, Image img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(pos.x, pos.y, w, h, img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(Vector2f pos, float w, float h, Image img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(pos.x, pos.y, w, h, img, tint, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(Vector2f pos, float w, float h, Image img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(pos.x, pos.y, w, h, img, tint, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(Vector2f pos, float w, float h, Image img, Vector4f tint, float u0, float v0, float u1, float v1) { drawImage(pos.x, pos.y, w, h, img, tint, u0, v0, u1, v1); }
-    public void drawImage(float x, float y, Vector2f size, Image img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(x, y, size.x, size.y, img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(float x, float y, Vector2f size, Image img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(x, y, size.x, size.y, img, tint, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(float x, float y, Vector2f size, Image img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(x, y, size.x, size.y, img, tint, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(float x, float y, Vector2f size, Image img, Vector4f tint, float u0, float v0, float u1, float v1) { drawImage(x, y, size.x, size.y, img, tint, u0, v0, u1, v1); }
-    public void drawImage(float x, float y, float w, float h, Image img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(x, y, w, h, img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
-    public void drawImage(float x, float y, float w, float h, Image img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(x, y, w, h, img, tint, uv0.x, uv0.y, u1, v1); }
-    public void drawImage(float x, float y, float w, float h, Image img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(x, y, w, h, img, tint, u0, v0, uv1.x, uv1.y); }
-    public void drawImage(float x, float y, float w, float h, Image img, Vector4f tint, float u0, float v0, float u1, float v1) {
+    public void drawImage(Rectangle r, Subimage img, Rectangle uvs) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(Rectangle r, Subimage img, Vector2f uv0, Vector2f uv1) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(Rectangle r, Subimage img, Vector2f uv0, float u1, float v1) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(Rectangle r, Subimage img, float u0, float v0, Vector2f uv1) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(Rectangle r, Subimage img, float u0, float v0, float u1, float v1) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, u0, v0, u1, v1); }
+    public void drawImage(Vector2f pos, Vector2f size, Subimage img, Rectangle uvs) { drawImage(pos.x, pos.y, size.x, size.y, img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(Vector2f pos, float w, float h, Subimage img, Rectangle uvs) { drawImage(pos.x, pos.y, w, h, img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(float x, float y, Vector2f size, Subimage img, Rectangle uvs) { drawImage(x, y, size.x, size.y, img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(float x, float y, float w, float h, Subimage img, Rectangle uvs) { drawImage(x, y, w, h, img, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(Vector2f pos, Vector2f size, Subimage img, Vector2f uv0, Vector2f uv1) { drawImage(pos.x, pos.y, size.x, size.y, img, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(Vector2f pos, Vector2f size, Subimage img, Vector2f uv0, float u1, float v1) { drawImage(pos.x, pos.y, size.x, size.y, img, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(Vector2f pos, Vector2f size, Subimage img, float u0, float v0, Vector2f uv1) { drawImage(pos.x, pos.y, size.x, size.y, img, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(Vector2f pos, Vector2f size, Subimage img, float u0, float v0, float u1, float v1) { drawImage(pos.x, pos.y, size.x, size.y, img, u0, v0, u1, v1); }
+    public void drawImage(Vector2f pos, float w, float h, Subimage img, Vector2f uv0, Vector2f uv1) { drawImage(pos.x, pos.y, w, h, img, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(Vector2f pos, float w, float h, Subimage img, Vector2f uv0, float u1, float v1) { drawImage(pos.x, pos.y, w, h, img, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(Vector2f pos, float w, float h, Subimage img, float u0, float v0, Vector2f uv1) { drawImage(pos.x, pos.y, w, h, img, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(Vector2f pos, float w, float h, Subimage img, float u0, float v0, float u1, float v1) { drawImage(pos.x, pos.y, w, h, img, u0, v0, u1, v1); }
+    public void drawImage(float x, float y, Vector2f size, Subimage img, Vector2f uv0, Vector2f uv1) { drawImage(x, y, size.x, size.y, img, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(float x, float y, Vector2f size, Subimage img, Vector2f uv0, float u1, float v1) { drawImage(x, y, size.x, size.y, img, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(float x, float y, Vector2f size, Subimage img, float u0, float v0, Vector2f uv1) { drawImage(x, y, size.x, size.y, img, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(float x, float y, Vector2f size, Subimage img, float u0, float v0, float u1, float v1) { drawImage(x, y, size.x, size.y, img, u0, v0, u1, v1); }
+    public void drawImage(float x, float y, float w, float h, Subimage img, Vector2f uv0, Vector2f uv1) { drawImage(x, y, w, h, img, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(float x, float y, float w, float h, Subimage img, Vector2f uv0, float u1, float v1) { drawImage(x, y, w, h, img, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(float x, float y, float w, float h, Subimage img, float u0, float v0, Vector2f uv1) { drawImage(x, y, w, h, img, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(float x, float y, float w, float h, Subimage img, float u0, float v0, float u1, float v1) { drawImage(x, y, w, h, img, new Vector4f(1, 1, 1, 1), u0, v0, u1, v1); }
+    public void drawImage(Rectangle r, Subimage img, Vector4f tint, Rectangle uvs) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(Rectangle r, Subimage img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(Rectangle r, Subimage img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(Rectangle r, Subimage img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(Rectangle r, Subimage img, Vector4f tint, float u0, float v0, float u1, float v1) { drawImage(r.getMin().x, r.getMin().y, r.getWidth(), r.getHeight(), img, tint, u0, v0, u1, v1); }
+    public void drawImage(Vector2f pos, Vector2f size, Subimage img, Vector4f tint, Rectangle uvs) { drawImage(pos.x, pos.y, size.x, size.y, img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(Vector2f pos, float w, float h, Subimage img, Vector4f tint, Rectangle uvs) { drawImage(pos.x, pos.y, w, h, img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(float x, float y, Vector2f size, Subimage img, Vector4f tint, Rectangle uvs) { drawImage(x, y, size.x, size.y, img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(float x, float y, float w, float h, Subimage img, Vector4f tint, Rectangle uvs) { drawImage(x, y, w, h, img, tint, uvs.getMin().x, uvs.getMin().y, uvs.getMax().x, uvs.getMax().y); }
+    public void drawImage(Vector2f pos, Vector2f size, Subimage img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(pos.x, pos.y, size.x, size.y, img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(Vector2f pos, Vector2f size, Subimage img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(pos.x, pos.y, size.x, size.y, img, tint, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(Vector2f pos, Vector2f size, Subimage img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(pos.x, pos.y, size.x, size.y, img, tint, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(Vector2f pos, Vector2f size, Subimage img, Vector4f tint, float u0, float v0, float u1, float v1) { drawImage(pos.x, pos.y, size.x, size.y, img, tint, u0, v0, u1, v1); }
+    public void drawImage(Vector2f pos, float w, float h, Subimage img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(pos.x, pos.y, w, h, img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(Vector2f pos, float w, float h, Subimage img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(pos.x, pos.y, w, h, img, tint, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(Vector2f pos, float w, float h, Subimage img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(pos.x, pos.y, w, h, img, tint, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(Vector2f pos, float w, float h, Subimage img, Vector4f tint, float u0, float v0, float u1, float v1) { drawImage(pos.x, pos.y, w, h, img, tint, u0, v0, u1, v1); }
+    public void drawImage(float x, float y, Vector2f size, Subimage img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(x, y, size.x, size.y, img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(float x, float y, Vector2f size, Subimage img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(x, y, size.x, size.y, img, tint, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(float x, float y, Vector2f size, Subimage img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(x, y, size.x, size.y, img, tint, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(float x, float y, Vector2f size, Subimage img, Vector4f tint, float u0, float v0, float u1, float v1) { drawImage(x, y, size.x, size.y, img, tint, u0, v0, u1, v1); }
+    public void drawImage(float x, float y, float w, float h, Subimage img, Vector4f tint, Vector2f uv0, Vector2f uv1) { drawImage(x, y, w, h, img, tint, uv0.x, uv0.y, uv1.x, uv1.y); }
+    public void drawImage(float x, float y, float w, float h, Subimage img, Vector4f tint, Vector2f uv0, float u1, float v1) { drawImage(x, y, w, h, img, tint, uv0.x, uv0.y, u1, v1); }
+    public void drawImage(float x, float y, float w, float h, Subimage img, Vector4f tint, float u0, float v0, Vector2f uv1) { drawImage(x, y, w, h, img, tint, u0, v0, uv1.x, uv1.y); }
+    public void drawImage(float x, float y, float w, float h, Subimage img, Vector4f tint, float u0, float v0, float u1, float v1) {
         Rectangle rect = Rectangle.fromXYSizes(x, y, w, h);
         if (clipRect != null)
              rect = rect.intersect(clipRect);
@@ -374,7 +382,7 @@ public class DrawList2D {
         indices.add(mark + 3);
     }
 
-    public void drawImageQuad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, Image img, Vector4f tint, float u0, float v0, float u1, float v1, float u2, float v2, float u3, float v3) {
+    public void drawImageQuad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, Subimage img, Vector4f tint, float u0, float v0, float u1, float v1, float u2, float v2, float u3, float v3) {
         // TODO: Clip
         int mark = vertices.size();
         vertex(x1, y1, u0, v0, tint, img);

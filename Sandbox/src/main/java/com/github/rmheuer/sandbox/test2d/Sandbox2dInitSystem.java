@@ -26,7 +26,9 @@ import com.github.rmheuer.engine.physics2d.component.RigidBody2D;
 import com.github.rmheuer.engine.render.camera.Camera;
 import com.github.rmheuer.engine.render.camera.OrthographicProjection;
 import com.github.rmheuer.engine.render.texture.Image;
+import com.github.rmheuer.engine.render.texture.Subimage;
 import com.github.rmheuer.engine.render2d.component.Canvas2D;
+import com.github.rmheuer.engine.render2d.component.SpriteAnimation;
 import com.github.rmheuer.engine.render2d.component.SpriteRenderer;
 
 import java.io.IOException;
@@ -49,7 +51,7 @@ public final class Sandbox2dInitSystem implements GameSystem {
             cameraEnt.addComponent(new AudioListener());
         }
 
-        Image box = null, floor = null;
+        Subimage box = null, floor = null;
         try {
             box = Image.decode(new JarResourceFile("box.png"));
             floor = Image.decode(new JarResourceFile("floor.png"));
@@ -173,6 +175,24 @@ public final class Sandbox2dInitSystem implements GameSystem {
         s.setLooping(true);
         s.setMode(AudioSource.Mode.SOURCE_2D);
         source.addComponent(s);
+
+        Image spriteSheet;
+        try {
+            spriteSheet = Image.decode(new JarResourceFile("thing.png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        SpriteRenderer animRenderer = new SpriteRenderer();
+        SpriteAnimation anim = SpriteAnimation.fromSpriteSheet(10, spriteSheet, 0, 0, 16, 16, 6);
+        Transform animTx = new Transform();
+        animTx.setPosition(new Vector3f(0, 0, 2));
+        animTx.setScale(new Vector3f(128, 128, 1));
+
+        Entity animEnt = world.getRoot().newChild("Animation test");
+        animEnt.addComponent(animRenderer);
+        animEnt.addComponent(anim);
+        animEnt.addComponent(animTx);
     }
 
     private void showProfileNode(GuiRenderer g, ProfileNode node) {

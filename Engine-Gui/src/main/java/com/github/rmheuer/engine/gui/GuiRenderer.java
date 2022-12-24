@@ -1,6 +1,5 @@
 package com.github.rmheuer.engine.gui;
 
-import com.github.rmheuer.engine.core.ecs.component.WorldLocalSingleton;
 import com.github.rmheuer.engine.core.input.keyboard.Key;
 import com.github.rmheuer.engine.core.input.mouse.MouseButton;
 import com.github.rmheuer.engine.core.math.MathUtils;
@@ -8,9 +7,9 @@ import com.github.rmheuer.engine.core.math.Vector2f;
 import com.github.rmheuer.engine.core.math.Vector4f;
 import com.github.rmheuer.engine.core.serial.node.SerialObject;
 import com.github.rmheuer.engine.core.serial.obj.Transient;
+import com.github.rmheuer.engine.render.texture.Subimage;
 import com.github.rmheuer.engine.render2d.DrawList2D;
 import com.github.rmheuer.engine.render2d.Rectangle;
-import com.github.rmheuer.engine.render.texture.Image;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -726,7 +725,7 @@ public final class GuiRenderer {
         return isWidgetClicked(MouseButton.LEFT);
     }
 
-    public boolean imageButton(Image img, float width, float height, Vector2f uv0, Vector2f uv1) {
+    public boolean imageButton(Subimage img, float width, float height, Vector2f uv0, Vector2f uv1) {
         beginWidget(new Vector2f(width, height));
 
         draw.drawImage(pane.cursor.x, pane.cursor.y, width, height, img, uv0.x, uv0.y, uv1.x, uv1.y);
@@ -734,13 +733,13 @@ public final class GuiRenderer {
         return isWidgetClicked(MouseButton.LEFT);
     }
 
-    public void image(Image img, float width, float height, Vector2f uv0, Vector2f uv1) {
+    public void image(Subimage img, float width, float height, Vector2f uv0, Vector2f uv1) {
         beginWidget(new Vector2f(width, height));
         draw.drawImage(pane.cursor.x, pane.cursor.y, width, height, img, uv0.x, uv0.y, uv1.x, uv1.y);
     }
 
     // Important: Only use for sizes smaller than text height
-    public void icon(Image img, float width, float height, Vector2f uv0, Vector2f uv1) {
+    public void icon(Subimage img, float width, float height, Vector2f uv0, Vector2f uv1) {
         float textHeight = textHeight();
         beginWidget(new Vector2f(width, textHeight()));
 

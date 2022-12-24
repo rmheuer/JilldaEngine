@@ -2,7 +2,7 @@ package com.github.rmheuer.engine.render2d;
 
 import com.github.rmheuer.engine.core.math.Vector3f;
 import com.github.rmheuer.engine.core.math.Vector4f;
-import com.github.rmheuer.engine.render.texture.Image;
+import com.github.rmheuer.engine.render.texture.Subimage;
 
 // Note: Not an actual vertex type!
 //       This is the intermediate representation of the vertices
@@ -11,9 +11,9 @@ public final class DrawVertex {
     private final Vector3f pos;
     private final float u, v;
     private final Vector4f color;
-    private final Image tex;
+    private final Subimage tex;
 
-    public DrawVertex(Vector3f pos, float u, float v, Vector4f color, Image tex) {
+    public DrawVertex(Vector3f pos, float u, float v, Vector4f color, Subimage tex) {
         this.pos = pos;
         this.u = u;
         this.v = v;
@@ -37,7 +37,7 @@ public final class DrawVertex {
         return color;
     }
 
-    public Image getTex() {
+    public Subimage getTex() {
         return tex;
     }
 }
