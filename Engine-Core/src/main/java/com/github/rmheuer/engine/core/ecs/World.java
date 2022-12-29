@@ -7,9 +7,7 @@ import com.github.rmheuer.engine.core.ecs.entity.EntityRegistry;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
 import com.github.rmheuer.engine.core.ecs.system.schedule.SystemScheduler;
 import com.github.rmheuer.engine.core.event.Event;
-import com.github.rmheuer.engine.core.event.EventDispatcher;
 import com.github.rmheuer.engine.core.main.Game;
-import com.github.rmheuer.engine.core.profile.ProfileNode;
 import com.github.rmheuer.engine.core.profile.Profiler;
 import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.util.QuadConsumer;
@@ -40,10 +38,16 @@ public final class World {
         root.addComponent(new Transform());
 
         registry.setComponentAddListener((c) -> {
+            Profiler profiler = Game.get().getProfiler();
+            profiler.push("Component add: " + c.getClass().getSimpleName());
             scheduler.onComponentAdd(this, c);
+            profiler.pop();
         });
         registry.setComponentRemoveListener((c) -> {
+            Profiler profiler = Game.get().getProfiler();
+            profiler.push("Component remove: " + c.getClass().getSimpleName());
             scheduler.onComponentRemove(this, c);
+            profiler.pop();
         });
     }
 
