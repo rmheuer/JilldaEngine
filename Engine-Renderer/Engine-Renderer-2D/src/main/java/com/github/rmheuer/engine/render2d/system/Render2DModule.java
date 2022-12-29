@@ -16,7 +16,7 @@ public final class Render2DModule implements GameModule {
                 RenderScreenSpace2DSystem.class,
                 SpriteRenderSystem.class,
                 AnimateSpriteSystem.class,
-                Render2DClearCanvas2DSystem.class,
+                Render2DPrepareCanvas2DSystem.class,
                 RenderCanvas2DSystem.class
         );
     }

@@ -50,6 +50,17 @@ public class DrawList2D {
         }
     }
 
+    // Joins other into this, applying a transform to incoming vertices
+    public void join(DrawList2D other, Transform otherTx) {
+        int mark = vertices.size();
+        for (DrawVertex vert : other.vertices) {
+            vertices.add(new DrawVertex(otherTx.transformGlobal(vert.getPos()), vert.getU(), vert.getV(), vert.getColor(), vert.getTex()));
+        }
+        for (int index : other.indices) {
+            indices.add(index + mark);
+        }
+    }
+
     public boolean isEmpty() {
         return vertices.isEmpty() && indices.isEmpty();
     }

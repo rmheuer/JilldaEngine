@@ -8,6 +8,7 @@ import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.util.Pair;
 import com.github.rmheuer.engine.render.*;
 import com.github.rmheuer.engine.render.event.RenderSceneEvent;
+import com.github.rmheuer.engine.render2d.DrawList2D;
 import com.github.rmheuer.engine.render2d.RenderContext2D;
 import com.github.rmheuer.engine.render2d.Renderer2D;
 import com.github.rmheuer.engine.render2d.component.Canvas2D;
@@ -24,7 +25,8 @@ public final class RenderCanvas2DSystem implements GameSystem {
             if (!canvas2D.isScreenSpace())
                 return;
 
-            event.getDrawList().join(canvas2D.getDrawList());
+            DrawList2D draw = event.getDrawList();
+            draw.join(canvas2D.getDrawList(), transform);
         });
     }
 
