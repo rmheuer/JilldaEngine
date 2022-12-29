@@ -69,6 +69,10 @@ public final class Game {
             throw new RuntimeException("Failed to load configuration file", e);
         }
 
+        if (config.containsKey("fixedUpdatesPerSecond")) {
+            fixedUpdatesPerSecond = config.getFloat("fixedUpdatesPerSecond");
+        }
+
         if (config.containsKey("modules")) {
             SerialArray modulesArr = config.getArray("modules");
             for (SerialNode node : modulesArr) {
