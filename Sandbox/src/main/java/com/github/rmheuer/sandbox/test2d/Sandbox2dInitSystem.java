@@ -44,11 +44,11 @@ public final class Sandbox2dInitSystem implements GameSystem {
             Transform cameraTx = new Transform();
             cameraTx.getPosition().z = 800;
 
-            Entity cameraEnt = world.getRoot().newChild("Camera");
-            cameraEnt.addComponent(camera);
-            cameraEnt.addComponent(cameraTx);
-            cameraEnt.addComponent(new KeyboardControl(200, MathUtils.fPI));
-            cameraEnt.addComponent(new AudioListener());
+            world.getRoot().newChild(
+                    "Camera", camera, cameraTx,
+                    new KeyboardControl(200, MathUtils.fPI),
+                    new AudioListener()
+            );
         }
 
         Subimage box = null, floor = null;
@@ -62,12 +62,10 @@ public final class Sandbox2dInitSystem implements GameSystem {
         {
             Gravity2D grav = new Gravity2D();
             grav.setAcceleration(new Vector2f(0, 500));
-            world.getRoot().newChild("Gravity").addComponent(grav);
+            world.getRoot().newChild("Gravity", grav);
         }
 
-        Entity canvas = world.getRoot().newChild("Canvas");
-        canvas.addComponent(new Transform());
-//        canvas.addComponent(new KeyboardControl(200, 3.14f));
+        Entity canvas = world.getRoot().newChild("Canvas", new Transform());
 
         int count = 25;
         int sqrtCount = (int) Math.sqrt(count);
@@ -83,11 +81,7 @@ public final class Sandbox2dInitSystem implements GameSystem {
             BoxCollider2D spriteBox = new BoxCollider2D();
             spriteBox.setRestitution(1.1f);
 
-            spriteEnt = canvas.newChild("Sprite " + i);
-            spriteEnt.addComponent(sprite);
-            spriteEnt.addComponent(spriteTx);
-            spriteEnt.addComponent(spriteBd);
-            spriteEnt.addComponent(spriteBox);
+            spriteEnt = canvas.newChild("Sprite " + i, sprite, spriteTx, spriteBd, spriteBox);
         }
 
         {
@@ -99,11 +93,7 @@ public final class Sandbox2dInitSystem implements GameSystem {
             floorBd.setType(RigidBody2D.Type.STATIC);
             BoxCollider2D floorBox = new BoxCollider2D();
 
-            Entity floorEnt = canvas.newChild("Floor");
-            floorEnt.addComponent(floorSpr);
-            floorEnt.addComponent(floorTx);
-            floorEnt.addComponent(floorBd);
-            floorEnt.addComponent(floorBox);
+            canvas.newChild("Floor", floorSpr, floorTx, floorBd, floorBox);
         }
 
         {
@@ -115,11 +105,7 @@ public final class Sandbox2dInitSystem implements GameSystem {
             floorBd.setType(RigidBody2D.Type.STATIC);
             BoxCollider2D floorBox = new BoxCollider2D();
 
-            Entity floorEnt = canvas.newChild("Ceiling");
-            floorEnt.addComponent(floorSpr);
-            floorEnt.addComponent(floorTx);
-            floorEnt.addComponent(floorBd);
-            floorEnt.addComponent(floorBox);
+            canvas.newChild("Ceiling", floorSpr, floorTx, floorBd, floorBox);
         }
 
         {
@@ -132,11 +118,7 @@ public final class Sandbox2dInitSystem implements GameSystem {
             floorBd.setType(RigidBody2D.Type.STATIC);
             BoxCollider2D floorBox = new BoxCollider2D();
 
-            Entity floorEnt = canvas.newChild("Wall 1");
-            floorEnt.addComponent(floorSpr);
-            floorEnt.addComponent(floorTx);
-            floorEnt.addComponent(floorBd);
-            floorEnt.addComponent(floorBox);
+            canvas.newChild("Wall 1", floorSpr, floorTx, floorBd, floorBox);
         }
 
         {
@@ -149,32 +131,20 @@ public final class Sandbox2dInitSystem implements GameSystem {
             floorBd.setType(RigidBody2D.Type.STATIC);
             BoxCollider2D floorBox = new BoxCollider2D();
 
-            Entity floorEnt = canvas.newChild("Wall 2");
-            floorEnt.addComponent(floorSpr);
-            floorEnt.addComponent(floorTx);
-            floorEnt.addComponent(floorBd);
-            floorEnt.addComponent(floorBox);
+            canvas.newChild("Wall 2", floorSpr, floorTx, floorBd, floorBox);
         }
 
         Canvas2D guiCanvas2D = new Canvas2D(true);
         GuiCanvas gui = new GuiCanvas();
-        StringBuilder textBox = new StringBuilder("Text box");
         gui.addWindow(new GuiWindow("Profiler", this::showProfileTool));
-//
-        Entity guiCanvasE = world.getRoot().newChild("Gui Canvas");
-        Transform guiTx = new Transform();
-//        guiTx.setPosition(new Vector3f(0, 0, 2f));
-        guiCanvasE.addComponent(guiCanvas2D);
-        guiCanvasE.addComponent(gui);
-        guiCanvasE.addComponent(guiTx);
+        world.getRoot().newChild("Gui Canvas", new Transform(), guiCanvas2D, gui);
 
         ResourceFile file = new JarResourceFile("testsong.ogg");
-        Entity source = world.getRoot().newChild("Audio source");
-        source.addComponent(new Transform());
+
         AudioSource s = new AudioSource(file);
         s.setLooping(true);
         s.setMode(AudioSource.Mode.SOURCE_2D);
-        source.addComponent(s);
+        world.getRoot().newChild("Audio source", new Transform(), s);
 
         Image spriteSheet;
         try {
@@ -186,13 +156,15 @@ public final class Sandbox2dInitSystem implements GameSystem {
         SpriteRenderer animRenderer = new SpriteRenderer();
         SpriteAnimation anim = SpriteAnimation.fromSpriteSheet(10, spriteSheet, 0, 0, 16, 16, 6);
         Transform animTx = new Transform();
-        animTx.setPosition(new Vector3f(0, 0, 2));
-        animTx.setScale(new Vector3f(128, 128, 1));
+        animTx.setPosition(new Vector3f(0, 0, 0));
+        animTx.setScale(new Vector3f(64, 64, 1));
 
-        Entity animEnt = world.getRoot().newChild("Animation test");
-        animEnt.addComponent(animRenderer);
-        animEnt.addComponent(anim);
-        animEnt.addComponent(animTx);
+        RigidBody2D animBd = new RigidBody2D();
+        animBd.setType(RigidBody2D.Type.DYNAMIC);
+        BoxCollider2D animBox = new BoxCollider2D();
+        animBox.setRestitution(1.1f);
+
+        world.getRoot().newChild("Animation test", animRenderer, anim, animTx, animBd, animBox);
     }
 
     private void showProfileNode(GuiRenderer g, ProfileNode node) {

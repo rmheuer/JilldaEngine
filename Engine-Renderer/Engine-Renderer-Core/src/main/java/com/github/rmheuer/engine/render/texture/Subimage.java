@@ -2,6 +2,7 @@ package com.github.rmheuer.engine.render.texture;
 
 import com.github.rmheuer.engine.core.math.Vector2f;
 
+// TODO: Reflection and rotation
 public class Subimage {
     protected Image src;
     private final int x, y;

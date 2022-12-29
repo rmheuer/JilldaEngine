@@ -49,6 +49,11 @@ public final class Entity {
 		registry.addComponent(this, c);
 	}
 
+	public void addComponents(Component... components) {
+		for (Component c : components)
+			addComponent(c);
+	}
+
 	public <T extends Component> T getComponent(Class<T> type) {
 		return registry.getComponent(this, type);
 	}
@@ -65,15 +70,17 @@ public final class Entity {
 		return registry.getComponents(this);
 	}
 
-	public Entity newChild() {
+	public Entity newChild(Component... components) {
 		Entity child = registry.newEntity();
 		setupChild(child);
+		child.addComponents(components);
 		return child;
 	}
 
-	public Entity newChild(String name) {
+	public Entity newChild(String name, Component... components) {
 		Entity child = registry.newEntity(name);
 		setupChild(child);
+		child.addComponents(components);
 		return child;
 	}
 
