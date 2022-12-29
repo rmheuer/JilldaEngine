@@ -9,6 +9,7 @@
   <modules>
     <module>Engine-Audio</module>
     <module>Engine-Core</module>
+    <module>Engine-DebugTools</module>
     <module>Engine-Editor</module>
     <module>Engine-Gui</module>
     <module>Engine-Physics</module>
