@@ -50,6 +50,8 @@ public final class GuiProcessSystem implements GameSystem {
             }
 
             gui.endFrame();
+
+            canvas2d.getDrawList().join(gui.getDrawList());
         });
     }
 }

@@ -11,7 +11,6 @@ public final class GuiModule implements GameModule {
     public Collection<Class<? extends GameSystem>> getSystems() {
         return Arrays.asList(
                 GuiInputEventSystem.class,
-                GuiRenderSystem.class,
                 GuiProcessSystem.class
         );
     }
