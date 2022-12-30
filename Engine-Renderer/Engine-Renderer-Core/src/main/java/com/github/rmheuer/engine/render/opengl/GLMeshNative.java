@@ -3,9 +3,9 @@ package com.github.rmheuer.engine.render.opengl;
 import com.github.rmheuer.engine.core.nat.NativeObjectFreeFn;
 import com.github.rmheuer.engine.core.util.SizeOf;
 import com.github.rmheuer.engine.render.mesh.Mesh;
+import com.github.rmheuer.engine.render.mesh.MeshData;
 import com.github.rmheuer.engine.render.mesh.MeshDataUsage;
 import com.github.rmheuer.engine.render.mesh.PrimitiveType;
-import com.github.rmheuer.engine.render.mesh.Vertex;
 import com.github.rmheuer.engine.render.mesh.VertexLayout;
 import com.github.rmheuer.engine.render.shader.AttribType;
 import org.lwjgl.BufferUtils;
@@ -22,7 +22,7 @@ public final class GLMeshNative implements Mesh.Native {
     private final int vao, vbo, ibo;
     private final int primType;
 
-    private boolean hasUploadedLayout;
+    private VertexLayout uploadedLayout;
     private int sizeOfVertex;
 
     private boolean renderUsingIndexBuffer;
@@ -41,24 +41,24 @@ public final class GLMeshNative implements Mesh.Native {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
         gl.bindVertexArray(0);
 
-        hasUploadedLayout = false;
+        uploadedLayout = null;
     }
 
     @Override
-    public void setData(List<? extends Vertex> vertices, List<Integer> indices, MeshDataUsage usage) {
-        if (!hasUploadedLayout && !vertices.isEmpty()) {
-            Vertex firstVertex = vertices.get(0);
-
-            uploadLayout(firstVertex.getLayout());
-            sizeOfVertex = firstVertex.sizeOf();
+    public void setData(MeshData data, MeshDataUsage usage) {
+        VertexLayout layout = data.getVertexLayout();
+        if (!layout.equals(uploadedLayout)) {
+            uploadLayout(layout);
         }
 
-        ByteBuffer vertexBuf = storeVerticesToBuffer(vertices);
+        ByteBuffer vertexBuf = data.getVertexBuf();
+        vertexBuf.flip();
         int glUsage = getGlMeshDataUsage(gl, usage);
 
         gl.bindVertexArray(vao);
         gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
         gl.bufferData(gl.ARRAY_BUFFER, vertexBuf, glUsage);
+        List<Integer> indices = data.getIndices();
         if (indices != null) {
             IntBuffer indexBuf = storeIndicesToBuffer(indices);
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
@@ -70,7 +70,7 @@ public final class GLMeshNative implements Mesh.Native {
             indexCount = indices.size();
             renderUsingIndexBuffer = true;
         } else {
-            indexCount = vertices.size();
+            indexCount = data.getVertexCount();
             renderUsingIndexBuffer = false;
         }
     }
@@ -78,7 +78,7 @@ public final class GLMeshNative implements Mesh.Native {
     @Override
     public void render() {
         // If there is no layout, there is no data, so don't render
-        if (!hasUploadedLayout)
+        if (uploadedLayout == null)
             return;
 
         gl.bindVertexArray(vao);
@@ -87,16 +87,6 @@ public final class GLMeshNative implements Mesh.Native {
         else
             gl.drawArrays(primType, 0, indexCount);
         gl.bindVertexArray(0);
-    }
-
-    private ByteBuffer storeVerticesToBuffer(List<? extends Vertex> vertices) {
-        ByteBuffer buffer = BufferUtils.createByteBuffer(vertices.size() * sizeOfVertex);
-
-        for (Vertex v : vertices)
-            v.addToBuffer(buffer);
-
-        buffer.flip();
-        return buffer;
     }
 
     private IntBuffer storeIndicesToBuffer(List<Integer> indices) {
@@ -133,7 +123,7 @@ public final class GLMeshNative implements Mesh.Native {
         }
         gl.bindVertexArray(0);
 
-        hasUploadedLayout = true;
+        uploadedLayout = vertexLayout;
     }
 
     private static final class Destructor implements NativeObjectFreeFn {

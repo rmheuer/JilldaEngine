@@ -26,13 +26,13 @@ public final class Renderer2D {
     private static final String FRAGMENT_SHADER_PATH = "com/github/rmheuer/engine/render2d/shaders/fragment.glsl";
 
     private final NativeObjectManager nom;
-    private final Mesh<Vertex2D> mesh;
+    private final Mesh mesh;
     private final ShaderProgram shader;
     private final Image whiteTex;
 
     public Renderer2D(NativeObjectManager nom) {
         this.nom = nom;
-        mesh = new Mesh<>(PrimitiveType.TRIANGLES);
+        mesh = new Mesh(PrimitiveType.TRIANGLES);
         try {
             shader = new ShaderProgram(
                     new Shader(ShaderType.VERTEX, new JarResourceFile(VERTEX_SHADER_PATH)),

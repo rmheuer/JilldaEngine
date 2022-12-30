@@ -9,11 +9,11 @@ import com.github.rmheuer.engine.core.main.Game;
 import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.core.math.Vector3f;
 import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
-import com.github.rmheuer.engine.core.util.Pair;
 import com.github.rmheuer.engine.render.WindingOrder;
 import com.github.rmheuer.engine.render.camera.Camera;
 import com.github.rmheuer.engine.render.camera.PerspectiveProjection;
 import com.github.rmheuer.engine.render.mesh.Mesh;
+import com.github.rmheuer.engine.render.mesh.MeshData;
 import com.github.rmheuer.engine.render.mesh.MeshDataUsage;
 import com.github.rmheuer.engine.render.mesh.PrimitiveType;
 import com.github.rmheuer.engine.render.shader.Shader;
@@ -23,12 +23,10 @@ import com.github.rmheuer.engine.render.texture.CubeMap;
 import com.github.rmheuer.engine.render.texture.Image;
 import com.github.rmheuer.engine.render3d.Primitives3D;
 import com.github.rmheuer.engine.render3d.component.MeshRenderer;
-import com.github.rmheuer.engine.render3d.loader.DefaultVertex;
 import com.github.rmheuer.engine.render3d.loader.ObjLoader;
 import com.github.rmheuer.engine.render3d.material.Material;
 
 import java.io.IOException;
-import java.util.List;
 
 public final class SandboxInitSystem implements GameSystem {
     @Override
@@ -40,14 +38,13 @@ public final class SandboxInitSystem implements GameSystem {
         cam.addComponent(cameraTx);
         cam.addComponent(new KeyboardControl());
 
-        Pair<List<DefaultVertex>, List<Integer>> meshData;
+        MeshData meshData;
         try {
             meshData = ObjLoader.loadObj(new JarResourceFile("snowman.obj"));
         } catch (IOException e) {
             throw new RuntimeException("Failed to load mesh", e);
         }
-        Mesh<DefaultVertex> mesh = new Mesh<>(PrimitiveType.TRIANGLES);
-        mesh.setData(meshData.getA(), meshData.getB(), MeshDataUsage.STATIC);
+        Mesh mesh = new Mesh(PrimitiveType.TRIANGLES, meshData, MeshDataUsage.STATIC);
 
         ShaderProgram shader;
         Image texture;

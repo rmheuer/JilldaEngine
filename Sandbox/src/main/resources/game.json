@@ -8,6 +8,6 @@
     "com.github.rmheuer.engine.audio.system.AudioModule"
   ],
   "layers": [
-    "com.github.rmheuer.sandbox.test2d.SandboxLayer"
+    "com.github.rmheuer.sandbox.test3d.SandboxLayer"
   ]
 }

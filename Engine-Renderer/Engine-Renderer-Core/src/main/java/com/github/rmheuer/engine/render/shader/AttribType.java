@@ -1,5 +1,7 @@
 package com.github.rmheuer.engine.render.shader;
 
+import com.github.rmheuer.engine.core.util.SizeOf;
+
 public enum AttribType {
     FLOAT(1),
     VEC2(2),
@@ -14,5 +16,9 @@ public enum AttribType {
 
     public int getElemCount() {
 	return elemCount;
+    }
+
+    public int sizeOf() {
+        return elemCount * SizeOf.FLOAT;
     }
 }

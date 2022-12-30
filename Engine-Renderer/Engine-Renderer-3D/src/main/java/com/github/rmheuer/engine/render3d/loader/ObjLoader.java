@@ -3,8 +3,7 @@ package com.github.rmheuer.engine.render3d.loader;
 import com.github.rmheuer.engine.core.math.Vector2f;
 import com.github.rmheuer.engine.core.math.Vector3f;
 import com.github.rmheuer.engine.core.resource.ResourceFile;
-import com.github.rmheuer.engine.core.util.Pair;
-import com.github.rmheuer.engine.render.mesh.Vertex;
+import com.github.rmheuer.engine.render.mesh.MeshData;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,8 +11,8 @@ import java.util.List;
 import java.util.Objects;
 
 public final class ObjLoader {
-    public static Pair<List<DefaultVertex>, List<Integer>> loadObj(ResourceFile source) throws IOException {
-        return loadObj(source, DefaultVertex::new);
+    public static MeshData loadObj(ResourceFile source) throws IOException {
+        return loadObj(source, DefaultVertexAdapter.INSTANCE);
     }
 
     private static final class IndexGroup {
@@ -97,7 +96,7 @@ public final class ObjLoader {
         }
     }
 
-    public static <V extends Vertex> Pair<List<V>, List<Integer>> loadObj(ResourceFile source, VertexAdapter<V> adapter) throws IOException {
+    public static MeshData loadObj(ResourceFile source, VertexAdapter adapter) throws IOException {
         String str = source.readAsString();
         String[] lines = str.split("\n");
 
@@ -145,11 +144,12 @@ public final class ObjLoader {
             addVertex(face.v3, obj, vertices, indices);
         }
 
-        List<V> vertexOut = new ArrayList<>();
+        MeshData data = new MeshData(adapter.getLayout());
+        data.indices(indices);
         for (VertexData vertex : vertices) {
-            vertexOut.add(adapter.adapt(vertex.position, vertex.texCoord, vertex.normal));
+            adapter.adapt(data, vertex.position, vertex.texCoord, vertex.normal);
         }
 
-        return new Pair<>(vertexOut, indices);
+        return data;
     }
 }

@@ -1,19 +1,28 @@
 package com.github.rmheuer.engine.render2d;
 
 import com.github.rmheuer.engine.render.RenderConstants;
-import com.github.rmheuer.engine.render.mesh.MeshBuilder;
+import com.github.rmheuer.engine.render.mesh.MeshData;
+import com.github.rmheuer.engine.render.mesh.VertexLayout;
+import com.github.rmheuer.engine.render.shader.AttribType;
 import com.github.rmheuer.engine.render.texture.Image;
 import com.github.rmheuer.engine.render.texture.Subimage;
 
 import java.util.List;
 
 public final class VertexBatch {
+    public static final VertexLayout LAYOUT = new VertexLayout(
+            AttribType.VEC3, // Position
+            AttribType.VEC2, // Texture coord
+            AttribType.VEC4, // Color
+            AttribType.FLOAT // Texture slot
+    );
+
     private final Image[] textures;
-    private final MeshBuilder<Vertex2D> data;
+    private final MeshData data;
 
     public VertexBatch() {
         textures = new Image[RenderConstants.MAX_TEXTURE_SLOTS];
-        data = new MeshBuilder<>();
+        data = new MeshData(LAYOUT);
     }
 
     public boolean addVertex(DrawVertex v, Image defaultTexture) {
@@ -40,7 +49,10 @@ public final class VertexBatch {
         if (textureSlot == -1)
             return false;
 
-        data.vertex(new Vertex2D(v.getPos(), v.getU(), v.getV(), v.getColor(), textureSlot));
+        data.putVec3(v.getPos())
+                .putVec2(v.getU(), v.getV())
+                .putVec4(v.getColor())
+                .putFloat(textureSlot);
 
         return true;
     }
@@ -59,7 +71,8 @@ public final class VertexBatch {
         return textures;
     }
 
-    public MeshBuilder<Vertex2D> getData() {
+    // Transfers ownership of the data to the caller
+    public MeshData getData() {
         return data;
     }
 }

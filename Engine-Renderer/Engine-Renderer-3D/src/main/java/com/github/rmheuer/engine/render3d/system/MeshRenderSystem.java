@@ -41,7 +41,7 @@ public final class MeshRenderSystem implements GameSystem {
                 return;
 
             ShaderProgram shader = mat.getShader();
-            Mesh<?> mesh = m.getMesh();
+            Mesh mesh = m.getMesh();
             if (mesh == null)
                 return;
 

@@ -8,7 +8,7 @@ import com.github.rmheuer.engine.render.mesh.Mesh;
 import com.github.rmheuer.engine.render3d.material.Material;
 
 public final class MeshRenderer implements Component {
-    private Mesh<?> mesh;
+    private Mesh mesh;
     private Material material;
     private CullMode cullMode;
     private WindingOrder windingOrder;
@@ -19,15 +19,15 @@ public final class MeshRenderer implements Component {
         this(null, null);
     }
 
-    public MeshRenderer(Mesh<?> mesh, Material material) {
+    public MeshRenderer(Mesh mesh, Material material) {
         this(mesh, material, CullMode.BACK);
     }
 
-    public MeshRenderer(Mesh<?> mesh, Material material, CullMode cullMode) {
+    public MeshRenderer(Mesh mesh, Material material, CullMode cullMode) {
         this(mesh, material, cullMode, WindingOrder.COUNTERCLOCKWISE);
     }
 
-    public MeshRenderer(Mesh<?> mesh, Material material, CullMode cullMode, WindingOrder windingOrder) {
+    public MeshRenderer(Mesh mesh, Material material, CullMode cullMode, WindingOrder windingOrder) {
         this.mesh = mesh;
         this.material = material;
         this.cullMode = cullMode;
@@ -36,11 +36,11 @@ public final class MeshRenderer implements Component {
         enabled = true;
     }
 
-    public Mesh<?> getMesh() {
+    public Mesh getMesh() {
         return mesh;
     }
 
-    public void setMesh(Mesh<?> mesh) {
+    public void setMesh(Mesh mesh) {
         this.mesh = mesh;
     }
 
