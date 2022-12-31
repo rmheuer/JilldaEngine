@@ -26,6 +26,7 @@ import com.github.rmheuer.engine.physics2d.component.Gravity2D;
 import com.github.rmheuer.engine.physics2d.component.RigidBody2D;
 import com.github.rmheuer.engine.render.camera.Camera;
 import com.github.rmheuer.engine.render.camera.OrthographicProjection;
+import com.github.rmheuer.engine.render.camera.PerspectiveProjection;
 import com.github.rmheuer.engine.render.texture.Image;
 import com.github.rmheuer.engine.render.texture.Subimage;
 import com.github.rmheuer.engine.render2d.component.Canvas2D;
@@ -33,25 +34,10 @@ import com.github.rmheuer.engine.render2d.component.SpriteAnimation;
 import com.github.rmheuer.engine.render2d.component.SpriteRenderer;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public final class Sandbox2dInitSystem implements GameSystem {
     @Override
     public void init(World world) {
-        {
-            Camera camera = new Camera(new OrthographicProjection(OrthographicProjection.ResizeRule.MAINTAIN_FIXED_HEIGHT));
-            Transform cameraTx = new Transform();
-            cameraTx.getPosition().z = 800;
-
-            world.getRoot().newChild(
-                    "Camera", camera, cameraTx,
-                    new KeyboardControl(200, MathUtils.fPI),
-                    new AudioListener()
-            );
-        }
-
         Subimage box = null, floor = null;
         try {
             box = Image.decode(new JarResourceFile("box.png"));
@@ -83,6 +69,20 @@ public final class Sandbox2dInitSystem implements GameSystem {
             spriteBox.setRestitution(1.1f);
 
             spriteEnt = canvas.newChild("Sprite " + i, sprite, spriteTx, spriteBd, spriteBox);
+        }
+
+        {
+            Camera camera = new Camera(new OrthographicProjection(OrthographicProjection.ResizeRule.MAINTAIN_FIXED_HEIGHT));
+//            Camera camera = new Camera(new PerspectiveProjection());
+            Transform cameraTx = new Transform();
+//            cameraTx.setScale(new Vector3f(1/50.0f, 1/50.0f, 1));
+            cameraTx.getPosition().z = 800;
+
+            world.getRoot().newChild(
+                    "Camera", camera, cameraTx,
+                    new KeyboardControl(200, MathUtils.fPI),
+                    new AudioListener()
+            );
         }
 
         {

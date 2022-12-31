@@ -32,7 +32,8 @@ public final class MeshData implements AutoCloseable {
 
     private void ensureSpace(int spaceBytes) {
         if (vertexBuf.remaining() < spaceBytes) {
-            vertexBuf = MemoryUtil.memRealloc(vertexBuf, vertexBuf.capacity() * 2);
+            int cap = vertexBuf.capacity();
+            vertexBuf = MemoryUtil.memRealloc(vertexBuf, Math.max(cap + spaceBytes, cap * 2));
         }
     }
 
@@ -109,11 +110,29 @@ public final class MeshData implements AutoCloseable {
         if (!layout.equals(other.layout))
             throw new IllegalArgumentException("Can only append builder with same layout");
 
+        // Make sure our buffer is big enough
+        ensureSpace(other.vertexBuf.position());
+
         mark();
+
+        // Back up other buffer's bounds
+        int posTmp = other.vertexBuf.position();
+        int limitTmp = other.vertexBuf.limit();
+
+        // Copy in the data
         other.vertexBuf.flip();
         vertexBuf.put(other.vertexBuf);
-        other.vertexBuf.position(other.vertexBuf.limit());
-        other.vertexBuf.limit(other.vertexBuf.capacity());
+
+        // Restore backed up bounds
+        other.vertexBuf.position(posTmp);
+        other.vertexBuf.limit(limitTmp);
+
+//        other.vertexBuf.flip();
+//        vertexBuf.put(other.vertexBuf);
+//        other.vertexBuf.position(other.vertexBuf.limit());
+//        other.vertexBuf.limit(other.vertexBuf.capacity());
+
+        // Copy indices with mark applied
         for (int i : other.indices) {
             indices.add(mark + i);
         }
