@@ -38,3 +38,5 @@ gui-layout.bin
 **/dependency-reduced-pom.xml
 
 Engine-Editor/Edit sandbox/*
+
+*.DS_Store
