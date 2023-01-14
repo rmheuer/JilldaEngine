@@ -50,10 +50,10 @@ public final class Image extends Subimage implements Texture {
     }
 
     public static Vector4f decodeColor(int color) {
-        byte r = (byte) ((color & RED_MASK)   >>> RED_SHIFT);
-        byte g = (byte) ((color & GREEN_MASK) >>> GREEN_SHIFT);
-        byte b = (byte) ((color & BLUE_MASK)  >>> BLUE_SHIFT);
-        byte a = (byte) ((color & ALPHA_MASK) >>> ALPHA_SHIFT);
+        int r = (color & RED_MASK)   >>> RED_SHIFT;
+        int g = (color & GREEN_MASK) >>> GREEN_SHIFT;
+        int b = (color & BLUE_MASK)  >>> BLUE_SHIFT;
+        int a = (color & ALPHA_MASK) >>> ALPHA_SHIFT;
 
         return new Vector4f(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
     }
