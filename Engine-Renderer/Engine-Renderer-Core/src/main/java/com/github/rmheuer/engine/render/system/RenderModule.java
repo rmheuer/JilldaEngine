@@ -38,7 +38,7 @@ public final class RenderModule implements GameModule {
     @Override
     public void preUpdate() {
         RenderBackend.get().prepareFrame();
-        RenderBackend.get().clear(BufferType.COLOR);
+        RenderBackend.get().clear(BufferType.COLOR, BufferType.DEPTH);
     }
 
     @Override

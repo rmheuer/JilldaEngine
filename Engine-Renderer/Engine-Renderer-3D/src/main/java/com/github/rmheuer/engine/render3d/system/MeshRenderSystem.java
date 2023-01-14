@@ -28,7 +28,6 @@ public final class MeshRenderSystem implements GameSystem {
     @OnEvent
     @Before(RenderBeginFrame2DSystem.class)
     public void onRenderScene(World world, RenderSceneEvent event) {
-        RenderBackend.get().clear(BufferType.DEPTH);
         RenderBackend.get().setDepthMode(DepthMode.TEST_AND_WRITE);
         RenderBackend.get().setStencilEnabled(false);
 
