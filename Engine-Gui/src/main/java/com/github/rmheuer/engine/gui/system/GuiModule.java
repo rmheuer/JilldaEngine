@@ -1,17 +1,12 @@
 package com.github.rmheuer.engine.gui.system;
 
-import com.github.rmheuer.engine.core.ecs.system.GameSystem;
+import com.github.rmheuer.engine.core.main.Game;
 import com.github.rmheuer.engine.core.module.GameModule;
-
-import java.util.Arrays;
-import java.util.Collection;
 
 public final class GuiModule implements GameModule {
     @Override
-    public Collection<Class<? extends GameSystem>> getSystems() {
-        return Arrays.asList(
-                GuiInputEventSystem.class,
-                GuiProcessSystem.class
-        );
+    public void initializeWorld(Game.WorldBuilder builder) {
+        builder.addSystem(GuiInputEventSystem.class);
+        builder.addSystem(GuiProcessSystem.class);
     }
 }

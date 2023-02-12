@@ -4,11 +4,9 @@ import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
 import com.github.rmheuer.engine.core.ecs.system.annotation.Before;
 import com.github.rmheuer.engine.core.ecs.system.annotation.OnEvent;
-import com.github.rmheuer.engine.core.event.EventDispatcher;
-import com.github.rmheuer.engine.core.module.ModuleRegistry;
+import com.github.rmheuer.engine.core.main.Game;
 import com.github.rmheuer.engine.core.nat.NativeObjectManager;
 import com.github.rmheuer.engine.core.transform.Transform;
-import com.github.rmheuer.engine.render.BufferType;
 import com.github.rmheuer.engine.render.DepthMode;
 import com.github.rmheuer.engine.render.RenderBackend;
 import com.github.rmheuer.engine.render.RenderConstants;
@@ -47,7 +45,7 @@ public final class MeshRenderSystem implements GameSystem {
             if (!mesh.hasData())
                 return;
 
-            NativeObjectManager nom = ModuleRegistry.getInstance(RenderModule.class).getNativeObjectManager();
+            NativeObjectManager nom = Game.get().getModule(RenderModule.class).getNativeObjectManager();
             ShaderProgram.Native nShader = shader.getNative(nom);
             Mesh.Native nMesh = mesh.getNative(nom);
             Texture.Native[] nTextures = new Texture.Native[RenderConstants.MAX_TEXTURE_SLOTS];

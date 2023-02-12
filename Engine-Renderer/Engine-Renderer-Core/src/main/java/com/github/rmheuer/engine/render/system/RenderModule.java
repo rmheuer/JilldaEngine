@@ -1,6 +1,6 @@
 package com.github.rmheuer.engine.render.system;
 
-import com.github.rmheuer.engine.core.ecs.system.GameSystem;
+import com.github.rmheuer.engine.core.main.Game;
 import com.github.rmheuer.engine.core.module.GameModule;
 import com.github.rmheuer.engine.core.nat.NativeObjectManager;
 import com.github.rmheuer.engine.render.BufferType;
@@ -11,18 +11,13 @@ import com.github.rmheuer.engine.render.WindowSettings;
 import com.github.rmheuer.engine.render.opengl.OpenGLBackend;
 import com.github.rmheuer.engine.render.opengl.lwjgl.LwjglOpenGL;
 
-import java.util.Collection;
-import java.util.Collections;
-
 public final class RenderModule implements GameModule {
     private NativeObjectManager nativeObjectManager;
     private Window window;
 
     @Override
-    public Collection<Class<? extends GameSystem>> getSystems() {
-        return Collections.singletonList(
-                RenderFrameSystem.class
-        );
+    public void initializeWorld(Game.WorldBuilder builder) {
+        builder.addSystem(RenderFrameSystem.class);
     }
 
     @Override
