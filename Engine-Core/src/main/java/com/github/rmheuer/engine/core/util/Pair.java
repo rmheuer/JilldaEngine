@@ -1,6 +1,10 @@
 package com.github.rmheuer.engine.core.util;
 
 public final class Pair<A, B> {
+    public static <A, B> Pair<A, B> of(A a, B b) {
+        return new Pair<>(a, b);
+    }
+
     private A a;
     private B b;
 

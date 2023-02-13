@@ -17,6 +17,22 @@ public final class ReflectUtils {
         return fields;
     }
 
+    public static Class<?> wrap(Class<?> type) {
+        if (!type.isPrimitive())
+            return type;
+
+        if (type.equals(boolean.class)) return Boolean.class;
+        if (type.equals(byte.class)) return Byte.class;
+        if (type.equals(short.class)) return Short.class;
+        if (type.equals(int.class)) return Integer.class;
+        if (type.equals(long.class)) return Long.class;
+        if (type.equals(float.class)) return Float.class;
+        if (type.equals(double.class)) return Double.class;
+        if (type.equals(char.class)) return Character.class;
+
+        throw new AssertionError();
+    }
+
     private ReflectUtils() {
         throw new AssertionError();
     }
