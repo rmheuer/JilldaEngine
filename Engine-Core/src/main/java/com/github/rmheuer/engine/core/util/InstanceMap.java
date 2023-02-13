@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class InstanceMap<T> {
+public class InstanceMap<T> {
     private final Map<Class<?>, T> instances;
 
     public InstanceMap() {
