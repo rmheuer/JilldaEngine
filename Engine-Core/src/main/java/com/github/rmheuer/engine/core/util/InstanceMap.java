@@ -1,9 +1,10 @@
 package com.github.rmheuer.engine.core.util;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class InstanceMap<T> {
+public class InstanceMap<T> {
     private final Map<Class<?>, T> instances;
 
     public InstanceMap() {
@@ -25,5 +26,13 @@ public final class InstanceMap<T> {
 
     public void removeInstance(Class<? extends T> type) {
         instances.remove(type);
+    }
+
+    public boolean hasInstance(Class<? extends T> type) {
+        return instances.containsKey(type);
+    }
+
+    public Collection<T> instances() {
+        return instances.values();
     }
 }

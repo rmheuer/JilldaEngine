@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+// TODO: Add names to worlds for debugging
 public final class World {
     private final EntityRegistry registry;
     private final Entity root;

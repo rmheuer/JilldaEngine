@@ -2,153 +2,201 @@ package com.github.rmheuer.engine.core.main;
 
 import com.github.rmheuer.engine.core.EngineVersion;
 import com.github.rmheuer.engine.core.Time;
+import com.github.rmheuer.engine.core.ecs.World;
 import com.github.rmheuer.engine.core.ecs.system.GameSystem;
 import com.github.rmheuer.engine.core.event.Event;
 import com.github.rmheuer.engine.core.input.InputManager;
-import com.github.rmheuer.engine.core.layer.Layer;
-import com.github.rmheuer.engine.core.layer.LayerRegistry;
 import com.github.rmheuer.engine.core.module.CoreModule;
 import com.github.rmheuer.engine.core.module.GameModule;
-import com.github.rmheuer.engine.core.module.ModuleRegistry;
 import com.github.rmheuer.engine.core.profile.FixedProfileStage;
 import com.github.rmheuer.engine.core.profile.ProfileNode;
 import com.github.rmheuer.engine.core.profile.Profiler;
-import com.github.rmheuer.engine.core.resource.ResourceFile;
-import com.github.rmheuer.engine.core.resource.jar.JarResourceFile;
-import com.github.rmheuer.engine.core.serial2.json.JsonCodec;
-import com.github.rmheuer.engine.core.serial2.node.SerialArray;
-import com.github.rmheuer.engine.core.serial2.node.SerialNode;
-import com.github.rmheuer.engine.core.serial2.node.SerialObject;
-import com.github.rmheuer.engine.core.serial2.node.TextualNode;
+import com.github.rmheuer.engine.core.util.InstanceMap;
 
-import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 
 public final class Game {
-    public static final ResourceFile CONFIG_FILE = new JarResourceFile("game.json");
+    public static final class GameBuilder {
+        private final Set<Class<? extends GameModule>> modules;
+        private final Map<Class<? extends GameModule>, Set<Consumer<? extends GameModule>>> moduleInitializers;
 
-    private static final Game INSTANCE = new Game();
+        private int sleepInterval;
+        private float fixedUpdatesPerSecond;
+        private float maxFixedUpdateBacklog;
+
+        private GameBuilder() {
+            modules = new HashSet<>();
+            moduleInitializers = new HashMap<>();
+
+            sleepInterval = 5;
+            fixedUpdatesPerSecond = 60;
+            maxFixedUpdateBacklog = 1;
+
+            modules.add(CoreModule.class);
+        }
+
+        public GameBuilder addModule(Class<? extends GameModule> module) {
+            modules.add(module);
+            return this;
+        }
+
+        public <T extends GameModule> GameBuilder addModule(Class<T> module, Consumer<T> initFn) {
+            addModule(module);
+            moduleInitializers.computeIfAbsent(module, (k) -> new HashSet<>()).add(initFn);
+            return this;
+        }
+
+        public GameBuilder setSleepInterval(int sleepInterval) {
+            this.sleepInterval = sleepInterval;
+            return this;
+        }
+
+        public GameBuilder setFixedUpdatesPerSecond(float fixedUpdatesPerSecond) {
+            this.fixedUpdatesPerSecond = fixedUpdatesPerSecond;
+            return this;
+        }
+
+        public GameBuilder setMaxFixedUpdateBacklog(float maxFixedUpdateBacklog) {
+            this.maxFixedUpdateBacklog = maxFixedUpdateBacklog;
+            return this;
+        }
+
+        public Game build() {
+            return new Game(this);
+        }
+    }
+
+    public static final class WorldBuilder {
+        private final Game game;
+
+        private final Set<Class<? extends GameSystem>> systems;
+
+        private WorldBuilder(Game game) {
+            this.game = game;
+            systems = new HashSet<>();
+        }
+
+        public WorldBuilder addSystem(Class<? extends GameSystem> system) {
+            systems.add(system);
+            return this;
+        }
+
+        public World build() {
+            World world = new World(systems);
+            game.addWorld(world);
+            return world;
+        }
+    }
+
+    public static GameBuilder builder() {
+        return new GameBuilder();
+    }
+
+    private static Game INSTANCE;
 
     private final Map<FixedProfileStage, ProfileNode> stageProfileData;
     private final Map<Class<? extends Event>, ProfileNode> eventProfileData;
     private Profiler profiler;
 
-    private String[] commandLineArgs;
+    private final InstanceMap<GameModule> modules;
+
+    private final Queue<Event> eventQueue;
+    private final InputManager inputManager;
+
+    private final List<World> worlds;
+    private final List<World> uninitializedWorlds;
+
     private float fixedUpdatesPerSecond;
     private float maxFixedUpdateBacklog;
     private int sleepInterval;
     private boolean running;
 
-    private List<GameModule> modules;
-    private List<Layer> layers;
-
-    private Queue<Event> eventQueue;
-    private InputManager inputManager;
-
     public static Game get() {
         return INSTANCE;
     }
 
-    private Game() {
-        setFixedUpdatesPerSecond(60);
-        sleepInterval = 5;
-        maxFixedUpdateBacklog = 1;
+    private Game(GameBuilder builder) {
+        if (INSTANCE != null)
+            throw new IllegalStateException("Game already running");
+        INSTANCE = this;
+
+        setFixedUpdatesPerSecond(builder.fixedUpdatesPerSecond);
+        sleepInterval = builder.sleepInterval;
+        maxFixedUpdateBacklog = builder.maxFixedUpdateBacklog;
 
         stageProfileData = new EnumMap<>(FixedProfileStage.class);
         eventProfileData = new HashMap<>();
+
+        eventQueue = new ConcurrentLinkedQueue<>();
+        inputManager = new InputManager();
+
+        modules = new InstanceMap<>();
+
+        worlds = new ArrayList<>();
+        uninitializedWorlds = new ArrayList<>();
+
+        // Initialize modules
+        Queue<Class<? extends GameModule>> moduleQueue = new ArrayDeque<>(builder.modules);
+        while (!moduleQueue.isEmpty()) {
+            Class<? extends GameModule> type = moduleQueue.remove();
+
+            if (modules.hasInstance(type))
+                continue;
+
+            GameModule instance;
+            try {
+                Constructor<? extends GameModule> constructor = type.getConstructor();
+                instance = constructor.newInstance();
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException("Could not find no-args constructor in " + type, e);
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException("Failed to instantiate module: " + type, e);
+            }
+
+            modules.setInstance(instance);
+            Set<Consumer<? extends GameModule>> initializers = builder.moduleInitializers.get(type);
+            if (initializers != null) {
+                for (Consumer<? extends GameModule> initializer : initializers) {
+                    callInitializer(initializer, instance);
+                }
+            }
+
+            moduleQueue.addAll(instance.getDependencies());
+        }
     }
 
-    // TODO: Maybe deserialize as unique object instead of one instance per class
-    @SuppressWarnings("unchecked")
-    private void loadConfig() {
-        SerialObject config;
-        try {
-            config = (SerialObject) JsonCodec.get().decode(CONFIG_FILE.readAsStream());
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load configuration file", e);
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private void callInitializer(Consumer<? extends GameModule> initFn, GameModule instance) {
+        ((Consumer) initFn).accept(instance);
+    }
+
+    public WorldBuilder worldBuilder() {
+        WorldBuilder builder = new WorldBuilder(this);
+        for (GameModule module : modules.instances()) {
+            module.initializeWorld(builder);
         }
-
-        if (config.containsKey("fixedUpdatesPerSecond")) {
-            fixedUpdatesPerSecond = config.getFloat("fixedUpdatesPerSecond");
-        }
-
-        if (config.containsKey("modules")) {
-            SerialArray modulesArr = config.getArray("modules");
-            for (SerialNode node : modulesArr) {
-                String className = ((TextualNode) node).getString();
-                Class<? extends GameModule> clazz;
-                try {
-                    Class<?> rawClass = Class.forName(className);
-                    if (!GameModule.class.isAssignableFrom(rawClass)) {
-                        System.err.println("Not a module: " + className);
-                        continue;
-                    }
-
-                    clazz = (Class<? extends GameModule>) rawClass;
-                } catch (ClassNotFoundException e) {
-                    System.err.println("Could not load module: " + className);
-                    continue;
-                }
-                modules.add(ModuleRegistry.getInstance(clazz));
-            }
-        }
-
-        if (config.containsKey("layers")) {
-            SerialArray systemsArr = config.getArray("layers");
-            for (SerialNode node : systemsArr) {
-                String className = ((TextualNode) node).getString();
-                Class<? extends Layer> clazz;
-                try {
-                    Class<?> rawClass = Class.forName(className);
-                    if (!Layer.class.isAssignableFrom(rawClass)) {
-                        System.err.println("Not a layer: " + className);
-                        continue;
-                    }
-
-                    clazz = (Class<? extends Layer>) rawClass;
-                } catch (ClassNotFoundException e) {
-                    System.err.println("Could not load layer: " + className);
-                    continue;
-                }
-                layers.add(LayerRegistry.getInstance(clazz));
-            }
-        }
+        return builder;
     }
 
     private void init() {
         System.out.println("Starting engine version " + EngineVersion.VERSION);
 
-        eventQueue = new ConcurrentLinkedQueue<>();
-        inputManager = new InputManager();
-
-        modules = new ArrayList<>();
-        layers = new ArrayList<>();
-        modules.add(ModuleRegistry.getInstance(CoreModule.class));
-
         Profiler temp = profiler;
         profiler = new Profiler();
 
         profiler.begin("Init");
-        profiler.push("Load configuration");
-        loadConfig();
-        profiler.pop();
 
         profiler.push("Initialize modules");
-        for (GameModule module : modules) {
+        for (GameModule module : modules.instances()) {
             profiler.push(module.getClass().getSimpleName());
             module.init();
             profiler.pop();
         }
         profiler.pop();
 
-        profiler.push("Initialize layers");
-        for (Layer layer : layers) {
-            profiler.push(layer.getClass().getSimpleName());
-            layer.init();
-            profiler.pop();
-        }
-        profiler.pop();
         profiler.end();
         stageProfileData.put(FixedProfileStage.INIT, profiler.getData());
 
@@ -160,6 +208,8 @@ public final class Game {
         profiler = new Profiler();
         profiler.begin("Update");
 
+        Collection<GameModule> modules = this.modules.instances();
+
         profiler.push("Pre-update modules");
         for (GameModule module : modules) {
             profiler.push(module.getClass().getSimpleName());
@@ -168,11 +218,9 @@ public final class Game {
         }
         profiler.pop();
 
-        profiler.push("Update layers");
-        for (Layer layer : layers) {
-            profiler.push(layer.getClass().getSimpleName());
-            layer.update(delta);
-            profiler.pop();
+        profiler.push("Update worlds");
+        for (World world : worlds) {
+            world.update(delta);
         }
         profiler.pop();
 
@@ -194,6 +242,8 @@ public final class Game {
         profiler = new Profiler();
         profiler.begin("Fixed update");
 
+        Collection<GameModule> modules = this.modules.instances();
+
         profiler.push("Pre-fixed-update modules");
         for (GameModule module : modules) {
             profiler.push(module.getClass().getSimpleName());
@@ -202,11 +252,9 @@ public final class Game {
         }
         profiler.pop();
 
-        profiler.push("Fixed-update layers");
-        for (Layer layer : layers) {
-            profiler.push(layer.getClass().getSimpleName());
-            layer.fixedUpdate();
-            profiler.pop();
+        profiler.push("Fixed-update worlds");
+        for (World world : worlds) {
+            world.fixedUpdate();
         }
         profiler.pop();
 
@@ -225,18 +273,17 @@ public final class Game {
     private void close() {
         // Not worth profiling here - nothing will be running to read
         // the results at this point!
-        for (int i = layers.size() - 1; i >= 0; i--) {
-            layers.get(i).close();
+
+        for (World world : worlds) {
+            world.close();
         }
 
-        for (GameModule module : modules) {
+        for (GameModule module : modules.instances()) {
             module.close();
         }
     }
 
-    public void run(String[] args) {
-        commandLineArgs = args;
-
+    public void run() {
         running = true;
         init();
 
@@ -256,6 +303,14 @@ public final class Game {
             if (unprocessedTime > maxFixedUpdateBacklog) {
                 unprocessedTime = maxFixedUpdateBacklog;
             }
+
+            profiler.push("Initialize new worlds");
+            for (World world : uninitializedWorlds) {
+                world.init();
+                worlds.add(world);
+            }
+            uninitializedWorlds.clear();
+            profiler.pop();
 
             profiler.push("Dispatch queued events");
             Event event;
@@ -293,8 +348,8 @@ public final class Game {
         close();
     }
 
-    public String[] getCommandLineArgs() {
-        return commandLineArgs.clone();
+    private void addWorld(World world) {
+        uninitializedWorlds.add(world);
     }
 
     // Queues an event to be dispatched next frame
@@ -306,12 +361,11 @@ public final class Game {
         Profiler temp = profiler;
         profiler = new Profiler();
         profiler.begin(event.getClass().getSimpleName());
-        for (int i = layers.size() - 1; i >= 0; i--) {
-            Layer layer = layers.get(i);
-            profiler.push(layer.getClass().getSimpleName());
-            layer.onEvent(event);
-            profiler.pop();
+
+        for (World world : worlds) {
+            world.postImmediateEvent(event);
         }
+
         profiler.end();
         eventProfileData.put(event.getClass(), profiler.getData());
         profiler = temp;
@@ -367,11 +421,7 @@ public final class Game {
         return inputManager;
     }
 
-    public Set<Class<? extends GameSystem>> getAllSystems() {
-        Set<Class<? extends GameSystem>> systems = new HashSet<>();
-        for (GameModule module : modules) {
-            systems.addAll(module.getSystems());
-        }
-        return systems;
+    public <T extends GameModule> T getModule(Class<T> type) {
+        return modules.getInstance(type);
     }
 }

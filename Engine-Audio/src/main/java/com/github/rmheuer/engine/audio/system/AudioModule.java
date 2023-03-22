@@ -2,25 +2,21 @@ package com.github.rmheuer.engine.audio.system;
 
 import com.github.rmheuer.engine.audio.AudioBackend;
 import com.github.rmheuer.engine.audio.openal.OpenALBackend;
-import com.github.rmheuer.engine.core.ecs.system.GameSystem;
+import com.github.rmheuer.engine.core.main.Game;
 import com.github.rmheuer.engine.core.module.GameModule;
-
-import java.util.Arrays;
-import java.util.Collection;
 
 public final class AudioModule implements GameModule {
     private AudioBackend backend;
 
     @Override
-    public Collection<Class<? extends GameSystem>> getSystems() {
-        return Arrays.asList(
-                AudioUpdateListenerSystem.class,
-                AudioUpdateSourcePositionSystem.class,
-                AudioQueueStreamingBuffersSystem.class,
-                AudioSourceLifetimeSystem.class,
-                AudioSourceUpdatePropertiesSystem.class,
-                AudioBeginPlaySystem.class
-        );
+    public void initializeWorld(Game.WorldBuilder builder) {
+        builder
+                .addSystem(AudioUpdateListenerSystem.class)
+                .addSystem(AudioUpdateSourcePositionSystem.class)
+                .addSystem(AudioQueueStreamingBuffersSystem.class)
+                .addSystem(AudioSourceLifetimeSystem.class)
+                .addSystem(AudioSourceUpdatePropertiesSystem.class)
+                .addSystem(AudioBeginPlaySystem.class);
     }
 
     @Override
