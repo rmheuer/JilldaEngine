@@ -8,7 +8,6 @@ import com.github.rmheuer.engine.core.ecs.system.group.PresentationGroup;
 import com.github.rmheuer.engine.core.main.Game;
 import com.github.rmheuer.engine.core.math.Vector2f;
 import com.github.rmheuer.engine.core.math.Vector2i;
-import com.github.rmheuer.engine.core.module.ModuleRegistry;
 import com.github.rmheuer.engine.core.transform.Transform;
 import com.github.rmheuer.engine.render.RenderBackend;
 import com.github.rmheuer.engine.render.Window;
@@ -26,7 +25,7 @@ public final class RenderFrameSystem implements GameSystem {
     @RunInGroup(PresentationGroup.class)
     public void update(World world, float delta) {
         RenderContext ctx = world.getLocalSingleton(RenderContext.class);
-        Window window = ModuleRegistry.getInstance(RenderModule.class).getWindow();
+        Window window = Game.get().getModule(RenderModule.class).getWindow();
         Vector2i size = window.getSize();
         Vector2i fbSize = window.getFramebufferSize();
 
