@@ -6,7 +6,7 @@ import com.github.rmheuer.engine.core.math.Ray3f;
 import com.github.rmheuer.engine.core.math.Vector3f;
 
 public final class OrthographicProjection implements Projection {
-    private static Bounds fromWidthHeight(int width, int height) {
+    private static Bounds fromWidthHeight(float width, float height) {
         float left = (float) -Math.floor(width / 2.0f);
         float right = (float) Math.ceil(width / 2.0f);
         float bottom = (float) Math.ceil(height / 2.0f);
@@ -17,13 +17,13 @@ public final class OrthographicProjection implements Projection {
     public enum ResizeRule {
         DYNAMIC {
             @Override
-            Bounds apply(Bounds prev, int width, int height) {
+            Bounds apply(Bounds prev, float width, float height) {
                 return fromWidthHeight(width, height);
             }
         },
         MAINTAIN_FIXED_WIDTH {
             @Override
-            Bounds apply(Bounds prev, int width, int height) {
+            Bounds apply(Bounds prev, float width, float height) {
                 int prevW = (int) (prev.right - prev.left);
                 float scale = (float) prevW / width;
 
@@ -32,7 +32,7 @@ public final class OrthographicProjection implements Projection {
         },
         MAINTAIN_FIXED_HEIGHT {
             @Override
-            Bounds apply(Bounds prev, int width, int height) {
+            Bounds apply(Bounds prev, float width, float height) {
                 int prevH = (int) (prev.bottom - prev.top);
                 float scale = (float) prevH / height;
 
@@ -40,7 +40,7 @@ public final class OrthographicProjection implements Projection {
             }
         };
 
-        abstract Bounds apply(Bounds prev, int width, int height);
+        abstract Bounds apply(Bounds prev, float width, float height);
     }
 
     private static final class Bounds {
@@ -61,7 +61,7 @@ public final class OrthographicProjection implements Projection {
 
     private ResizeRule resizeRule;
     private Bounds bounds;
-    private int screenWidth, screenHeight;
+    private float screenWidth, screenHeight;
 
     public OrthographicProjection() {
         this(ResizeRule.DYNAMIC);
@@ -78,7 +78,7 @@ public final class OrthographicProjection implements Projection {
     }
 
     @Override
-    public void resize(int width, int height) {
+    public void resize(float width, float height) {
         screenWidth = width;
         screenHeight = height;
 

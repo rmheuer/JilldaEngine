@@ -39,6 +39,8 @@ public final class RenderScreenSpace2DSystem implements GameSystem {
 
         RenderBackend.get().setDepthMode(DepthMode.DISABLED);
         RenderBackend.get().setStencilEnabled(false);
+        Vector2i fbSize = window.getFramebufferSize();
+        RenderBackend.get().setViewportRect(0, 0, fbSize.x, fbSize.y);
         renderer.setView(projection, new Matrix4f());
         renderer.draw(draw);
     }

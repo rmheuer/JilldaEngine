@@ -10,7 +10,7 @@ public final class PerspectiveProjection implements Projection {
     private float near;
     private float far;
 
-    private int screenWidth, screenHeight;
+    private float screenWidth, screenHeight;
 
     public PerspectiveProjection() {
         this(MathUtils.fPI / 2, 0.1f, 1000f);
@@ -38,7 +38,7 @@ public final class PerspectiveProjection implements Projection {
     }
 
     @Override
-    public void resize(int width, int height) {
+    public void resize(float width, float height) {
         screenWidth = width;
         screenHeight = height;
 

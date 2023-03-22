@@ -201,6 +201,16 @@ public abstract class GLFWWindow implements Window {
     }
 
     @Override
+    public Vector2i getFramebufferSize() {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer width = stack.mallocInt(1);
+            IntBuffer height = stack.mallocInt(1);
+            glfwGetFramebufferSize(window, width, height);
+            return new Vector2i(width.get(0), height.get(0));
+        }
+    }
+
+    @Override
     public void close() {
         Callbacks.glfwFreeCallbacks(window);
         glfwDestroyWindow(window);

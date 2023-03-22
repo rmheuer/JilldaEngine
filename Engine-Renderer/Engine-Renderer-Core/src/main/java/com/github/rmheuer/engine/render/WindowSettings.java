@@ -12,7 +12,7 @@ public final class WindowSettings {
         height = 600;
         title = "Game";
         resizable = true;
-        forceAspectRatio = true;
+        forceAspectRatio = false;
     }
 
     public int getWidth() {

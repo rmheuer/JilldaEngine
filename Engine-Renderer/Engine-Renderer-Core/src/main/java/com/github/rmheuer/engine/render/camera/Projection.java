@@ -6,7 +6,7 @@ import com.github.rmheuer.engine.core.math.Ray3f;
 public interface Projection {
     Matrix4f getMatrix();
 
-    void resize(int width, int height);
+    void resize(float width, float height);
 
     Ray3f pixelToRay(float pixelX, float pixelY);
 }

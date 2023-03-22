@@ -8,6 +8,8 @@ public interface Window {
     int getWidth();
     int getHeight();
     Vector2i getSize();
+
+    Vector2i getFramebufferSize();
     
     void close();
 }

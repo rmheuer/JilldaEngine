@@ -72,16 +72,31 @@ public final class Sandbox2dInitSystem implements GameSystem {
         }
 
         {
-            Camera camera = new Camera(new OrthographicProjection(OrthographicProjection.ResizeRule.MAINTAIN_FIXED_HEIGHT));
+            Camera camera1 = new Camera(new PerspectiveProjection())
+                    .setViewportMax(new Vector2f(0.5f, 1.0f));
+            Camera camera2 = new Camera(new PerspectiveProjection())
+                    .setViewportMin(new Vector2f(0.5f, 0.0f))
+                    .setViewportMax(new Vector2f(1f, 1.0f));
 //            Camera camera = new Camera(new PerspectiveProjection());
+
             Transform cameraTx = new Transform();
-//            cameraTx.setScale(new Vector3f(1/50.0f, 1/50.0f, 1));
             cameraTx.getPosition().z = 800;
 
-            world.getRoot().newChild(
-                    "Camera", camera, cameraTx,
+            Entity cameraHolder = world.getRoot().newChild(
+                    "Camera Holder",
+                    cameraTx,
                     new KeyboardControl(200, MathUtils.fPI),
                     new AudioListener()
+            );
+
+            float dist = 100;
+
+            cameraHolder.newChild(
+                    "Camera1", camera1, new Transform().setPosition(new Vector3f(-dist/2, 0, 0))
+            );
+
+            cameraHolder.newChild(
+                    "Camera2", camera2, new Transform().setPosition(new Vector3f(dist/2, 0, 0))
             );
         }
 

@@ -25,6 +25,11 @@ public class Subimage {
         return new Subimage(src, this.x + x, this.y + y, width, height);
     }
 
+    public Subimage getMirroredY() {
+        // FIXME: This is incorrect, doing it quickly for Ludum Dare
+        return new Subimage(src, x + width, y, -width, height);
+    }
+
     public Image getSourceImage() {
         return src;
     }

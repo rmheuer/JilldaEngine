@@ -17,8 +17,8 @@ public final class OpenGLBackend extends RenderBackend {
     }
 
     @Override
-    public void setViewportSize(int width, int height) {
-        gl.viewport(0, 0, width, height);
+    public void setViewportRect(int x, int y, int width, int height) {
+        gl.viewport(x, y, width, height);
     }
 
     @Override

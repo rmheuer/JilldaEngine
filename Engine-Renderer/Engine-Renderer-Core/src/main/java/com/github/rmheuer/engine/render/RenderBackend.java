@@ -22,7 +22,15 @@ public abstract class RenderBackend {
         instance = this;
     }
 
-    public abstract void setViewportSize(int width, int height);
+    /**
+     * Sets the viewport boundary rectangle for rendering.
+     *
+     * @param x x coordinate of the bottom-left corner in framebuffer pixel space, relative to the bottom left corner
+     * @param y y coordinate of the bottom-left corner in framebuffer pixel space, relative to the bottom left corner
+     * @param width width of the rectangle in framebuffer pixels
+     * @param height height of the rectangle in framebuffer pixels
+     */
+    public abstract void setViewportRect(int x, int y, int width, int height);
     public abstract void prepareFrame();
 
     public abstract void clear(BufferType... buffers);
