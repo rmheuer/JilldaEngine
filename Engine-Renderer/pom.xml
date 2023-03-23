@@ -151,6 +151,11 @@
       <artifactId>lwjgl-stb</artifactId>
       <classifier>natives-windows-arm64</classifier>
     </dependency>
+
+    <dependency>
+      <groupId>org.lwjgl</groupId>
+      <artifactId>lwjgl-vulkan</artifactId>
+    </dependency>
   </dependencies>
     <modules>
         <module>Engine-Renderer-Core</module>

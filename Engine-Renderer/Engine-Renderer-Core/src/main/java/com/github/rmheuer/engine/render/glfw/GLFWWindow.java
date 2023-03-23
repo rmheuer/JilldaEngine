@@ -55,8 +55,7 @@ public abstract class GLFWWindow implements Window {
             throw new RuntimeException("Failed to create window");
         }
 
-        glfwMakeContextCurrent(window);
-        initContext();
+        initContext(window);
 
         InputManager input = Game.get().getInputManager();
         input.registerSource(Mouse.class, new GLFWMouse(window));
@@ -98,7 +97,7 @@ public abstract class GLFWWindow implements Window {
 
     protected abstract void setContextWindowHints();
 
-    protected abstract void initContext();
+    protected abstract void initContext(long handle);
 
     private void windowCloseCallback(long window) {
         if (window != this.window)

@@ -10,6 +10,7 @@ import com.github.rmheuer.engine.render.Window;
 import com.github.rmheuer.engine.render.WindowSettings;
 import com.github.rmheuer.engine.render.opengl.OpenGLBackend;
 import com.github.rmheuer.engine.render.opengl.lwjgl.LwjglOpenGL;
+import com.github.rmheuer.engine.render.vulkan.VulkanBackend;
 
 public final class RenderModule implements GameModule {
     private NativeObjectManager nativeObjectManager;
@@ -24,7 +25,8 @@ public final class RenderModule implements GameModule {
     public void init() {
         // Will automatically set singleton instance
         // Might want to change later
-        RenderBackend backend = new OpenGLBackend(new LwjglOpenGL());
+//        RenderBackend backend = new OpenGLBackend(new LwjglOpenGL());
+        RenderBackend backend = new VulkanBackend();
 
         nativeObjectManager = new NativeObjectManager();
         window = backend.createWindow(new WindowSettings());

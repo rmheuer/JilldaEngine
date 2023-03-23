@@ -20,7 +20,8 @@ public final class OpenGLWindow extends GLFWWindow {
     }
 
     @Override
-    protected void initContext() {
+    protected void initContext(long handle) {
+        glfwMakeContextCurrent(handle);
 	    GL.createCapabilities();
     }
 }

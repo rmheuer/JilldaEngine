@@ -8,6 +8,7 @@ import com.github.rmheuer.engine.render.shader.ShaderType;
 import com.github.rmheuer.engine.render.texture.CubeMap;
 import com.github.rmheuer.engine.render.texture.Image;
 
+// FIXME: Should have a close method
 public abstract class RenderBackend {
     private static RenderBackend instance;
 
