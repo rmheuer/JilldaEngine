@@ -2,7 +2,7 @@
 
 in vec4 v_Color;
 in vec2 v_TexCoord;
-in float v_TextureSlot;
+flat in float v_TextureSlot;
 
 uniform sampler2D u_Textures[16];
 
